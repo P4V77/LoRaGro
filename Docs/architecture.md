@@ -1,22 +1,25 @@
 # LoRaGro Firmware Architecture
 
-**Version:** 0.1 (Early Development)  
-**Last Updated:** December 2025  
+**Version:** 0.1 (Early Development)
+**Last Updated:** December 2025
 **Status:** 🔨 Phase 1 – Foundation & Prototyping
 
 ---
 
 ## Overview
 
-This document describes the firmware and system architecture of the **LoRaGro** platform. LoRaGro is an open-source, modular LoRa-based agricultural IoT system designed for long-term, low-power monitoring of crops, soil, and microclimate conditions.
+This document describes the firmware and system architecture of the **LoRaGro** platform. 
+LoRaGro is an open‑source, modular LoRa‑based agricultural IoT system designed for long‑term, low‑power monitoring of crops, soil, and microclimate conditions.
 
-**Target audience:**
-- Contributors and firmware developers
-- Hardware designers planning sensor integrations
-- Anyone wanting to understand how LoRaGro works internally
+**Target audience**
 
-LoRaGro follows a **firmware-first, configuration-driven architecture** built on Zephyr RTOS.  
-All sensing deployments (field, orchard, vineyard, greenhouse, coastal) are implemented as **configuration profiles of a single sensing node**, not separate node types.
+* Contributors and firmware developers
+* Hardware designers planning sensor integrations
+* Anyone wanting to understand how LoRaGro works internally
+
+LoRaGro follows a **firmware‑first, hardware‑driven architecture** built on Zephyr RTOS.
+All sensing deployments—field, orchard, vineyard, greenhouse, and coastal—use the **same FiNo firmware**. 
+Node behavior is not selected by predefined roles or explicit profiles, but **emerges from the set of sensors detected at startup**.
 
 ---
 
@@ -25,7 +28,7 @@ All sensing deployments (field, orchard, vineyard, greenhouse, coastal) are impl
 1. [System Overview](#1-system-overview)
 2. [Architectural Principles](#2-architectural-principles)
 3. [Node Roles](#3-node-roles)
-4. [Configuration Profiles](#4-configuration-profiles)
+4. [Sensor‑Derived Configuration](#4-sensor-derived-configuration)
 5. [Repository Structure](#5-repository-structure)
 6. [Firmware Architecture](#6-firmware-architecture)
 7. [Data Model & Protocol](#7-data-model--protocol)
@@ -38,22 +41,23 @@ All sensing deployments (field, orchard, vineyard, greenhouse, coastal) are impl
 
 ## 1. System Overview
 
-### 1.1 High-Level Topology
+### 1.1 High‑Level Topology
 
+```
 ┌─────────────┐
 │ FiNo        │
-│ (Sensing    │
-│ Node)       │
-│  			  │
+│ Sensing     │
+│ Node        │
+│             │
 │ Sensors     │
-│ LoRa TX 	  │
+│ LoRa TX     │
 └──────┬──────┘
-  	   │
-	   │ LoRa 868 / 915 MHz
-	   │
+       │
+       │ LoRa 868 / 915 MHz
+       │
 ┌──────▼──────┐
 │ GaNo        │
-│ (Gateway)   │
+│ Gateway     │
 │             │
 │ LoRa RX/TX  │
 │ IP Network  │
@@ -62,11 +66,12 @@ All sensing deployments (field, orchard, vineyard, greenhouse, coastal) are impl
 └──────┬──────┘
        │
        ▼
-Backend / App
+  Backend / App
+```
 
+All sensing nodes run the same **FiNo firmware binary**. Differences in behavior—sampling rate, enabled measurements, power policy, and operational assumptions—are a direct consequence of **which sensors are present**.
 
-All sensing nodes share the same **FiNo firmware**.  
-Behavioral differences (sampling rate, sensors, power assumptions) are defined via **configuration profiles**.
+At boot, FiNo automatically discovers available hardware using **Devicetree**, initializes only the detected sensors, and enables the corresponding functionality. There are no firmware forks, role switches, or deployment‑specific binaries.
 
 ---
 
@@ -74,38 +79,41 @@ Behavioral differences (sampling rate, sensors, power assumptions) are defined v
 
 ### 2.1 One Firmware, Many Deployments
 
-LoRaGro intentionally avoids creating artificial node variants.
+LoRaGro intentionally avoids artificial node variants.
 
-- One sensing firmware: **FiNo**
-- One gateway firmware: **GaNo**
-- Many deployment profiles via configuration
+* One sensing firmware: **FiNo**
+* One gateway firmware: **GaNo**
+* Many real‑world deployments derived from hardware
 
-This keeps:
-- Code size minimal
-- Power behavior predictable
-- Maintenance manageable over time
+This approach keeps:
 
----
-
-### 2.2 Configuration over Roles
-
-Differences between deployments are expressed using:
-
-- Devicetree overlays (hardware presence)
-- Kconfig / `prj.conf` options
-- Sampling and power policies stored in NVS
-
-There is **no runtime role switching**.
-
-Benefits:
-- No dead code
-- Smaller binaries
-- Deterministic execution paths
-- Easier power optimization
+* Code size minimal
+* Execution paths deterministic
+* Power behavior predictable
+* Long‑term maintenance manageable
 
 ---
 
-### 2.3 Devicetree-Driven Modularity
+### 2.2 Hardware‑Driven Configuration
+
+Behavioral differences between deployments are expressed through:
+
+* Devicetree overlays (hardware presence)
+* Kconfig / `prj.conf` (capabilities and limits)
+* Policy parameters stored in NVS (sampling, power)
+
+There is **no runtime role switching** and no hard‑coded deployment modes.
+
+**Benefits**
+
+* No dead code
+* Smaller binaries
+* Easier verification
+* Better power optimization
+
+---
+
+### 2.3 Devicetree‑Driven Modularity
 
 All sensors are declared in Devicetree and discovered at boot.
 
@@ -116,9 +124,9 @@ All sensors are declared in Devicetree and discovered at boot.
         reg = <0x76>;
     };
 };
+```
 
-
-## Runtime Discovery
+#### Runtime Discovery
 
 ```c
 const struct device *bme280 = DEVICE_DT_GET_OR_NULL(DT_NODELABEL(bme280));
@@ -129,9 +137,9 @@ if (bme280 && device_is_ready(bme280)) {
 
 This enables:
 
-* Plug-and-play sensors
-* Greenhouse features without firmware forks
-* Clean separation of hardware and logic
+* Plug‑and‑play sensors
+* Greenhouse deployments without firmware forks
+* Clean separation of hardware description and application logic
 
 ---
 
@@ -140,7 +148,7 @@ This enables:
 ### 3.1 FiNo — Sensing Node
 
 **Primary mission**
-Low-power environmental data acquisition and LoRa uplink.
+Low‑power environmental data acquisition and LoRa uplink.
 
 **Responsibilities**
 
@@ -151,25 +159,25 @@ Low-power environmental data acquisition and LoRa uplink.
 
 **Target characteristics**
 
-* Battery life: up to **12 months** (battery-only profiles)
-* Average current: **<10 µA** (field profiles)
+* Battery life: up to **12 months** (battery‑only deployments)
+* Average current: **<10 µA** (field‑oriented setups)
 * Flash usage: **<256 KB**
 * RAM usage: **<32 KB**
 
-**FiNo is used in**
+**Typical deployment environments**
 
 * Open fields
 * Orchards
 * Vineyards
 * Greenhouses
-* Coastal / saline environments
+* Coastal / saline areas
 
 ---
 
 ### 3.2 GaNo — Gateway Node
 
 **Primary mission**
-Bridge the LoRa network to IP infrastructure.
+Bridge the LoRa network to IP‑based infrastructure.
 
 **Responsibilities**
 
@@ -181,7 +189,7 @@ Bridge the LoRa network to IP infrastructure.
 
 **Power options**
 
-* USB-C / mains
+* USB‑C / mains
 * Optional solar for remote locations
 
 **Status**
@@ -189,11 +197,13 @@ Planned for **Phase 2**
 
 ---
 
-## 4. Configuration Profiles
+## 4. Sensor‑Derived Configuration
 
-Configuration profiles define **what FiNo does**, not **what it is**.
+LoRaGro does not define configuration profiles as first‑class entities. Instead, **behavior emerges from detected hardware**.
 
-### 4.1 Field-Oriented Profiles
+The following groupings are conceptual and describe common sensor combinations seen in practice.
+
+### 4.1 Field‑Oriented Setups
 
 * **BASIC**
   Soil moisture, soil temperature, air T/H/P
@@ -205,15 +215,15 @@ Configuration profiles define **what FiNo does**, not **what it is**.
   ORCHARD + leaf wetness
 
 * **COASTAL**
-  RS485 soil probe (moisture + temperature + EC)
+  RS‑485 soil probe (moisture, temperature, EC)
 
-These profiles prioritize **ultra-low power** operation.
+These setups prioritize **ultra‑low power operation**.
 
 ---
 
-### 4.2 Greenhouse Profile
+### 4.2 Greenhouse‑Oriented Setup
 
-The **GREENHOUSE** profile is a FiNo configuration optimized for controlled environments.
+A greenhouse deployment is a FiNo node with additional sensors and different power assumptions.
 
 **Typical additions**
 
@@ -221,7 +231,7 @@ The **GREENHOUSE** profile is a FiNo configuration optimized for controlled envi
 * Ambient light sensor (BH1750 / OPT3001)
 * Higher sampling rate (1–5 minutes)
 
-**Key differences**
+**Key characteristics**
 
 * Power efficiency is secondary to data resolution
 * Mains power is common (battery as backup)
@@ -233,7 +243,7 @@ No architectural changes are required to support greenhouse deployments.
 
 ## 5. Repository Structure
 
-### 5.1 Top-Level Layout
+### 5.1 Top‑Level Layout
 
 ```
 LoRaGro/
@@ -280,7 +290,7 @@ void main(void) {
 ```
 
 This loop is **identical for all deployments**.
-Only configuration determines behavior.
+Only detected hardware and policy parameters influence behavior.
 
 ---
 
@@ -297,14 +307,14 @@ struct lg_measurement {
 };
 ```
 
-Greenhouse-specific sensors (CO₂, light) are treated the same as field sensors.
+Greenhouse‑specific sensors (CO₂, light) are treated identically to field sensors.
 
 ---
 
 ### 7.2 LoRa Packet Overview
 
 * Compact binary format
-* CBOR-encoded payload
+* CBOR‑encoded payload
 * Batched measurements
 * Optimized for low airtime
 
@@ -312,19 +322,19 @@ Greenhouse-specific sensors (CO₂, light) are treated the same as field sensors
 
 ## 8. Power Management
 
-Power behavior is **profile-dependent**:
+Power behavior is **hardware‑ and policy‑dependent**:
 
-* Field profiles → aggressive deep sleep
-* Greenhouse profile → higher duty cycle
+* Field‑oriented setups → aggressive deep sleep
+* Greenhouse‑oriented setups → higher duty cycle
 
 **Key idea**
-Power management is a **policy layer**, not a role distinction.
+Power management is a **policy layer**, not a node role.
 
 ---
 
 ## 9. Development Approach
 
-### 9.1 Simulation-First
+### 9.1 Simulation‑First
 
 Supported targets:
 
@@ -332,7 +342,7 @@ Supported targets:
 * `nrf52_bsim`
 * `promicro_nrf52840`
 
-Simulation behavior is identical across profiles.
+Simulation behavior is identical across all hardware configurations.
 
 ---
 
@@ -371,6 +381,5 @@ Simulation behavior is identical across profiles.
 ## Document History
 
 | Version | Date          | Changes                       |
-| ------- | ------------- | ----------------------------- |
-| 0.1     | December 2025 | Initial architecture document |
-
+| ------: | ------------- | ----------------------------- |
+|     0.1 | December 2025 | Initial architecture document |
