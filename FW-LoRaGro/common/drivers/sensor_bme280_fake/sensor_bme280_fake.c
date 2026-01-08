@@ -88,7 +88,7 @@ static int bme280_fake_init(const struct device *dev)
     return 0;
 }
 
-#define SENSOR_BME280_FAKE_DEFINE(inst)                                       \
+#define SENSOR_BME280_FAKE_DEFINE(inst)                                \
     static struct bme280_fake_data data_##inst;                        \
     static const struct bme280_fake_config config_##inst = {           \
         .vdd = DEVICE_DT_GET(DT_INST_PHANDLE(inst, vdd_supply))};      \
