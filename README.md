@@ -5,10 +5,9 @@
 ![Platform](https://img.shields.io/badge/platform-Zephyr%20RTOS-orange)
 ![Hardware](https://img.shields.io/badge/hardware-nRF52840-blue)
 
-**Modular LoRa-Based Agricultural IoT Platform with Solar-Powered, Energy-Autonomous Nodes**
+**Solar-Powered Agricultural IoT Platform with Modular LoRa Nodes**
 
-LoRaGro is an open-source, modular agricultural IoT platform that enables long-term, low-power monitoring of crops, soil, and microclimate conditions. With solar charging, 
-nodes can operate indefinitely. On battery alone, expect 6–12 months of autonomous operation from a single 18650 cell.
+LoRaGro is an open-source agricultural monitoring platform for long-term, autonomous crop and soil sensing. Solar-powered nodes run indefinitely, or 6–12 months on battery alone.
 
 ```
 [FiNo Node] ──LoRa──> [GaNo Gateway] ──WiFi/Ethernet──> [Server/App]
@@ -18,8 +17,21 @@ nodes can operate indefinitely. On battery alone, expect 6–12 months of autono
   Waterproof             Buffering                       Alerts
 ```
 
-> **🚧 Project Status:** Active firmware development (Phase 1)  
-> Hardware PCB design coming in Phase 2 (months 7-8)
+> **🚧 Project Status:** Phase 1 (Firmware Development)  
+> Hardware PCB design coming in Phase 2
+
+---
+
+## ✨ Why LoRaGro?
+
+- **Energy autonomous** — Solar + battery for indefinite operation
+- **Long battery life** — 6-12 months on single 18650 (battery-only)
+- **Fully modular** — Add or remove sensors as needed
+- **Plug-and-play sensors** — Auto-detected via Devicetree
+- **Single firmware** — One codebase for all node types
+- **Open source** — Apache 2.0 firmware, CERN-OHL hardware
+- **LoRa connectivity** — Long range (2-10 km), no cellular needed for sensore nodes
+- **Weatherproof** — IP67 enclosure (planned)
 
 ---
 
@@ -43,256 +55,329 @@ nodes can operate indefinitely. On battery alone, expect 6–12 months of autono
    - Sensors (see [hardware requirements](docs/hardware-requirements.md))
 
 4. **Join the community:**
-   - GitHub Issues: [Report bugs/suggestions](https://github.com/yourusername/loragro/issues)
-   - Discord: [Coming soon]
+   - [GitHub Issues](https://github.com/yourusername/loragro/issues)
+   - Discord: Coming soon
 
 ---
 
-## ✨ Key Features
+## 🧩 System Overview
 
-- ✅ **Energy autonomous** — Solar + battery operation for indefinite runtime
-- ✅ **Ultra-low power** — 6-12 months on single 18650 (battery-only mode)
-- ✅ **Modular sensors** — Plug-and-play, auto-detected via Devicetree
-- ✅ **Single platform** — One firmware codebase for all node types
-- ✅ **Open source** — Apache 2.0 firmware, CERN-OHL hardware
-- ✅ **LoRa connectivity** — Long range, low power, no cellular needed
-- ✅ **Waterproof** — IP67 enclosure (planned) for outdoor deployment
-- ✅ **Real-time monitoring** — Mobile app with alerts (planned)
+### Node Types
 
----
-
-## 🌱 Platform Philosophy
-
-**One platform. Multiple roles. Maximum flexibility.**
-
-- **One firmware codebase** — Zephyr RTOS powers all nodes
-- **One core hardware design** — nRF52840 + SX1262 foundation
-- **Multiple node roles** — Configured via peripherals and settings
-- **Sensor auto-detection** — Devicetree-driven, plug-and-play
-- **Firmware-first approach** — Iterate quickly, commit hardware later
-
-This architecture enables:
-- Rapid prototyping and testing
-- Clean, maintainable codebase
-- Easy addition of new sensor types
-- Cost-effective scaling
-
----
-
-## 🧩 Node Types
-
-| Node Type | Purpose | Power Source | Typical Location | Status |
-|-----------|---------|--------------|------------------|--------|
-| **FiNo** | Field sensing | Battery + solar | Outdoor fields, orchards | 🔨 Active dev |
-| **GaNo** | Data gateway | Mains powered | Farm buildings | 📅 Planned (Phase 2) |
+| Node | Purpose | Power | Location | Status |
+|------|---------|-------|----------|--------|
+| **FiNo** | Field sensing | Battery + solar | Outdoor | 🔨 Active dev |
+| **GaNo** | Data gateway | Mains | Farm buildings | 📅 Planned |
 
 ### FiNo — Field Node
 
-Low-power sensing node for agricultural environments.
+Autonomous sensing node for agricultural monitoring.
 
-**Key specifications:**
-- **Power:** Single 18650 Li-ion (3000-6000mAh) + optional 5W solar panel
-- **Battery life (battery-only):**
-  - BASIC config: ~12 months (15-min readings)
-  - ORCHARD config: ~10 months (adds rain gauge)
-  - VINEYARD config: ~8 months (adds leaf wetness)
-- **Solar operation:** Indefinite runtime with adequate sunlight (>4h/day)
-- **Enclosure:** IP67 waterproof (planned)
-- **Communication:** LoRa uplink (868MHz EU / 915MHz US)
-- **Range:** 2-10 km (depending on terrain)
+**Power:**
+- Primary: Single 18650 Li-ion (3000mAh)
+- Optional: 5W solar panel for indefinite runtime
+- Battery life: 6-12 months depending on configuration
 
-**Fully modular** — sensors detected automatically at boot.
+**Communication:**
+- LoRa uplink (868MHz EU / 915MHz US)
+- Range: 2-10 km depending on terrain
+- Optional: BLE for commissioning
 
----
+**Enclosure:** IP67 waterproof (planned)
+
+**Key feature:** Fully modular — add or remove sensors based on your needs.
 
 ### GaNo — Gateway Node
 
-LoRa-to-IP bridge for data collection and forwarding.
+LoRa-to-IP bridge for data collection.
 
-**Responsibilities:**
+**Functions:**
 - Collects data from FiNo nodes
-- Bridges LoRa → Ethernet/WiFi/LTE
-- Time synchronization
-- Data buffering
+- Bridges LoRa → WiFi/Ethernet/LTE
+- Time synchronization and data buffering
 - Optional edge processing
 
-**Power:** Mains-powered for 24/7 reliability.
+**Power:** Mains-powered for 24/7 operation
 
 ---
 
-## 📦 FiNo Sensor Configurations
+## 📦 Sensor Configurations
 
-FiNo hardware is modular. Sensors are auto-detected at boot using Devicetree overlays.
+### Modular Design Philosophy
 
-### Configuration Comparison
+**LoRaGro is fully modular.** Sensors are:
+- Auto-detected at boot via Devicetree
+- Hot-swappable between configurations
+- Optional in any configuration
 
-| Feature | BASIC ⭐⭐⭐⭐⭐ | ORCHARD ⭐⭐⭐⭐ | VINEYARD ⭐⭐⭐⭐ | COASTAL ⭐⭐⭐⭐ |
-|---------|---------|----------|-----------|----------|
-| **Soil moisture** | ✅ Capacitive | ✅ Capacitive | ✅ Capacitive | ✅ RS485 (pro) |
-| **Soil temperature** | ✅ DS18B20 | ✅ DS18B20 | ✅ DS18B20 | ✅ RS485 (pro) |
-| **Air temp/humidity** | ✅ BME280 | ✅ BME280 | ✅ BME280 | ✅ BME280 |
-| **Air pressure** | ✅ BME280 | ✅ BME280 | ✅ BME280 | ✅ BME280 |
-| **Rain gauge** | ❌ | ✅ Tipping bucket | ✅ Tipping bucket | ❌ |
-| **Leaf wetness** | ❌ | ❌ | ✅ Resistive | ❌ |
-| **Soil EC (salinity)** | ❌ | ❌ | ❌ | ✅ RS485 |
-| **Battery life** | 12 months | 10 months | 8 months | 12 months |
-| **Est. BOM cost** | $35-45 | $45-55 | $65-80 | $70-90 |
-| **Target price** | $60-80 | $75-100 | $90-125 | $100-130 |
+**All configurations start with capacitive humidity sensors as the foundation.** Where your operation requires it, you can upgrade to a professional RS485 probe, which provides enhanced moisture precision and adds salinity and soil temperature measurement.
 
 ---
 
-### BASIC — Universal Configuration ⭐⭐⭐⭐⭐
+### FIELD BASIC Configuration ⭐⭐⭐⭐⭐
 
-**Sensors included:**
-- Capacitive soil moisture (ADC)
-- Soil temperature — DS18B20 (1-Wire)
-- Air temperature, humidity, pressure — BME280 (I²C)
-- Battery voltage monitoring (built-in ADC)
+**Purpose:** Universal foundation for agricultural monitoring
 
-**What it does:**
-- ✅ Tells you when to irrigate (soil moisture)
-- ✅ Warns about frost (air temperature drops)
-- ✅ Predicts disease risk (humidity + temperature)
-- ✅ Monitors soil warmth for planting timing
-- ✅ Tracks weather patterns (pressure trends)
+**Core sensors:**
+- **Soil moisture** — Capacitive sensor (ADC)
+- **Soil temperature** —   (1-Wire)
+- **Air temp/humidity/pressure** — BME280 (I²C)
+- **Battery monitoring** — Built-in ADC
+
+**What it measures:**
+- When to irrigate (soil moisture)
+- Frost warnings (air temperature)
+- Disease risk (humidity + temperature)
+- Planting timing (soil warmth)
+- Weather patterns (pressure trends)
+
+**Battery life:** ~12 months  
+**Est. BOM cost:** $35-45  
+**Target price:** $60-80
 
 **Best for:**
 - Field crops (wheat, corn, soybeans)
 - Vegetables (tomatoes, peppers, lettuce)
-- Small orchards (apples, peaches)
-- Vineyards (basic tier)
+- Small orchards and vineyards
 - Pasture management
 - Home gardens
+- Any application where basic "wet vs dry" is sufficient
 
-**Target market:** 70-80% of farmers
+**Target market:** 60-70% of all deployments
 
 ---
 
 ### ORCHARD Configuration ⭐⭐⭐⭐
 
-**Everything in BASIC, plus:**
-- Rain gauge — Tipping bucket (GPIO)
+**Foundation: FIELD BASIC sensors, plus:**
+- **Rain gauge** — Tipping bucket (GPIO interrupt)
 
-**Why farmers need it:**
-- Skip irrigation when it just rained (save water + money)
-- Track on-site rainfall (more accurate than distant weather stations)
-- Disease models require rainfall data
-- Insurance claims documentation
+**Why add rain tracking:**
+- Skip irrigation when it rains (save water and money)
+- More accurate than distant weather stations
+- Disease modeling requires rainfall data
+- Insurance documentation
+
+**Optional upgrade to Premium:**
+- Replace capacitive moisture + DS18B20 with **RS485 3-in-1 probe** (+$60-100)
+- **Recommended for:** Commercial orchards with fertigation systems or salinity concerns
+- **Skip if:** Running basic drip irrigation with good soil quality
+
+**Battery life:** ~10 months  
+**Est. BOM cost:** 
+- Basic: $45-60
+- Premium: $100-145  
+**Target price:** 
+- Basic: $75-110
+- Premium: $155-220
 
 **Best for:**
 - Apple, peach, citrus, stone fruit orchards
-- Vineyards with irrigation
-- Vegetable farms with precise water management
+- Vineyards with irrigation systems
+- Vegetable farms with precision water management
 
 **Target market:** 15% of farmers
 
 ---
 
-### GREENHOUSE Configuration ⭐⭐⭐⭐
-
-**Purpose:** High-resolution, controlled-environment monitoring for greenhouses, polytunnels, and indoor grow rooms where light, CO₂, and ventilation directly affect yield and quality.
-
-**Everything in BASIC, plus:**
-- **CO₂ concentration** — SCD30 / SCD41 (I²C)
-- **Ambient light (PAR proxy)** — BH1750 (I²C)
-- **Optional soil moisture (multi-point)** — Capacitive probes (ADC, 2–4 channels)
-- **Optional relay/IO expansion** — Vent/fan/irrigation status sensing (GPIO, read-only in Phase 1)
-
-**Why growers need it:**
-- Optimize **photosynthesis** by keeping CO₂ in the optimal range
-- Balance **light vs. temperature** to prevent plant stress
-- Detect **ventilation failures** early (CO₂ rising too fast)
-- Improve **fertigation timing** with tighter moisture feedback
-- Increase yield consistency in intensive production
-
-**Typical metrics collected:**
-- Air temperature & humidity
-- Barometric pressure
-- CO₂ ppm (trend + thresholds)
-- Light level (lux as PAR proxy)
-- Soil moisture (zone-based, optional)
-- Battery voltage (if battery-backed)
-
-**Power profile:**
-- **Primary:** Mains or dedicated 5V supply
-- **Backup:** Single 18650 (graceful brownout handling)
-- **Battery-only (backup mode):** ~3–6 months (higher sensor duty cycle)
-
-**Communication:**
-- **Primary:** LoRa uplink to GaNo
-- **Optional:** Local BLE for commissioning and diagnostics
-
-**Best for:**
-- Greenhouses & polytunnels
-- Hydroponics / aquaponics
-- Indoor vertical farms
-- Seedling nurseries
-- Research & trial plots
-
-**Recommended sampling intervals:**
-- CO₂ / Air T&H: every 1–5 minutes
-- Light level: every 1–5 minutes (daytime adaptive)
-- Soil moisture: every 10–15 minutes
-
-**Alerts & automation hooks (planned):**
-- CO₂ too high/low → ventilation alert
-- Excess heat under high light → shading alert
-- Prolonged humidity → disease risk warning
-- Optional IO hooks for external controllers (Phase 3)
-
-**Estimated BOM impact:**
-- +$20–35 (CO₂ + light sensors)
-- **Target node price:** $90–120
-
-**Target market:**  
-High-value, intensive growers (≈10–15% of deployments)
-
-> _Note:_ GREENHOUSE configuration prioritizes data density over ultra-low power. When mains power is available, duty cycles can be increased significantly without impacting reliability.
-
----
-
 ### VINEYARD Configuration ⭐⭐⭐⭐
 
-**Everything in ORCHARD, plus:**
-- Leaf wetness sensor — Resistive probe (ADC)
+**Foundation: FIELD BASIC sensors, plus:**
+- **Rain gauge** — Tipping bucket (GPIO interrupt)
+- **Leaf wetness** — Resistive probe (ADC)
 
-**Why farmers need it:**
+**Why track leaf wetness:**
 - Disease prediction (fungal infections need wet leaves)
-- Spray timing optimization (don't spray when leaves are wet)
-- Dew/frost detection (more accurate than humidity alone)
+- Spray timing optimization (don't spray when wet)
+- Dew/frost detection (more accurate than humidity)
 
-**Disease prevention for:**
+**Prevents diseases:**
 - Powdery mildew, downy mildew (grapes)
 - Apple scab, rust
 - Tomato late blight
 - Cucurbit downy mildew
 
-**Target market:** 3-5% of farmers (high-value crops!)
+**Optional upgrade to Premium:**
+- Replace capacitive moisture + DS18B20 with **RS485 3-in-1 probe** (+$60-100)
+- **Recommended for:** Premium wine grapes, organic vineyards tracking soil health
+- **Skip if:** Standard table grapes or basic disease monitoring is your primary goal
+
+**Battery life:** ~8 months  
+**Est. BOM cost:** 
+- Basic: $65-85
+- Premium: $120-165  
+**Target price:** 
+- Basic: $95-135
+- Premium: $175-250
+
+**Best for:** High-value crops requiring disease management
+
+**Target market:** 3-5% of farmers
+
+---
+
+### GREENHOUSE Configuration ⭐⭐⭐⭐
+
+**Foundation: FIELD BASIC sensors, plus:**
+- **CO₂ concentration** — SCD30 or SCD41 (I²C)
+- **Light level (PAR proxy)** — BH1750 (I²C)
+- **Optional:** Multi-zone soil moisture (2-4 probes)
+- **Optional:** Relay/IO expansion for monitoring vent/fan status
+
+**Why these sensors matter:**
+- Optimize photosynthesis (CO₂ in ideal range)
+- Balance light vs. temperature (prevent plant stress)
+- Detect ventilation failures early (CO₂ rising)
+- Improve fertigation timing (moisture feedback)
+
+**Optional upgrade to Premium:**
+- Replace capacitive moisture + DS18B20 with **RS485 3-in-1 probe** (+$60-100)
+- **Recommended for:** Hydroponic/aquaponic systems with active fertigation
+- **Skip if:** Growing in soil/coco with basic irrigation
+
+**Power:**
+- Primary: Mains or dedicated 5V supply
+- Backup: Single 18650 (graceful brownout handling)
+- Battery-only backup: 3-6 months
+
+**Sampling intervals:**
+- CO₂ / Air T&H: every 1-5 minutes
+- Light: every 1-5 minutes (daytime adaptive)
+- Soil moisture: every 10-15 minutes
+
+**Alerts (planned):**
+- CO₂ too high/low → ventilation alert
+- Excess heat under high light → shading alert
+- Prolonged humidity → disease risk
+
+**Battery life:** 3-6 months (backup mode)  
+**Est. BOM cost:** 
+- Basic: $65-90
+- Premium: $120-175  
+**Target price:** 
+- Basic: $100-150
+- Premium: $180-260
+
+**Best for:**
+- Greenhouses and polytunnels
+- Hydroponics / aquaponics
+- Indoor vertical farms
+- Seedling nurseries
+- Research plots
+
+**Target market:** 10-15% of deployments
 
 ---
 
 ### COASTAL / ARID Configuration ⭐⭐⭐⭐
 
-**Replaces basic soil sensors with:**
-- RS485 Modbus 3-in-1 professional probe
+**Foundation: FIELD BASIC air sensors, but:**
+- **RS485 3-in-1 Modbus probe REQUIRED** (not optional)
   - Soil moisture
   - Soil temperature
-  - Electrical conductivity (EC)
+  - Electrical conductivity (EC/salinity)
+- **Air temp/humidity/pressure** — BME280 (I²C)
+- **Battery monitoring** — Built-in ADC
 
-**Why farmers need it:**
-- Salinity monitoring (coastal salt intrusion, arid soils)
-- Professional-grade accuracy
-- Lower maintenance (one probe vs. two sensors)
-- Pore water EC calculation (moisture-compensated salinity)
+**Why RS485 probe is required (not optional):**
+- Salinity monitoring is the primary use case
+- EC measurement is essential, not a nice-to-have
+- Basic sensors can't measure EC at all
+- You're deploying specifically to monitor salt levels
+
+**What it monitors:**
+- Salt intrusion from coastal flooding
+- Soil salinity in arid environments
+- Soil remediation progress
+- Safe thresholds for crop tolerance
+- Irrigation water quality impact
+
+**Battery life:** ~12 months  
+**Est. BOM cost:** $90-130  
+**Target price:** $140-200
 
 **Best for:**
-- Coastal farms with salt intrusion issues
+- Coastal farms (salt intrusion issues)
 - Arid/desert agriculture (saline soils)
-- Greenhouse operations (fertigation management)
-- Organic farms (soil health monitoring)
-- Research stations
+- Reclaimed land management
+- Soil remediation projects
+- Research in marginal lands
 
 **Target market:** 5-8% of farmers
+
+> **Note:** This is the only configuration where the Premium sensor is required by default, because EC monitoring is the reason you'd choose this configuration.
+
+---
+
+## 🔄 Upgrade Path: Basic to Premium
+
+**All configurations start with FIELD BASIC sensors.** Here's when to upgrade:
+
+### The RS485 3-in-1 Probe Premium Upgrade
+
+**What you get:**
+- Soil moisture (±3% accuracy vs ±5-10%)
+- Soil temperature (±0.5°C vs ±2°C)
+- Electrical conductivity / salinity (not available in basic)
+
+**Investment:** +$60-100 per node
+
+**Worth upgrading when:**
+- ✅ You **need** EC/salinity data (primary reason to upgrade)
+- ✅ Running fertigation systems (nutrient management)
+- ✅ High-value crops >$5,000/hectare (precision matters)
+- ✅ Commercial operations with 5+ nodes
+- ✅ Coastal or arid environments
+- ✅ Research-grade data needed
+
+**Stick with basic when:**
+- ✅ Field crops (wheat, corn, soybeans)
+- ✅ Simple "wet vs dry" irrigation decisions
+- ✅ Good soil quality (no salinity issues)
+- ✅ Small farms or hobby operations
+- ✅ Budget-conscious deployments
+- ✅ Testing LoRaGro before scaling up
+
+### Configuration-Specific Recommendations
+
+| Configuration | Basic Recommended? | Premium Upgrade Worth It? |
+|--------------|-------------------|--------------------------|
+| **FIELD BASIC** | ✅ Perfect as-is | Only if you need EC monitoring |
+| **ORCHARD** | ✅ Great for most | Upgrade if fertigation or salinity concerns |
+| **VINEYARD** | ✅ Disease focus, basic is fine | Upgrade for premium wines, organic certification |
+| **GREENHOUSE** | ✅ CO₂/light are priorities | Upgrade only for hydro/aquaponic fertigation |
+| **COASTAL/ARID** | ❌ Premium required | EC monitoring is mandatory, not optional |
+
+---
+
+## 🔄 Mix and Match Examples
+
+**Remember: Sensors are modular!** 
+
+**Budget-conscious builds:**
+- FIELD BASIC standalone ($60-80)
+- ORCHARD with basic sensors ($75-110)
+- VINEYARD with basic sensors ($95-135)
+- GREENHOUSE with basic sensors ($100-150)
+
+**Professional builds:**
+- FIELD BASIC → Premium upgrade ($140-200)
+- ORCHARD → Premium upgrade ($155-220)
+- VINEYARD → Premium upgrade ($175-250)
+- GREENHOUSE → Premium upgrade ($180-260)
+
+**Custom combinations:**
+- FIELD BASIC + rain gauge only (budget orchard, no leaf wetness)
+- ORCHARD basic + CO₂ sensor (enclosed orchard with canopy management)
+- GREENHOUSE without CO₂ (cost-optimized polytunnel)
+- Start basic, add rain gauge later, upgrade to premium probe in year 2
+
+**Deployment strategy for large farms:**
+- Use Premium nodes in critical zones (near irrigation heads, problem areas)
+- Use Basic nodes for general monitoring across fields
+- Example: 20 basic nodes + 5 premium nodes = comprehensive coverage at reasonable cost
+
+Sensors are detected automatically at boot—just plug them in!
 
 ---
 
@@ -309,9 +394,9 @@ High-value, intensive growers (≈10–15% of deployments)
 │  │   MCU    │        │ (air T/H)│       │
 │  │          │◄─1Wire─┤ DS18B20  │       │
 │  │          │        │(soil T)  │       │
-│  │          │◄──ADC──┤ Moisture │       │
-│  └────┬─────┘        │  Sensor  │       │
-│       │              └──────────┘       │
+│  │          │◄─RS485─┤ SEN0601  │       │
+│  │          │  (opt) │(soil pro)│       │
+│  └────┬─────┘        └──────────┘       │
 │       │ SPI                             │
 │       ▼                                 │
 │  ┌──────────┐        ┌──────────┐       │
@@ -377,188 +462,149 @@ High-value, intensive growers (≈10–15% of deployments)
 
 ### Firmware
 - **RTOS:** Zephyr 3.x
-- **SDK:** nRF Connect SDK (Nordic)
+- **SDK:** nRF Connect SDK
 - **Language:** C++17
-- **Build system:** CMake + west
-- **Key subsystems:**
-  - Devicetree for hardware abstraction
-  - Power management (deep sleep modes)
-  - NVS (Non-Volatile Storage)
-  - Logging and debugging shell
-  - OTA/DFU via BLE or LoRa
+- **Build:** CMake + west
+- **Features:**
+  - Devicetree hardware abstraction
+  - Deep sleep power management
+  - NVS storage
+  - Logging and debug shell
+  - OTA/DFU updates
 
 ### Hardware
-- **MCU:** nRF52840 (ARM Cortex-M4F, 64MHz, 1MB Flash, 256KB RAM)
-- **Radio:** SX1262 (LoRa transceiver, 868/915 MHz)
-- **Power:** 18650 Li-ion (3000-6000mAh) + solar MPPT charging
-- **Sensors:**
-  - I²C: BME280, BH1750, SCD30
-  - 1-Wire: DS18B20
-  - ADC: Capacitive moisture, leaf wetness
-  - RS485: Professional soil probes
+- **MCU:** nRF52840 (Cortex-M4F, 64MHz, 1MB Flash, 256KB RAM)
+- **Radio:** SX1262 LoRa (868/915 MHz)
+- **Power:** 18650 Li-ion + solar MPPT charging
+- **Sensors:** I²C, 1-Wire, ADC, RS485 Modbus
 - **Enclosure:** IP67 waterproof (planned)
 
 ### Mobile App (Planned)
 - **Framework:** Tauri (cross-platform)
 - **Backend:** Rust
 - **Frontend:** Svelte/React
-- **Database:** SQLite (local storage)
-- **Features:**
-  - Real-time node monitoring
-  - Historical data visualization
-  - Alert configuration
-  - CSV data export
+- **Database:** SQLite
+- **Features:** Real-time monitoring, alerts, data export
 
 ---
 
 ## 🛠️ Hardware Status
 
-**Current stage:** ✅ Firmware development and simulation
+**Current stage:** Firmware development and simulation
 
-**Development hardware in use:**
-- nRF52840-DK (Nordic development board)
-- SX1262 LoRa breakout modules
-- Off-the-shelf sensors for prototyping:
-  - BME280 modules
-  - Capacitive soil moisture sensors
-  - DS18B20 temperature probes
+**Development hardware:**
+- nRF52840-DK development board
+- SX1262 LoRa modules
+- Off-the-shelf sensors (BME280, DS18B20, capacitive moisture, etc.)
 - Solar panels + TP4056 charging circuits
-- 18650 batteries and holders
+- 18650 batteries
 
-**Production PCB:** ❌ Not yet designed
-
-**Timeline:**
-- Custom PCB design: Phase 2 (months 7-8)
-- First prototype batch: Month 8
-- Field testing: Months 11-12
+**Production PCB:** Not yet designed (Phase 2, months 7-8)
 
 ---
 
 ## 🗺️ Roadmap
 
-### ✅ Phase 1: Foundation — **IN PROGRESS**
-- [x] Project infrastructure (GitHub, documentation)
-- [x] Zephyr RTOS setup and "Hello World"
-- [ ] LoRa communication layer (SX1262 driver)
-- [ ] Sensor abstraction layer (generic interface)
-- [ ] Power management (deep sleep, battery monitoring)
-- [ ] Configuration system (NVS storage)
+### ✅ Phase 1: Foundation (IN PROGRESS)
+- [x] Project setup (GitHub, docs)
+- [x] Zephyr RTOS "Hello World"
+- [ ] LoRa communication (SX1262 driver)
+- [ ] Sensor abstraction layer
+- [ ] Power management (deep sleep)
+- [ ] Configuration system (NVS)
 
 ### 📅 Phase 2: Product Development
-- [ ] Custom PCB design (KiCad schematic and layout)
-- [ ] PCB prototyping (5-10 units from JLCPCB)
-- [ ] Mobile app development (Rust + Tauri)
-- [ ] Field testing with friendly farmers (2-3 locations)
-- [ ] Iterate based on real-world feedback
+- [ ] Custom PCB design (KiCad)
+- [ ] PCB prototyping (5-10 units)
+- [ ] Mobile app development
+- [ ] Field testing (2-3 locations)
+- [ ] Iterate based on feedback
 
 ### 📅 Phase 3: Launch & Growth
-- [ ] Production PCB design (50-100 units)
-- [ ] Enclosure design (3D printable, IP67)
-- [ ] User documentation and video tutorials
+- [ ] Production PCB (50-100 units)
+- [ ] IP67 enclosure design
+- [ ] User documentation and tutorials
 - [ ] OSHWA certification
-- [ ] First commercial sales (20-50 units)
+- [ ] First commercial sales
 
 ### 📅 Phase 4: Expansion
-- [ ] Greenhouse variant (CO₂ and light sensors)
-- [ ] Cold chain monitoring variant (high-accuracy temperature)
-- [ ] Additional sensor configurations
+- [ ] Additional sensor variants
+- [ ] Cold chain monitoring
 - [ ] Scale to 200-500 units
 
 ---
 
 ## 🤝 Contributing
 
-LoRaGro is in active development! We welcome contributions:
+Contributions welcome! Help us build LoRaGro:
 
-- 🐛 **Bug reports** — Found an issue? [Open an issue](https://github.com/yourusername/loragro/issues)
-- 💡 **Feature suggestions** — Have an idea? Share it!
-- 📖 **Documentation** — Help improve guides and tutorials
-- 🔧 **Code contributions** — Pull requests welcome!
-- 🧪 **Testing** — Try the firmware and report your findings
+- 🐛 Bug reports
+- 💡 Feature suggestions
+- 📖 Documentation improvements
+- 🔧 Code contributions
+- 🧪 Testing and feedback
 
 **How to contribute:**
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-**Get in touch:**
-- GitHub Issues: [Report bugs/suggestions](https://github.com/yourusername/loragro/issues)
-- Email: your.email@example.com
-- Discord: [Coming soon]
+**Contact:**
+- [GitHub Issues](https://github.com/yourusername/loragro/issues)
+- Email: pavelmich.id@gmail.com
+- Discord: Coming soon
 
 ---
 
 ## 📜 License
 
-LoRaGro uses multiple licenses for different components:
+| Component | License |
+|-----------|---------|
+| **Firmware** | Apache 2.0 |
+| **Hardware** | CERN-OHL-W-2.0 |
+| **Documentation** | CC-BY-4.0 |
 
-| Component | License | File |
-|-----------|---------|------|
-| **Firmware** (C++/Zephyr code) | Apache 2.0 | [LICENSE](LICENSE) |
-| **Hardware** (PCB, schematics, enclosures) | CERN-OHL-W-2.0 | [LICENSE-HARDWARE.md](LICENSE-HARDWARE.md) |
-| **Documentation** (guides, manuals, tutorials) | CC-BY-4.0 | [LICENSE-DOCS.md](LICENSE-DOCS.md) |
+### Can I use this commercially?
 
-### Why Multiple Licenses?
-
-- **Apache 2.0 (firmware)**: Patent protection, commercial-friendly, permissive
-- **CERN-OHL-W-2.0 (hardware)**: Improvements to the design must be shared, but commercial use is allowed
-- **CC-BY-4.0 (docs)**: Allows remixing and translation with attribution
-
-### TLDR: Can I use this commercially?
-
-**Yes!** You can:
-- ✅ Manufacture and sell LoRaGro nodes
-- ✅ Build products using LoRaGro components
-- ✅ Fork and modify for your needs
-- ✅ Use in proprietary systems
+**Yes!** You can manufacture, sell, and modify LoRaGro.
 
 **You must:**
-- ✅ Share improvements to the PCB design (CERN-OHL-W)
-- ✅ Provide attribution (all licenses)
-- ✅ Include license notices
+- Share PCB design improvements (CERN-OHL-W)
+- Provide attribution
+- Include license notices
 
-**You don't have to:**
-- ❌ Open-source your entire product (only LoRaGro modifications)
-- ❌ Pay royalties or fees
+**You don't need to:**
+- Open-source your entire product
+- Pay royalties
+
+See [LICENSE](LICENSE) for details.
 
 ---
 
 ## 🙏 Acknowledgments
 
 **Built with:**
-- [Zephyr RTOS](https://www.zephyrproject.org/) — Open source RTOS
-- [nRF Connect SDK](https://www.nordicsemi.com/Products/Development-software/nrf-connect-sdk) — Nordic's development platform
-- [KiCad](https://www.kicad.org/) — Open source PCB design
+- [Zephyr RTOS](https://www.zephyrproject.org/)
+- [nRF Connect SDK](https://www.nordicsemi.com/Products/Development-software/nrf-connect-sdk)
+- [KiCad](https://www.kicad.org/)
 
 **Inspired by:**
 - Open-source hardware movement
-- Agricultural sustainability challenges
-- Need for affordable, repairable IoT solutions
-
-**Special thanks to:**
-- Open source community
+- Agricultural sustainability
+- Affordable, repairable IoT
 
 ---
 
-## 📞 Contact & Support
+## 📞 Contact
 
-- **GitHub Issues:** [Report bugs or request features](github.com/P4V77/Zephyr/LoRaGro)
-- **Email:**pavelmich.id@gmail.com
-- **Website:** [Coming soon]-
-- **Documentation:** [docs/](docs/)
-
----
-
-## ⭐ Star History
-
-If you find LoRaGro useful, please consider starring the repository!
-
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/loragro&type=Date)](https://star-history.com/#yourusername/loragro&Date)
+- **GitHub:** [github.com/P4V77/Zephyr/LoRaGro](https://github.com/P4V77/Zephyr/LoRaGro)
+- **Email:** pavelmich.id@gmail.com
+- **Docs:** [docs/](docs/)
 
 ---
 
-**Built with ❤️  for farmers, by makers.**
+**Built with ❤️ for farmers, by makers.**

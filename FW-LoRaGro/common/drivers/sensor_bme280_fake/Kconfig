@@ -1,0 +1,15 @@
+config SENSOR_P4V_FAKE_BME280
+    bool "Fake BME280 sensor (simulation)"
+    depends on SENSOR
+    default y
+	help
+	  Fake BME280 sensor driver for native_sim / testing.
+	  Provides temperature, humidity and pressure channels.
+
+config SENSOR_P4V_FAKE_BME280_INIT_PRIORITY
+    int "Fake BME280 init priority"
+    depends on SENSOR_P4V_FAKE_BME280
+    default 60
+	help
+	  Initialization priority for the fake BME280 sensor.
+	  POST_KERNEL devices usually use 40–80.

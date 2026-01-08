@@ -1,0 +1,13 @@
+config REGULATOR_P4V_FAKE
+    bool "Fake Voltage Regulator"
+    depends on REGULATOR
+    help
+      Fake regulator for native simulation and testing.
+
+config REGULATOR_P4V_FAKE_INIT_PRIORITY
+    int "Fake regulator init priority"
+    depends on REGULATOR_P4V_FAKE
+    default 50
+    help
+      Initialization priority for the fake regulator.
+      Higher values run later. POST_KERNEL devices usually use 40–80.

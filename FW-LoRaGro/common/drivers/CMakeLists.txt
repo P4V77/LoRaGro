@@ -1,0 +1,2 @@
+add_subdirectory_ifdef(CONFIG_REGULATOR_P4V_FAKE regulator_fake)
+add_subdirectory_ifdef(CONFIG_SENSOR_P4V_FAKE_BME280 sensor_bme280_fake)

@@ -1,19 +1,7 @@
 {
   "projects": {
-    "Gano-LoRaGro": {
-      "rel_path": "app/Gano-LoRaGro",
-      "name": "Gano-LoRaGro",
-      "buildConfigs": {},
-      "twisterConfigs": {},
-      "confFiles": {
-        "config": [],
-        "extraConfig": [],
-        "overlay": [],
-        "extraOverlay": []
-      }
-    },
     "Fino-LoRaGro": {
-      "rel_path": "app/Fino-LoRaGro",
+      "rel_path": "Fino-LoRaGro",
       "name": "Fino-LoRaGro",
       "buildConfigs": {
         "build/nrf52_bsim": {

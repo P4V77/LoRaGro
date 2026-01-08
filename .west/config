@@ -1,0 +1,4 @@
+[manifest]
+path = FW-LoRaGro
+file = west.yml
+

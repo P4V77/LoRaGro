@@ -1,0 +1,6 @@
+description: Fake regulator for simulation
+
+compatible: "p4v,fake-regulator"
+
+include: regulator.yaml
+

@@ -1,0 +1,7 @@
+# LoRaGro Library Configuration
+
+config LORAGRO
+    bool "LoRaGro Library"
+    default y
+    help
+      Enable LoRaGro measurement library

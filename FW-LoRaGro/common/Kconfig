@@ -1,0 +1,15 @@
+menu "LoRaGro"
+
+config LORAGRO
+    bool "Enable LoRaGro library"
+    default y
+
+if LORAGRO
+
+rsource "drivers/regulator_fake/Kconfig"
+rsource "drivers/sensor_bme280_fake/Kconfig"
+
+
+endif
+
+endmenu

@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/pavel/.zephyr_ide/external/zephyr/include"
+            ],
+            "defines": [],
+            "cStandard": "c17",
+            "cppStandard": "gnu++20",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}

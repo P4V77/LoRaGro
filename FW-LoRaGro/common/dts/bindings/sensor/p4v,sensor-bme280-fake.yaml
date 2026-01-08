@@ -1,0 +1,11 @@
+description: Fake BME280 environmental sensor (simulation)
+
+compatible: "p4v,sensor-bme280-fake"
+
+include:
+  - name: sensor-device.yaml
+
+properties:
+  vdd-supply:
+    type: phandle
+    required: true
