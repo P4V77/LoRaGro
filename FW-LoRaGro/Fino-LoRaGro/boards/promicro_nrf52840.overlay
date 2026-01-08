@@ -1,0 +1,104 @@
+/* Copyright (c) 2025 P4V77 */
+
+/* Required macros */
+#include <zephyr/dt-bindings/adc/adc.h>
+#include <zephyr/dt-bindings/i2c/i2c.h>
+
+/ {
+    aliases {
+        soil-moisture-adc = &soil_moisture_adc;
+        battery-voltage  = &battery_sense;
+        air-temp-hum     = &air_env;
+        light-sensor     = &ambient_light;
+        co2-sensor       = &co2;
+        gps-uart         = &sc16is740;
+        modbus-uart      = &uart1;
+    };
+};
+
+/* ===================== UART ===================== */
+/* UART1 for Modbus RTU */
+&uart1 {
+    current-speed = <19200>;
+    pinctrl-0 = <&uart1_default>;
+    pinctrl-1 = <&uart1_sleep>;
+    pinctrl-names = "default", "sleep";
+    status = "okay";
+};
+
+/* ===================== I2C ===================== */
+/* Main sensor bus */
+&i2c0 {
+    clock-frequency = <I2C_BITRATE_STANDARD>;
+    status = "okay";
+
+    /* BME280 – Air temp / humidity / pressure */
+    air_env: bme280@76 {
+        compatible = "bosch,bme280";
+        reg = <0x76>;
+    };
+
+    /* OPT3001 – Ambient light */
+    ambient_light: opt3001@44 {
+        compatible = "ti,opt3001";
+        reg = <0x44>;
+    };
+
+    /* Sensirion SCD4x – CO₂ sensor */
+    co2: scd4x@62 {
+        compatible = "sensirion,scd4x";
+        reg = <0x62>;
+    };
+
+    /* SC16IS740 – I2C → UART bridge for GPS */
+    sc16is740: sc16is740@4d {
+        compatible = "nxp,sc16is740";
+        reg = <0x4d>;
+        /* IRQ optional, depends on wiring */
+        /* int-gpios = <&gpio0 11 GPIO_ACTIVE_LOW>; */
+    };
+};
+
+/* ===================== ADC ===================== */
+/* SAADC controller enable */
+&adc {
+    status = "okay";
+
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    /* Capacitive soil moisture sensor – AIN5 / P0.29 */
+    soil_moisture_adc: channel@5 {
+        reg = <5>;
+        zephyr,gain = "ADC_GAIN_1_6";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 10)>;
+        zephyr,resolution = <12>;
+    };
+
+    /* Battery voltage divider – AIN7 / P0.31 */
+    battery_sense: channel@7 {
+        reg = <7>;
+        zephyr,gain = "ADC_GAIN_1_6";
+        zephyr,reference = "ADC_REF_INTERNAL";
+        zephyr,acquisition-time = <ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 10)>;
+        zephyr,resolution = <12>;
+    };
+};
+
+&pinctrl {
+    uart1_default: uart1_default {
+        group1 {
+            psels = <NRF_PSEL(UART_TX, 0, 10)
+            NRF_PSEL(UART_RX, 0, 9)>;
+        };
+    };
+
+    uart1_sleep: uart1_sleep {
+        group1 {
+            psels = <NRF_PSEL(UART_TX, 0, 10)
+            NRF_PSEL(UART_RX, 0, 9)>;
+            low-power-enable;
+        };
+    };
+};

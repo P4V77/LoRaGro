@@ -1,0 +1,7 @@
+/* Copyright (c) 2025 P4V77 */
+
+.venv/
+external
+**/build*/
+.vscode/compile_commands.json
+.vscode/extensions.json
