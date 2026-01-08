@@ -99,6 +99,7 @@ Notes:
 
     Press Ctrl+C to stop the simulation.
 
+```
 ## Project Structure
 
 ```
