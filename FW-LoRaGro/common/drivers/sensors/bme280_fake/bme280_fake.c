@@ -20,9 +20,29 @@ struct bme280_fake_config
     const struct device *vdd;
 };
 
-static int
-bme280_fake_sample_fetch(const struct device *dev,
-                         enum sensor_channel chan)
+static void sensor_value_add_micro_bounded(struct sensor_value *v,
+                                           int32_t delta_u,
+                                           int32_t min_u,
+                                           int32_t max_u)
+{
+    int64_t total_u =
+        (int64_t)v->val1 * 1000000LL + v->val2 + delta_u;
+
+    if (total_u < min_u)
+    {
+        total_u = min_u;
+    }
+    else if (total_u > max_u)
+    {
+        total_u = max_u;
+    }
+
+    v->val1 = total_u / 1000000;
+    v->val2 = total_u % 1000000;
+}
+
+static int bme280_fake_sample_fetch(const struct device *dev,
+                                    enum sensor_channel chan)
 {
     struct bme280_fake_data *data = dev->data;
 
@@ -34,14 +54,43 @@ bme280_fake_sample_fetch(const struct device *dev,
         return -ENOTSUP;
     }
 
-    data->temp.val1 = 25;
-    data->temp.val2 = 650000;
+    /* Lazy initialization (first call only) */
+    static bool initialized;
+    if (!initialized)
+    {
+        data->temp.val1 = 22;
+        data->temp.val2 = 500000; /* 22.50 °C */
 
-    data->hum.val1 = 60;
-    data->hum.val2 = 500000;
+        data->hum.val1 = 55;
+        data->hum.val2 = 0; /* 55 % */
 
-    data->press.val1 = 101;
-    data->press.val2 = 325000;
+        data->press.val1 = 101;
+        data->press.val2 = 325000; /* 101.325 kPa */
+
+        initialized = true;
+        return 0;
+    }
+
+    /* Temperature: +0.22 °C */
+    sensor_value_add_micro_bounded(
+        &data->temp,
+        220000,
+        18 * 1000000,
+        35 * 1000000);
+
+    /* Humidity: +0.35 % */
+    sensor_value_add_micro_bounded(
+        &data->hum,
+        350000,
+        30 * 1000000,
+        90 * 1000000);
+
+    /* Pressure: +0.015 kPa */
+    sensor_value_add_micro_bounded(
+        &data->press,
+        15000,
+        98 * 1000000,
+        105 * 1000000);
 
     return 0;
 }
@@ -84,7 +133,7 @@ static int bme280_fake_init(const struct device *dev)
         LOG_ERR("VDD regulator is not ready");
         return -ENODEV;
     }
-    LOG_INF("Fake BME280 initialized");
+    LOG_INF("Fake BME280 Enviromental sensor initialized");
     return 0;
 }
 

@@ -7,8 +7,9 @@ config LORAGRO
 if LORAGRO
 
 rsource "drivers/regulator_fake/Kconfig"
-rsource "drivers/sensor_bme280_fake/Kconfig"
-
+rsource "drivers/sensors/bme280_fake/Kconfig"
+rsource "drivers/sensors/bh1750_fake/Kconfig"
+rsource "drivers/sensors/scd41_fake/Kconfig"
 
 endif
 

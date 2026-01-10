@@ -158,36 +158,29 @@
  * I2C devices
  * ========================= */
 &i2c0 {
-
     /* --- Simulation (BSIM / native_sim) --- */
     bme280: bme280@76 {
         compatible = "p4v,sensor-bme280-fake";
         reg = <0x76>;
         vdd-supply = <&power_rail_3v3>;
         label = "AIR_ENV_SENSOR";
+        status = "okay";
     };
 
-    light_sensor: light@44 {
-        compatible = "zephyr,sensor_sim";
-        reg = <0x44>;
+    bh1750: BH1750@23 {
+        compatible = "p4v,sensor-bh1750-fake";
+        reg = <0x23>;
         vdd-supply = <&power_rail_3v3>;
         label = "AMBIENT_LIGHT_SENSOR";
+        status = "okay";
     };
 
-    co2_sensor: co2@62 {
+    scd41: scd41@62 {
         compatible = "zephyr,sensor_sim";
         reg = <0x62>;
         vdd-supply = <&power_rail_3v3>;
         label = "CO2_SENSOR";
     };
-
-    gps: gps@4d {
-        compatible = "zephyr,sensor_sim";
-        reg = <0x4d>;
-        vdd-supply = <&power_rail_3v3>;
-        label = "GPS_SENSOR";
-    };
-
 
     /* --------------------------
     Real sensors - keep commented
@@ -207,7 +200,7 @@
         label = "AMBIENT_LIGHT_SENSOR";
     };
 
-    co2_sensor: scd4x@62 {
+    co2_sensor: scd41@62 {
         compatible = "sensirion,scd4x";
         reg = <0x62>;
         vdd-supply = <&power_rail_3v3>;
@@ -295,10 +288,9 @@
         aliases {
             soil-moisture-adc = &soil_moisture_adc;
             battery-voltage   = &battery_sense;
-            bme280            = &bme280;
-            light-sensor      = &light_sensor;
-            co2-sensor        = &co2_sensor;
-            gps-sensor        = &gps;
+            envirmoental-sensor = &bme280 ;
+            light-sensor      = &bh1750;
+            co2-sensor        = &scd41;
             modbus-uart       = &uart1;
             lora0             = &sx1262;
             soil-temp         = &onewire0;

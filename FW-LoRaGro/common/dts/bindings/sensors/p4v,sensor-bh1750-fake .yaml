@@ -1,0 +1,11 @@
+description: Fake BH1750 Light Sensitivity Sensor Driver
+
+compatible: "p4v,sensor-bh1750-fake"
+
+include:
+  - name: "sensor-device.yaml"
+
+properties:
+  vdd-supply:
+    type: phandle
+    required: true

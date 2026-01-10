@@ -7,23 +7,36 @@
 #include "power_rail_3v3.hpp"
 #include "sample_manager.hpp"
 #include "sensors/env_sensor_adapter.hpp"
+#include "sensors/light_sensor_adapter.hpp"
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
-static const struct device *const bme280_dev =
-    DEVICE_DT_GET(DT_NODELABEL(bme280));
+static const struct device *const envi_dev =
+    DEVICE_DT_GET(DT_ALIAS(envirmoental_sensor));
+
+static const struct device *const light_dev =
+    DEVICE_DT_GET(DT_ALIAS(light_sensor));
 
 int main(void)
 {
-    printk("LoRaGro FiNo simulator start\n");
+    LOG_INF("Registering sensors");
 
     loragro::PowerRail3V3 regulator;
     loragro::SampleManager sample_mgr;
-    loragro::EnvSensorAdapter bme280(bme280_dev, 1000, 1001, 1002);
 
-    sample_mgr.add_sensor(&bme280);
+    loragro::EnvSensorAdapter env_sensor(envi_dev, 1000, 1001, 1002);
+    loragro::LightSensorAdapter light_sensor(light_dev, 1010);
 
-    LOG_INF("Starting sensor application");
+    if (device_is_ready(envi_dev))
+    {
+        sample_mgr.add_sensor(&env_sensor);
+    }
+    if (device_is_ready(light_dev))
+    {
+        sample_mgr.add_sensor(&light_sensor);
+    }
+
+    LOG_INF("Starting application");
 
     while (true)
     {

@@ -1,0 +1,15 @@
+config SENSOR_PV4_SCD41_FAKE
+    bool "Fake SCD41 CO2 Sensor"
+    depends on SENSOR
+    default y
+    help
+      Fake SCD41 sensor driver for native_sim / testing.
+      Provides CO2 concenttration, temperature and relative humidity.
+
+config SENSOR_P4V_FAKE_SCD41_INIT_PRIORITY
+    int "Fake SCD41 init priority"
+    depends on SENSOR_P4V_SCD41_FAKE
+    default 60
+	help
+	  Initialization priority for the fake SCD41 sensor.
+	  POST_KERNEL devices usually use 40–80.

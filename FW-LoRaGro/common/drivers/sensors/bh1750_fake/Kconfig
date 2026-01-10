@@ -1,0 +1,15 @@
+config SENSOR_P4V_BH1750_FAKE
+    bool "Fake BH1750 sensor (simulation)"
+    depends on SENSOR
+    default y
+	help
+	  Fake BH1750 sensor driver for native_sim / testing.
+	  Provides fake light intensity reading.
+
+config SENSOR_P4V_BH1750_FAKE_INIT_PRIORITY
+    int "Fake BH1750 init priority"
+    depends on SENSOR_P4V_BH1750_FAKE
+    default 60
+	help
+	  Initialization priority for the fake BH1750 sensor.
+	  POST_KERNEL devices usually use 40–80.

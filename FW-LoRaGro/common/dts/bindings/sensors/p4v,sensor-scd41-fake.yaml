@@ -1,0 +1,11 @@
+description: Fake SCD41 CO2 concentration sensor (simulation)
+
+compatible: "p4v,sensor-scd41-fake"
+
+include:
+  - name: sensor-device.yaml
+
+properties:
+  vdd-supply:
+    type: phandle
+    required: true

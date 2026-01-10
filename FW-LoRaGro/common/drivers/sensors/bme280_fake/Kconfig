@@ -1,4 +1,4 @@
-config SENSOR_P4V_FAKE_BME280
+config SENSOR_P4V_BME280_FAKE
     bool "Fake BME280 sensor (simulation)"
     depends on SENSOR
     default y
@@ -8,7 +8,7 @@ config SENSOR_P4V_FAKE_BME280
 
 config SENSOR_P4V_FAKE_BME280_INIT_PRIORITY
     int "Fake BME280 init priority"
-    depends on SENSOR_P4V_FAKE_BME280
+    depends on SENSOR_P4V_BME280_FAKE
     default 60
 	help
 	  Initialization priority for the fake BME280 sensor.

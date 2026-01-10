@@ -5,22 +5,22 @@
 namespace loragro
 {
 
-template <size_t N>
-class Sensor : public SensorBase
-{
-public:
-    const Measurement *measurements() const override
+    template <size_t N>
+    class Sensor : public SensorBase
     {
-        return measurements_;
-    }
+    public:
+        const Measurement *measurements() const override
+        {
+            return measurements_;
+        }
 
-    size_t count() const override
-    {
-        return N;
-    }
+        size_t count() const override
+        {
+            return N;
+        }
 
-protected:
-    Measurement measurements_[N];
-};
+    protected:
+        Measurement measurements_[N];
+    };
 
 } // namespace loragro
