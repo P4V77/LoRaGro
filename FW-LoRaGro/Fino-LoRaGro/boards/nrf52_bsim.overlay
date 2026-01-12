@@ -176,7 +176,7 @@
     };
 
     scd41: scd41@62 {
-        compatible = "zephyr,sensor_sim";
+        compatible = "p4v,sensor-scd41-fake";
         reg = <0x62>;
         vdd-supply = <&power_rail_3v3>;
         label = "CO2_SENSOR";

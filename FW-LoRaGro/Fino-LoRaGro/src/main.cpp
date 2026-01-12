@@ -8,6 +8,8 @@
 #include "sample_manager.hpp"
 #include "sensors/env_sensor_adapter.hpp"
 #include "sensors/light_sensor_adapter.hpp"
+#include "sensors/co2_sensor_adapter.hpp"
+#include "od.hpp"
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
@@ -17,6 +19,9 @@ static const struct device *const envi_dev =
 static const struct device *const light_dev =
     DEVICE_DT_GET(DT_ALIAS(light_sensor));
 
+static const struct device *const co2_dev =
+    DEVICE_DT_GET(DT_ALIAS(co2_sensor));
+
 int main(void)
 {
     LOG_INF("Registering sensors");
@@ -24,8 +29,9 @@ int main(void)
     loragro::PowerRail3V3 regulator;
     loragro::SampleManager sample_mgr;
 
-    loragro::EnvSensorAdapter env_sensor(envi_dev, 1000, 1001, 1002);
-    loragro::LightSensorAdapter light_sensor(light_dev, 1010);
+    loragro::EnvSensorAdapter env_sensor(envi_dev, loragro::SensorID::ENV_TEPM, loragro::SensorID::ENV_RH, loragro::SensorID::ENV_PRESS);
+    loragro::LightSensorAdapter light_sensor(light_dev, loragro::SensorID::AMB_LIGHT);
+    loragro::CO2SensorAdapter co2_sensor(co2_dev, loragro::SensorID::CO2_CONCENTRATION, loragro::SensorID::CO2_TEMP, loragro::SensorID::CO2_RH);
 
     if (device_is_ready(envi_dev))
     {
@@ -34,6 +40,10 @@ int main(void)
     if (device_is_ready(light_dev))
     {
         sample_mgr.add_sensor(&light_sensor);
+    }
+    if (device_is_ready(co2_dev))
+    {
+        sample_mgr.add_sensor(&co2_sensor);
     }
 
     LOG_INF("Starting application");

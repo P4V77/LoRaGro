@@ -10,9 +10,13 @@ namespace loragro
     template <size_t N>
     class ZephyrSensorAdapter : public Sensor<N>
     {
+        static_assert(N >= 1, "ZephyrSensorAdapter<N>: N must be >= 1");
+
     public:
         explicit ZephyrSensorAdapter(const struct device *dev)
-            : dev_(dev) {}
+            : dev_(dev)
+        {
+        }
 
         int init() override
         {

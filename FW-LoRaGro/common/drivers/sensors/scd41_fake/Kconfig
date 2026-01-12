@@ -1,4 +1,4 @@
-config SENSOR_PV4_SCD41_FAKE
+config SENSOR_P4V_SCD41_FAKE
     bool "Fake SCD41 CO2 Sensor"
     depends on SENSOR
     default y

@@ -58,13 +58,16 @@ namespace loragro
 
             for (size_t j = 0; j < n; ++j)
             {
-                int v100 = static_cast<int>(m[j].value * 100); // keep 2 decimals
+
+                int int_part = m[j].value.val1;
+                int frac_2dp = m[j].value.val2 / 10000; // 10⁶ → 10² | Keeping 2 decimal for shorter more sensible LOG
+
                 LOG_INF("Sensor %u measurement[%u]: id=%u type=%u value=%d.%02d ts=%u",
                         i, j,
                         m[j].sensor_id,
                         static_cast<uint32_t>(m[j].sensor_type),
-                        v100 / 100, // integer part
-                        v100 % 100, // fractional part
+                        int_part,
+                        frac_2dp,
                         m[j].timestamp);
             }
         }

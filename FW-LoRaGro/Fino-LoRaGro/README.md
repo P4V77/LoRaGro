@@ -62,12 +62,15 @@ west build -b nrf52_bsim . -p \
 - Build artifacts will be in `build/nrf52_bsim/`
 
 ### Step 2: Run in BSIM
-```bash
 # zephyr.exe is uploaded to git, so you can run it without building
 # Make sure you are in the FW-LoRaGro directory
 # Execute the compiled firmware by running this in terminal:
-./Fino-LoRaGro/build/nrf52_bsim/zephyr/zephyr.exe
 
+```bash
+./Fino-LoRaGro/build/nrf52_bsim/zephyr/zephyr.exe
+```
+
+```bash
 **Expected output:**
 ?_??: WARNING: Neither simulation id or the device number have been set. I assume you want to run without a BabbleSim phy (-nosim)
 ?_??: WARNING: If this is not what you wanted, check with --help how to set them
@@ -90,6 +93,7 @@ d_00: @00:30:00.144440  [00:30:00.144,439] <inf> sample_manager: Sensor 0 measur
 d_00: @00:30:00.154250  [00:30:00.154,235] <inf> sample_manager: Sensor 0 measurement[1]: id=1001 type=2 value=60.50 ts=1800
 ^Cd_00: @00:30:00.158438  
 Stopped at 1800.158s
+```
 
 Notes:
 
@@ -99,7 +103,6 @@ Notes:
 
     Press Ctrl+C to stop the simulation.
 
-```
 ## Project Structure
 
 ```
