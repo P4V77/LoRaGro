@@ -1,0 +1,13 @@
+config SOIL_SENSOR_MODBUS_FAKE
+    bool "Fake Modbus Soil Sensor"
+    depends on REGULATOR
+    help
+      Fake Modbus RTU slave for native simulation and testing.
+
+config SOIL_SENSOR_MODBUS_FAKE_INIT_PRIORITY
+    int "Fake Modbus RTU init priority"
+    depends on SOIL_SENSOR_MODBUS_FAKE
+    default 60
+    help
+      Initialization priority for the fake Modbus Soil Sensor .
+      Higher values run later. POST_KERNEL devices usually use 40–80.

@@ -15,15 +15,12 @@ namespace loragro
         {
             // CO2 measurement
             measurements_[0].sensor_id = co2_id;
-            measurements_[0].sensor_type = SensorType::CARBON_DIOXIDE;
 
             // Temperature measurement
             measurements_[1].sensor_id = temp_id;
-            measurements_[1].sensor_type = SensorType::TEMPERATURE;
 
             // Humidity measurement
             measurements_[2].sensor_id = hum_id;
-            measurements_[2].sensor_type = SensorType::HUMIDITY;
         };
 
         int sample() override

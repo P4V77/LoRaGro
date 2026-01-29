@@ -1,0 +1,17 @@
+description: P4V soil sensor over Modbus RTU
+
+compatible: "p4v,sensor-soil3in1-fake"
+
+include:
+  - name: "sensor-device.yaml"
+
+properties:
+  vdd-supply:
+    type: phandle
+    required: true
+    
+  slave-address:
+    type: int
+    required: true
+    description: Modbus slave address
+

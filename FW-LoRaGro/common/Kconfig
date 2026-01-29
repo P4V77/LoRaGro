@@ -1,15 +1,17 @@
-menu "LoRaGro"
+menu "LoRaGro Fake Drivers"
 
-config LORAGRO
-    bool "Enable LoRaGro library"
+config LORAGRO_FAKE_DRIVERS
+    bool "Enable LoRaGro Fake Driver Library"
     default y
 
-if LORAGRO
+if LORAGRO_FAKE_DRIVERS
 
 rsource "drivers/regulator_fake/Kconfig"
 rsource "drivers/sensors/bme280_fake/Kconfig"
 rsource "drivers/sensors/bh1750_fake/Kconfig"
 rsource "drivers/sensors/scd41_fake/Kconfig"
+rsource "drivers/sensors/3in1_soil_fake/Kconfig"
+rsource "drivers/lora/Kconfig"
 
 endif
 

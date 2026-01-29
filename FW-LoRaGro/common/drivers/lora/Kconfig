@@ -1,0 +1,13 @@
+config SX1262_FAKE
+    bool "Fake SX1262 LoRa transceiver"
+    depends on SPI
+    help
+      Enables fake SX1262 driver for native simulation.
+
+config SX1262_FAKE_INIT_PRIORITY
+    int "Fake SX1262 init priority"
+    depends on SX1262_FAKE
+    default 60
+    help
+      Initialization priority for the fake SX1262 driver.
+      Should typically be between 40 and 80 (POST_KERNEL).

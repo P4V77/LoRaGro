@@ -1,76 +1,69 @@
 /* Copyright (c) 2025 P4V77 */
+/* =========================
+ * SPI0 – SX1262 LoRa
+ * ========================= */
+/ {
+    spi_emul0: spi-emul@0 {
+        compatible = "zephyr,spi-emul-controller";
+        reg = <0x0 0x1000>;
+        status = "okay";
+
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        sx1262: sx1262@0 {
+            compatible = "p4v,sx1262-fake";
+            reg = <0>;
+            spi-max-frequency = <10000000>;
+
+            reset-gpios = <&gpio0 20 GPIO_ACTIVE_LOW>;
+            busy-gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>;
+            dio1-gpios = <&gpio0 24 GPIO_ACTIVE_HIGH>;
+
+            tx-enable-gpios = <&gpio0 11 GPIO_ACTIVE_HIGH>;
+            rx-enable-gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;
+            status = "okay";
+        };
+    };
+};
+
 
 / {
     soc {
         /* =========================
-         * SPI0 – SX1262 LoRa
-         * ========================= */
-        spi0: spi@40003000 {
-            compatible = "nordic,nrf-spim";
-            reg = <0x40003000 0x1000>;
-            interrupts = <3 1>;
-            interrupt-parent = <&nvic>;
-            status = "okay";
-            label = "SPI_0";
-
-            #address-cells = <1>;
-            #size-cells = <0>;
-
-            max-frequency = <18000000>;
-            easydma-maxcnt-bits = <15>;
-            cs-gpios = <&gpio0 10 GPIO_ACTIVE_LOW>;
-
-            pinctrl-0 = <&spi0_default>;
-            pinctrl-1 = <&spi0_sleep>;
-            pinctrl-names = "default", "sleep";
-
-            /* =========================
-             * SX1262
-             * ========================= */
-            sx1262: sx1262@0 {
-                compatible = "semtech,sx1262";
-                reg = <0>;
-                spi-max-frequency = <8000000>;
-
-                reset-gpios = <&gpio0 20 GPIO_ACTIVE_LOW>;
-                busy-gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>;
-                dio1-gpios = <&gpio0 24 GPIO_ACTIVE_HIGH>;
-
-                tx-enable-gpios = <&gpio0 11 GPIO_ACTIVE_HIGH>;
-                rx-enable-gpios = <&gpio1 0  GPIO_ACTIVE_HIGH>;
-            };
-
-        };
-
-        /* =========================
-         * UART1 – Modbus RTU (RS-485)
+         * UART1 – Modbus RTU
          * ========================= */
         uart1: uart@40028000 {
             compatible = "nordic,nrf-uarte";
             reg = <0x40028000 0x1000>;
             interrupts = <40 1>;
-            interrupt-parent = <&nvic>;
+            status = "okay";
 
             current-speed = <19200>;
             parity = "none";
             stop-bits = "1";
 
-            // pinctrl-0 = <&uart1_default>;
-            // pinctrl-1 = <&uart1_sleep>;
-            // pinctrl-names = "default", "sleep";
+            #address-cells = <1>;
+            #size-cells = <0>;
 
-            status = "okay";
+            soil0: soil-sensor@1 {
+                compatible = "p4v,sensor-soil3in1-fake";
+                reg = <1>;
+                slave-address = <1>;
+                vdd-supply = <&power_rail_3v3>;
+                label = "SOIL_3IN1";
+                status = "okay";
+            };
         };
 
-
         /* =========================
-         * I2C0 bus
+         * I2C0
          * ========================= */
         i2c0: i2c@40002000 {
             compatible = "nordic,nrf-twi";
             reg = <0x40002000 0x1000>;
-            interrupt-parent = <&nvic>;
             interrupts = <2 1>;
+            interrupt-parent = <&nvic>;
             clock-frequency = <I2C_BITRATE_STANDARD>;
             status = "okay";
             label = "I2C_0";
@@ -83,55 +76,32 @@
             pinctrl-1 = <&i2c0_sleep>;
             pinctrl-names = "default", "sleep";
         };
-
-        /* =========================
-         * ADC0 – simulation
-         * ========================= */
-        adc0: adc@40007000 {
-            compatible = "zephyr,adc-sim";
-            reg = <0x40007000 0x1000>;
-            interrupt-parent = <&nvic>;
-            interrupts = <7 1>;
-            status = "okay";
-            label = "ADC_0";
-
-            #address-cells = <1>;
-            #size-cells = <0>;
-            #io-channel-cells = <1>;
-
-            soil_moisture_adc: channel@5 {
-                reg = <5>; /* AIN5 = P0.29 */
-                zephyr,gain = "ADC_GAIN_1_6";
-                zephyr,reference = "ADC_REF_INTERNAL";
-                zephyr,acquisition-time = <10>;
-                zephyr,resolution = <12>;
-            };
-
-            battery_sense: channel@7 {
-                reg = <7>; /* AIN7 = P0.31 */
-                zephyr,gain = "ADC_GAIN_1_6";
-                zephyr,reference = "ADC_REF_INTERNAL";
-                zephyr,acquisition-time = <10>;
-                zephyr,resolution = <12>;
-            };
-        };
     };
 };
 
 /* =========================
- * 3V3 Sensor Power Switch
+ * GPIO hogs / regulators
  * ========================= */
 &gpio0 {
     power_rail_3v3_en: power_rail_3v3_en {
         gpio-hog;
         gpios = <13 GPIO_ACTIVE_HIGH>;
-        output-low;               /* OFF by default */
+        output-low;
         line-name = "SENSOR_3V3_EN";
     };
 };
 
+&gpio0 {
+    rs485_de: rs485_de {
+        gpio-hog;
+        gpios = <17 GPIO_ACTIVE_HIGH>;
+        output-low;
+        line-name = "RS485_DE";
+    };
+};
+
 / {
-    power_rail_3v3: regulator-3v3{
+    power_rail_3v3: regulator-3v3 {
         compatible = "p4v,fake-regulator";
         regulator-name = "3V3_RAIL";
         regulator-min-microvolt = <3300000>;
@@ -141,24 +111,9 @@
 };
 
 /* =========================
- * 1-Wire bus
- * ========================= */
-/ {
-    onewire0: w1 {
-        compatible = "zephyr,w1-gpio";
-        #address-cells = <1>;
-        #size-cells = <0>;
-        gpios = <&gpio0 2 GPIO_OPEN_DRAIN>;
-        status = "okay";
-    };
-};
-
-
-/* =========================
- * I2C devices
+ * I2C devices (FAKE)
  * ========================= */
 &i2c0 {
-    /* --- Simulation (BSIM / native_sim) --- */
     bme280: bme280@76 {
         compatible = "p4v,sensor-bme280-fake";
         reg = <0x76>;
@@ -167,7 +122,7 @@
         status = "okay";
     };
 
-    bh1750: BH1750@23 {
+    bh1750: bh1750@23 {
         compatible = "p4v,sensor-bh1750-fake";
         reg = <0x23>;
         vdd-supply = <&power_rail_3v3>;
@@ -180,48 +135,68 @@
         reg = <0x62>;
         vdd-supply = <&power_rail_3v3>;
         label = "CO2_SENSOR";
+        status = "okay";
+    };
+};
+
+/* =========================
+ * ADC – BSIM / native_sim
+ * ========================= */
+/ {
+    adc0: adc-emul {
+        compatible = "zephyr,adc-emul";
+        status = "okay";
+        #io-channel-cells = <1>;
+        nchannels = <10>;
+        ref-internal-mv = <600>;
+        ref-external1-mv = <3300>;
     };
 
-    /* --------------------------
-    Real sensors - keep commented
-    -------------------------- */
-    /*
-    air_temp_hum: bme280@76 {
-        compatible = "bosch,bme280";
-        reg = <0x76>;
-        vdd-supply = <&power_rail_3v3>;
-        label = "AIR_ENV_SENSOR";
+    /* These should work fine in root */
+    soil_capacitive_sensor: soil-cap-sensor {
+        io-channels = <&adc0 5>;
+        resolution = <12>;
+        status = "okay";
     };
 
-    light_sensor: opt3001@44 {
-        compatible = "ti,opt3001";
-        reg = <0x44>;
-        vdd-supply = <&power_rail_3v3>;
-        label = "AMBIENT_LIGHT_SENSOR";
+    battery_sense: battery-voltage-sense  {
+        compatible = "p4v,soil-analog";
+        io-channels = <&adc0 7>;
+        resolution = <12>;
+        voltage-divider = <100000 100000>;
+        status = "okay";
     };
 
-    co2_sensor: scd41@62 {
-        compatible = "sensirion,scd4x";
-        reg = <0x62>;
-        vdd-supply = <&power_rail_3v3>;
-        label = "CO2_SENSOR";
+    zephyr,user {
+        io-channels = <&adc0 5>, <&adc0 7>;  /* Two channels: 5 and 7 */
+        io-channel-names = "soil", "battery";  /* Optional but helpful */
+        voltage-divider = <100000 100000>;
+        resolution = <12>;
     };
+};
 
-    gps: sci16is740@4d {
-        compatible = "nxp,sc16is7xx";
-        reg = <0x4D>;
-        vdd-supply = <&power_rail_3v3>;
-        xtal-frequency = <14745600>;
-        label = "GPS";
+/* =========================
+ * Aliases (MUST be top-level)
+ * ========================= */
+/ {
+    aliases {
+        adc0 = &adc0;
+        battery-sense = &battery_sense;
+        envirmoental-sensor = &bme280;
+        light-sensor = &bh1750;
+        co2-sensor = &scd41;
+        soil-sensor = &soil0;
+        soil-sensor2 = &soil_capacitive_sensor;
+        uart = &uart1;
+        lora0 = &sx1262;
+        power-rail-3v3 = &power_rail_3v3;
     };
-     */
 };
 
 /* =========================
  * Pin control
  * ========================= */
 &pinctrl {
-
     spi0_default: spi0_default {
         group1 {
             psels = <
@@ -261,39 +236,4 @@
             low-power-enable;
         };
     };
-    // uart1_default: uart1_default {
-        //     group1 {
-            //         psels = <
-            //         NRF_PSEL(UARTE_TX, 0, 8)
-            //         NRF_PSEL(UARTE_RX, 0, 6)
-            //         NRF_PSEL(UARTE_RTS, 0, 17)
-            //         >;
-        //     };
-    // };
-    // uart1_sleep: uart1_sleep {
-        //     group1 {
-            //         psels = <
-            //         NRF_PSEL(UARTE_TX, 0, 8)
-            //         NRF_PSEL(UARTE_RX, 0, 6)
-            //         NRF_PSEL(UARTE_RTS, 0, 17)
-            //         >;
-            //         low-power-enable;
-        //     };
-    };
-
-    /* =========================
-     * Aliases
-     * ========================= */
-    / {
-        aliases {
-            soil-moisture-adc = &soil_moisture_adc;
-            battery-voltage   = &battery_sense;
-            envirmoental-sensor = &bme280 ;
-            light-sensor      = &bh1750;
-            co2-sensor        = &scd41;
-            modbus-uart       = &uart1;
-            lora0             = &sx1262;
-            soil-temp         = &onewire0;
-            power-rail-3v3 = &power_rail_3v3;
-        };
-    };
+};

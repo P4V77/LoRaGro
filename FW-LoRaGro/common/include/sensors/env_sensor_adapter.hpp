@@ -9,17 +9,14 @@ namespace loragro
     {
     public:
         EnvSensorAdapter(const struct device *dev,
-                         uint16_t tid, uint16_t hid, uint16_t pid)
+                         uint16_t temp_id, uint16_t humidity_id, uint16_t pressure_id)
             : ZephyrSensorAdapter(dev)
         {
-            measurements_[0].sensor_id = tid;
-            measurements_[0].sensor_type = SensorType::TEMPERATURE;
+            measurements_[0].sensor_id = temp_id;
 
-            measurements_[1].sensor_id = hid;
-            measurements_[1].sensor_type = SensorType::HUMIDITY;
+            measurements_[1].sensor_id = humidity_id;
 
-            measurements_[2].sensor_id = pid;
-            measurements_[2].sensor_type = SensorType::PRESSURE;
+            measurements_[2].sensor_id = pressure_id;
         };
 
         int sample() override

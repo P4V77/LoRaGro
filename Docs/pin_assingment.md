@@ -70,7 +70,6 @@ I²C0 is used for environmental and auxiliary sensors.
 | Air temp / humidity | `0x76`  | BME280    |
 | Ambient light       | `0x44`  | OPT3001   |
 | CO₂ sensor          | `0x62`  | SCD4x     |
-| GPS (via bridge)    | `0x4D`  | SC16IS740 |
 
 **Status:** ✅ Valid configuration
 

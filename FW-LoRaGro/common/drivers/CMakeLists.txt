@@ -1,4 +1,6 @@
 add_subdirectory_ifdef(CONFIG_REGULATOR_P4V_FAKE regulator_fake)
+add_subdirectory_ifdef(CONFIG_SX1262_FAKE lora)
 add_subdirectory_ifdef(CONFIG_SENSOR_P4V_BME280_FAKE sensors/bme280_fake)
 add_subdirectory_ifdef(CONFIG_SENSOR_P4V_BH1750_FAKE sensors/bh1750_fake)
 add_subdirectory_ifdef(CONFIG_SENSOR_P4V_SCD41_FAKE sensors/scd41_fake)
+add_subdirectory_ifdef(CONFIG_SOIL_SENSOR_MODBUS_FAKE sensors/3in1_soil_fake)

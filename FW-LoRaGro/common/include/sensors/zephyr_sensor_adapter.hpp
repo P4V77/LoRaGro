@@ -23,6 +23,11 @@ namespace loragro
             return device_is_ready(dev_) ? 0 : -ENODEV;
         }
 
+        int is_connected() override
+        {
+            return device_is_ready(dev_);
+        }
+
     protected:
         int fetch() const
         {

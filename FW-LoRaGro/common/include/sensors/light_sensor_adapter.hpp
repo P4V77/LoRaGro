@@ -12,7 +12,6 @@ namespace loragro
             : ZephyrSensorAdapter(dev)
         {
             measurements_[0].sensor_id = lid;
-            measurements_[0].sensor_type = SensorType::AMBIENT_LIGHT;
         };
 
         int sample() override

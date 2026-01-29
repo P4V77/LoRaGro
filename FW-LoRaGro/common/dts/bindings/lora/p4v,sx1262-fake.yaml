@@ -1,0 +1,31 @@
+description: Fake SX1262 Driver
+
+compatible: "p4v,sx1262-fake"
+
+include:
+  - name: "spi-device.yaml"
+
+properties:
+  vdd-supply:
+    type: phandle
+    required: false
+
+  reset-gpios:
+    type: phandle-array
+    required: false
+
+  busy-gpios:
+    type: phandle-array
+    required: false
+
+  dio1-gpios:
+    type: phandle-array
+    required: false
+
+  tx-enable-gpios:
+    type: phandle-array
+    required: false
+
+  rx-enable-gpios:
+    type: phandle-array
+    required: false

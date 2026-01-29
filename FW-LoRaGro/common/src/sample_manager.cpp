@@ -42,6 +42,8 @@ namespace loragro
 
     int SampleManager::sample_all()
     {
+        batch_size_ = 0; /* Need to reset very sample */
+
         for (size_t i = 0; i < sensor_count_; ++i)
         {
             if (!sensors_[i])
@@ -56,21 +58,35 @@ namespace loragro
             const Measurement *m = sensors_[i]->measurements();
             size_t n = sensors_[i]->count();
 
+            /* Serializing data into batch */
             for (size_t j = 0; j < n; ++j)
             {
+                if (batch_size_ >= MAX_MEASUREMENT)
+                {
+                    return -ENOMEM;
+                }
 
-                int int_part = m[j].value.val1;
-                int frac_2dp = m[j].value.val2 / 10000; // 10⁶ → 10² | Keeping 2 decimal for shorter more sensible LOG
+                batch_[batch_size_++] = m[j];
 
-                LOG_INF("Sensor %u measurement[%u]: id=%u type=%u value=%d.%02d ts=%u",
+                /* Scaling down */
+                int16_t int_part = static_cast<int16_t>(m[j].value.val1 / 1000);
+                int16_t frac_3dp = static_cast<int16_t>(m[j].value.val2 / 1000);
+
+                LOG_INF("Type(Manager) %u Measurement[%u]: ID=%u value=%d.%02d ts=%u",
                         i, j,
                         m[j].sensor_id,
-                        static_cast<uint32_t>(m[j].sensor_type),
                         int_part,
-                        frac_2dp,
+                        frac_3dp,
                         m[j].timestamp);
             }
         }
         return 0;
+    }
+
+    const BatchView SampleManager::get_batch()
+    {
+        return BatchView{
+            .data = batch_.data(),
+            .count = batch_size_};
     }
 }
