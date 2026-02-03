@@ -1,10 +1,11 @@
 #pragma once
-
 #include <zephyr/device.h>
 #include <zephyr/drivers/lora.h>
 #include <zephyr/kernel.h>
 #include <cstdint>
 #include <cstddef>
+
+#include "config_manager.hpp"
 
 namespace loragro
 {
@@ -18,9 +19,8 @@ namespace loragro
          * Initialization
          * ========================================================= */
 
-        int init();                                // default config
-        int init(struct lora_modem_config &cfg);   // custom config
-        int config(struct lora_modem_config &cfg); // reconfigure
+        int init(const DeviceConfig &cfg);   // custom config
+        int config(const DeviceConfig &cfg); // reconfigure
 
         /* =========================================================
          * Basic TX / RX
@@ -35,7 +35,8 @@ namespace loragro
 
         int send_confirmed(uint8_t *data,
                            size_t len,
-                           uint8_t packet_ctr);
+                           uint8_t &device_id,
+                           uint8_t &packet_ctr);
 
         /* =========================================================
          * Info
@@ -51,18 +52,20 @@ namespace loragro
          * ACK handling
          * ========================================================= */
 
-        int wait_for_ack(uint8_t expected_ctr,
+        int wait_for_ack(uint8_t &expected_id,
+                         uint8_t &expected_ctr,
                          k_timeout_t total_timeout);
 
         bool is_valid_ack(uint8_t *buffer,
                           size_t len,
-                          uint8_t expected_ctr);
+                          uint8_t &expected_id,
+                          uint8_t &expected_ctr);
 
         k_timeout_t ack_timeout() const;
 
     private:
         const struct device *dev_;
-        struct lora_modem_config cfg_{};
+        struct DeviceConfig cfg_;
 
         int16_t last_rssi_{0};
         int8_t last_snr_{0};

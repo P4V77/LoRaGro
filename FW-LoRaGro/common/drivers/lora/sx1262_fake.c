@@ -101,13 +101,19 @@ static int fake_lora_send(const struct device *dev,
 
     /* Generation of ACK Packet */
     data->ack_ready_time = k_uptime_get() + 500;
-    data->ack_buffer_len = 2;
+    data->ack_buffer_len = 3;
     data->ack_buffer[0] = 0xA5;
 
-    if (data->last_tx_len >= 2)
-        data->ack_buffer[1] = data->last_tx_buffer[1];
+    if (data->last_tx_len >= 3)
+    {
+        data->ack_buffer[1] = data->last_tx_buffer[0];
+        data->ack_buffer[2] = data->last_tx_buffer[1];
+    }
     else
+    {
         data->ack_buffer[1] = 0;
+        data->ack_buffer[2] = 0;
+    }
 
     data->ack_pending = true;
     return 0;

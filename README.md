@@ -35,39 +35,14 @@ LoRaGro is an open-source agricultural monitoring platform for long-term, autono
 
 ---
 
-## 🚀 Quick Start
-
-**Want to try LoRaGro?**
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yourusername/loragro.git
-   cd loragro
-   ```
-
-2. **Set up development environment:**
-   - Install [Zephyr SDK](https://docs.zephyrproject.org/latest/develop/getting_started/)
-   - See [firmware setup guide](docs/firmware-setup.md)
-
-3. **Development hardware needed:**
-   - nRF52840-DK development board
-   - SX1262 LoRa module
-   - Sensors (see [hardware requirements](docs/hardware-requirements.md))
-
-4. **Join the community:**
-   - [GitHub Issues](https://github.com/yourusername/loragro/issues)
-   - Discord: Coming soon
-
----
-
 ## 🧩 System Overview
 
 ### Node Types
 
-| Node | Purpose | Power | Location | Status |
-|------|---------|-------|----------|--------|
-| **FiNo** | Field sensing | Battery + solar | Outdoor | 🔨 Active dev |
-| **GaNo** | Data gateway | Mains | Farm buildings | 📅 Planned |
+| Node     | Purpose       | Power           | Location       | Status       |
+| -------- | ------------- | --------------- | -------------- | ------------ |
+| **FiNo** | Field sensing | Battery + solar | Outdoor        | 🔨 Active dev |
+| **GaNo** | Data gateway  | Mains           | Farm buildings | 📅 Planned    |
 
 ### FiNo — Field Node
 
@@ -340,13 +315,13 @@ LoRa-to-IP bridge for data collection.
 
 ### Configuration-Specific Recommendations
 
-| Configuration | Basic Recommended? | Premium Upgrade Worth It? |
-|--------------|-------------------|--------------------------|
-| **FIELD BASIC** | ✅ Perfect as-is | Only if you need EC monitoring |
-| **ORCHARD** | ✅ Great for most | Upgrade if fertigation or salinity concerns |
-| **VINEYARD** | ✅ Disease focus, basic is fine | Upgrade for premium wines, organic certification |
-| **GREENHOUSE** | ✅ CO₂/light are priorities | Upgrade only for hydro/aquaponic fertigation |
-| **COASTAL/ARID** | ❌ Premium required | EC monitoring is mandatory, not optional |
+| Configuration    | Basic Recommended?             | Premium Upgrade Worth It?                        |
+| ---------------- | ------------------------------ | ------------------------------------------------ |
+| **FIELD BASIC**  | ✅ Perfect as-is                | Only if you need EC monitoring                   |
+| **ORCHARD**      | ✅ Great for most               | Upgrade if fertigation or salinity concerns      |
+| **VINEYARD**     | ✅ Disease focus, basic is fine | Upgrade for premium wines, organic certification |
+| **GREENHOUSE**   | ✅ CO₂/light are priorities     | Upgrade only for hydro/aquaponic fertigation     |
+| **COASTAL/ARID** | ❌ Premium required             | EC monitoring is mandatory, not optional         |
 
 ---
 
@@ -508,23 +483,29 @@ Sensors are detected automatically at boot—just plug them in!
 ### ✅ Phase 1: Foundation (IN PROGRESS)
 - [x] Project setup (GitHub, docs)
 - [x] Zephyr RTOS "Hello World"
-- [ ] LoRa communication (SX1262 driver)
-- [ ] Sensor abstraction layer
-- [ ] Power management (deep sleep)
-- [ ] Configuration system (NVS)
+- [x] LoRa communication (SX1262 driver)
+- [x] Sensor abstraction layer
+- [x] Power management (deep sleep)
+- [x] Configuration system (NVS)
+- [ ] FiNo Native Sim FW Completed
+- [ ] Tests for Fino Native Sim
+- [ ] FiNo Node Native Sim FW  Tested
+- [ ] GaNo Native Sim FW Completed 
+- [ ] Tests for GaNo Native Sim
+- [ ] FiNo Node Native Sim FW Tested
 
 ### 📅 Phase 2: Product Development
-- [ ] Custom PCB design (KiCad)
-- [ ] PCB prototyping (5-10 units)
 - [ ] Mobile app development
+- [ ] FiNo and GaNo for Pro Micro NRF52840 development
+- [ ] Building HW of Nodes (Mostly from finished modules)
 - [ ] Field testing (2-3 locations)
 - [ ] Iterate based on feedback
 
 ### 📅 Phase 3: Launch & Growth
-- [ ] Production PCB (50-100 units)
+- [ ] Production PCB with (50-100 units)
 - [ ] IP67 enclosure design
 - [ ] User documentation and tutorials
-- [ ] OSHWA certification
+- [ ] Certification
 - [ ] First commercial sales
 
 ### 📅 Phase 4: Expansion
@@ -562,11 +543,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## 📜 License
 
-| Component | License |
-|-----------|---------|
-| **Firmware** | Apache 2.0 |
-| **Hardware** | CERN-OHL-W-2.0 |
-| **Documentation** | CC-BY-4.0 |
+| Component         | License        |
+| ----------------- | -------------- |
+| **Firmware**      | Apache 2.0     |
+| **Hardware**      | CERN-OHL-W-2.0 |
+| **Documentation** | CC-BY-4.0      |
 
 ### Can I use this commercially?
 

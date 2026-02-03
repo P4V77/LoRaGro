@@ -1,6 +1,4 @@
 #include "lora/lora_interface.hpp"
-#include <zephyr/kernel.h>
-#include <zephyr/drivers/lora.h>
 
 namespace loragro
 {
@@ -13,38 +11,25 @@ namespace loragro
     /* =========================================================
      * Initialization
      * ========================================================= */
-
-    int LoRaInterface::init()
-    {
-        if (!device_is_ready(dev_))
-            return -ENODEV;
-
-        cfg_.frequency = 868100000;
-        cfg_.bandwidth = BW_125_KHZ;
-        cfg_.datarate = SF_7;
-        cfg_.preamble_len = 8;
-        cfg_.coding_rate = CR_4_5;
-        cfg_.tx_power = 14;
-
-        return lora_config(dev_, &cfg_);
-    }
-
-    int LoRaInterface::init(struct lora_modem_config &cfg)
+    int LoRaInterface::init(const DeviceConfig &cfg)
     {
         if (!device_is_ready(dev_))
             return -ENODEV;
 
         cfg_ = cfg;
-        return lora_config(dev_, &cfg_);
+        cfg_.lora.tx = false; /* Always default to RX */
+        return lora_config(dev_, &cfg_.lora);
     }
 
-    int LoRaInterface::config(struct lora_modem_config &cfg)
+    int LoRaInterface::config(const DeviceConfig &cfg)
     {
         if (!device_is_ready(dev_))
             return -ENODEV;
 
         cfg_ = cfg;
-        return lora_config(dev_, &cfg_);
+        cfg_.lora.tx = false; /* Always default to RX */
+
+        return lora_config(dev_, &cfg_.lora);
     }
 
     /* =========================================================
@@ -72,17 +57,16 @@ namespace loragro
 
     int LoRaInterface::send_confirmed(uint8_t *data,
                                       size_t len,
-                                      uint8_t packet_ctr)
+                                      uint8_t &device_id,
+                                      uint8_t &packet_ctr)
     {
-        constexpr int max_retries = 3;
-
-        for (int attempt = 0; attempt < max_retries; ++attempt)
+        for (int attempt = 0; attempt < cfg_.max_retries; ++attempt)
         {
             int ret = transmit(data, len);
             if (ret < 0)
                 return ret;
 
-            ret = wait_for_ack(packet_ctr, ack_timeout());
+            ret = wait_for_ack(device_id, packet_ctr, ack_timeout());
             if (ret == 0)
                 return 0; // ACK received
 
@@ -97,7 +81,8 @@ namespace loragro
      * ACK handling
      * ========================================================= */
 
-    int LoRaInterface::wait_for_ack(uint8_t expected_ctr,
+    int LoRaInterface::wait_for_ack(uint8_t &expected_id,
+                                    uint8_t &expected_ctr,
                                     k_timeout_t total_timeout)
     {
 
@@ -119,7 +104,7 @@ namespace loragro
 
             if (ret > 0)
             {
-                if (is_valid_ack(buffer, ret, expected_ctr))
+                if (is_valid_ack(buffer, ret, expected_id, expected_ctr))
                 {
                     return 0; // ACK OK
                 }
@@ -131,18 +116,21 @@ namespace loragro
 
     bool LoRaInterface::is_valid_ack(uint8_t *buffer,
                                      size_t len,
-                                     uint8_t expected_ctr)
+                                     uint8_t &expected_id,
+                                     uint8_t &expected_ctr)
     {
-        if (len < 2)
+        if (len < 3)
             return false;
 
         // Simple ACK format:
         // [0] = 0xA5 (ACK marker)
-        // [1] = packet counter
+        // [1] = Device ID
+        // [2] = Packet counter
         if (buffer[0] != 0xA5)
             return false;
-
-        if (buffer[1] != expected_ctr)
+        if (buffer[1] != expected_id)
+            return false;
+        if (buffer[2] != expected_ctr)
             return false;
 
         return true;
@@ -154,7 +142,7 @@ namespace loragro
 
     k_timeout_t LoRaInterface::ack_timeout() const
     {
-        switch (cfg_.datarate)
+        switch (cfg_.lora.datarate)
         {
         case SF_7:
             return K_MSEC(600);
@@ -179,7 +167,7 @@ namespace loragro
 
     uint8_t LoRaInterface::get_max_payload() const
     {
-        switch (cfg_.datarate)
+        switch (cfg_.lora.datarate)
         {
         case SF_7:
         case SF_8:

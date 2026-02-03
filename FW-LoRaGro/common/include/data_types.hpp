@@ -131,3 +131,15 @@ namespace loragro
     }
 
 } // namespace loragro
+
+namespace loragro
+{
+    enum class MessageOp : uint8_t
+    {
+        SET_ID = 0,
+        SET_SAMPLING_INTERVAL,
+        REBOOT,
+
+        MAX_OP
+    };
+}

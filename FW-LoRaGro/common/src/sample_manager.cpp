@@ -69,10 +69,11 @@ namespace loragro
                 batch_[batch_size_++] = m[j];
 
                 /* Scaling down */
-                int16_t int_part = static_cast<int16_t>(m[j].value.val1 / 1000);
+                // int16_t int_part = static_cast<int16_t>(m[j].value.val1 / 1000);
+                int16_t int_part = static_cast<int16_t>(m[j].value.val1);
                 int16_t frac_3dp = static_cast<int16_t>(m[j].value.val2 / 1000);
 
-                LOG_INF("Type(Manager) %u Measurement[%u]: ID=%u value=%d.%02d ts=%u",
+                LOG_INF("Type(Manager) %u Measurement[%u]: ID=%u value=%d.%03d ts=%u",
                         i, j,
                         m[j].sensor_id,
                         int_part,

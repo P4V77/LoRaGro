@@ -15,6 +15,7 @@
 #include "lora/lora_interface.hpp"
 #include "lora/lora_packetizer.hpp"
 #include "lora/lora_protocol_handler.hpp"
+#include "config_manager.hpp"
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
@@ -38,6 +39,12 @@ static const struct device *const lora_dev =
 
 int main(void)
 {
+    auto &cfg = loragro::ConfigManager::instance();
+    cfg.load();
+    const auto &config_const = cfg.get();
+
+    LOG_INF("Device ID: %d", config_const.device_id);
+
     LOG_INF("Registering sensors");
 
     loragro::PowerRail3V3 regulator;
@@ -51,9 +58,9 @@ int main(void)
     loragro::BatterySenseAdapter battery_sense(adc_dev, loragro::SensorID::BATTERY_VOLTAGE);
 
     loragro::LoRaInterface lora_transiever(lora_dev);
-    lora_transiever.init();
-    loragro::LoRaPacketizer lora_tx;
-    // loragro::LoRaProtocolHandler lora_rx;
+    lora_transiever.init(config_const);
+    loragro::LoRaPacketizer lora_packetizer;
+    loragro::LoRaProtocolHandler lora_rx_handler(cfg);
 
     if (device_is_ready(envi_dev))
     {
@@ -86,27 +93,29 @@ int main(void)
     {
         // 1. Turn ON 3V3 rail.
         regulator.powerOn();
-        // 2. Initialization and Configuration of all sensors after powering ON
+        // 2. Initialization and Configuration after powering ON
         sample_mgr.init_all();
+        lora_transiever.init(config_const);
         // 3. Sample all sensors
         sample_mgr.sample_all();
         // 4. Get batch of measurements over LoRa
         auto batch = sample_mgr.get_batch();
         // 5. Build and Send LoRa packets
-        lora_tx.begin(batch);
+        lora_packetizer.begin(batch);
         uint8_t packet[255]; // safe max PHY size
         size_t max_payload = lora_transiever.get_max_payload();
 
-        while (lora_tx.has_packet_to_send())
+        while (lora_packetizer.has_packet_to_send())
         {
 
-            int len = lora_tx.build_packet(packet, max_payload);
+            int len = lora_packetizer.build_packet(packet, max_payload);
             if (len <= 0)
             {
                 break;
             }
-            int packet_nmbr = lora_tx.get_packet_number(packet, len);
-            int ret = lora_transiever.send_confirmed(packet, len, packet_nmbr);
+            uint8_t packet_nmbr = lora_packetizer.get_packet_number(packet, len);
+            uint8_t device_id = lora_packetizer.get_device_id();
+            int ret = lora_transiever.send_confirmed(packet, len, packet_nmbr, device_id);
             if (ret < 0)
             {
                 LOG_ERR("Packet %d failed: %d", packet_nmbr, ret);
@@ -116,11 +125,13 @@ int main(void)
                 LOG_INF("Packet %d ACKed", packet_nmbr);
             }
         }
-        // 6. Recieve any messages from gateway
+        // 6. Recieve and Decode any Messages from Gateway Node
         /*
         Some kind of lora config based on snri or rssi would be nice but that shoudle be driven by gateway
         However maybe when transmision fails could be nice to somehow check if signal ok and so on
         */
+        lora_transiever.recieve(packet, max_payload);
+        lora_rx_handler.decode(packet, max_payload);
 
         // 6. Turning OFF 3V3 rail (all sensors and components) for maximum power saving
         regulator.powerOff();

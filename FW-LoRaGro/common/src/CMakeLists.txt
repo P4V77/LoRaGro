@@ -3,4 +3,6 @@ zephyr_library_sources(
     sample_manager.cpp
     lora_interface.cpp
     lora_packetizer.cpp
+    lora_protocol_handler.cpp
+    config_manager.cpp
 )

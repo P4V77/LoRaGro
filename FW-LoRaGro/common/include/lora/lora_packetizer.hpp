@@ -12,6 +12,7 @@ namespace loragro
         int begin(struct BatchView batch);
         int build_packet(uint8_t *packet, size_t packet_length);
         int get_packet_number(uint8_t *buffer, uint8_t len) const;
+        int get_device_id() const;
         int has_packet_to_send();
 
         void set_sensor_id(uint8_t device_id) { device_id_ = device_id; };

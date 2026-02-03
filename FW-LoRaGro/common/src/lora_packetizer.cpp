@@ -90,6 +90,10 @@ int loragro::LoRaPacketizer::get_packet_number(uint8_t *buffer, uint8_t len) con
     return buffer[1]; /* Currently builded packet */
 }
 
+int loragro::LoRaPacketizer::get_device_id() const
+{
+    return device_id_;
+}
 int loragro::LoRaPacketizer::has_packet_to_send()
 {
     bool has_more = (batch_count_offset_ < batch_.count);
