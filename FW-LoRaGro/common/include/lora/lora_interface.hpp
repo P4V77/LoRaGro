@@ -60,8 +60,9 @@ namespace loragro
                           uint8_t &expected_id,
                           uint8_t &expected_ctr);
 
-        k_timeout_t LoRaInterface::ack_timeout() const;
-        k_timeout_t LoRaInterface::rx_window_timeout() const;
+        k_timeout_t ack_timeout() const;
+        k_timeout_t rx_window_timeout() const;
+        k_timeout_t tx_airtime() const;
 
     private:
         const struct device *dev_;

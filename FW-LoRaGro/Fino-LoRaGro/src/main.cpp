@@ -58,7 +58,6 @@ int main(void)
     loragro::BatterySenseAdapter battery_sense(adc_dev, loragro::SensorID::BATTERY_VOLTAGE);
 
     loragro::LoRaInterface lora_transiever(lora_dev);
-    lora_transiever.init(dev_cfg);
     loragro::LoRaPacketizer lora_packetizer(cfg);
     loragro::LoRaProtocolHandler lora_rx_handler(cfg);
 

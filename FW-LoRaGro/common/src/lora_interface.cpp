@@ -79,7 +79,10 @@ namespace loragro
             if (ret < 0)
                 return ret;
 
-            ret = wait_for_ack(device_id, packet_ctr, ack_timeout());
+            k_sleep(tx_airtime()); // Sleep for own TX duration
+
+            // Wait for ACK with full timeout (node TX + GW TX + margin)
+            ret = wait_for_ack(device_id, packet_ctr);
             if (ret == 0)
                 return 0; // ACK received
 
@@ -140,53 +143,79 @@ namespace loragro
     /* =========================================================
      * ACK timeout based on spreading factor
      * ========================================================= */
-
     k_timeout_t LoRaInterface::ack_timeout() const
     {
+        // Node TX airtime + estimated gateway TX airtime + margin
         switch (cfg_.lora.datarate)
         {
         case SF_7:
-            return K_MSEC(200);
+            return K_MSEC(60 + 60 + 50); // TX + GW + margin
         case SF_8:
-            return K_MSEC(300);
+            return K_MSEC(100 + 100 + 70);
         case SF_9:
-            return K_MSEC(500);
+            return K_MSEC(180 + 180 + 100);
         case SF_10:
-            return K_MSEC(800);
+            return K_MSEC(300 + 300 + 150);
         case SF_11:
-            return K_MSEC(1200);
+            return K_MSEC(580 + 580 + 200);
         case SF_12:
-            return K_MSEC(1800);
+            return K_MSEC(1020 + 1020 + 300);
         default:
-            return K_MSEC(800);
+            return K_MSEC(300 + 300 + 150);
         }
     }
 
     k_timeout_t LoRaInterface::rx_window_timeout() const
     {
+        // RX window for max payload (~51 bytes for SF11/SF12)
         switch (cfg_.lora.datarate)
         {
         case SF_7:
-            return K_MSEC(600);
+            return K_MSEC(250); // ~max payload airtime
         case SF_8:
-            return K_MSEC(800);
+            return K_MSEC(350);
         case SF_9:
-            return K_MSEC(1200);
+            return K_MSEC(600);
         case SF_10:
-            return K_MSEC(1600);
+            return K_MSEC(950);
         case SF_11:
-            return K_MSEC(2200);
+            return K_MSEC(1800);
         case SF_12:
-            return K_MSEC(3000);
+            return K_MSEC(2900);
         default:
-            return K_MSEC(2000);
+            return K_MSEC(950);
+        }
+    }
+
+    /* =========================================================
+     * TX airtime
+     * ========================================================= */
+    k_timeout_t LoRaInterface::tx_airtime() const
+    {
+        // Approximate airtime for a "max payload" for each SF
+        // BW = 125 kHz, CR = 4/5, preamble 8 symbols
+        switch (cfg_.lora.datarate)
+        {
+        case SF_7:
+            return K_MSEC(60); // ~60 ms
+        case SF_8:
+            return K_MSEC(100); // ~100 ms
+        case SF_9:
+            return K_MSEC(180); // ~180 ms
+        case SF_10:
+            return K_MSEC(300); // ~300 ms
+        case SF_11:
+            return K_MSEC(580); // ~580 ms
+        case SF_12:
+            return K_MSEC(1020); // ~1.02 s
+        default:
+            return K_MSEC(300); // fallback
         }
     }
 
     /* =========================================================
      * Max payload per SF
      * ========================================================= */
-
     uint8_t LoRaInterface::get_max_payload() const
     {
         switch (cfg_.lora.datarate)
