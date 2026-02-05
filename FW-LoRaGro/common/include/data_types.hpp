@@ -136,10 +136,18 @@ namespace loragro
 {
     enum class MessageOp : uint8_t
     {
-        SET_ID = 0,
+        SET_ID = 1,
         SET_SAMPLING_INTERVAL,
         REBOOT,
-
         MAX_OP
+    };
+
+    enum class DecodeResult
+    {
+        OK,
+        PROTOCOL_MISMATCH,
+        INVALID_LENGTH,
+        UNKNOWN_COMMAND,
+        EXECUTED_REBOOT,
     };
 }

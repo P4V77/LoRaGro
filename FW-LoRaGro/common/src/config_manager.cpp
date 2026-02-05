@@ -164,8 +164,6 @@ namespace loragro
         /* Communication */
         config_.sample_interval_min = 15;
         config_.sample_interval_min_low_battery = 240;
-        config_.tx_interval_sec = 900;
-        config_.rx_window_sec = 5;
 
         config_.max_retries = 3;
         config_.ack_timeout_ms = 2000;
@@ -176,6 +174,7 @@ namespace loragro
         config_.battery_critical_mv = 3100;
 
         config_.config_version = CONFIG_VERSION;
+        config_.protocol_version = PROTOCOL_VERSION;
 
         config_loaded_ = true;
         LOG_INF("Loaded default config");

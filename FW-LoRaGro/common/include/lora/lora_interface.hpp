@@ -53,15 +53,15 @@ namespace loragro
          * ========================================================= */
 
         int wait_for_ack(uint8_t &expected_id,
-                         uint8_t &expected_ctr,
-                         k_timeout_t total_timeout);
+                         uint8_t &expected_ctr);
 
         bool is_valid_ack(uint8_t *buffer,
                           size_t len,
                           uint8_t &expected_id,
                           uint8_t &expected_ctr);
 
-        k_timeout_t ack_timeout() const;
+        k_timeout_t LoRaInterface::ack_timeout() const;
+        k_timeout_t LoRaInterface::rx_window_timeout() const;
 
     private:
         const struct device *dev_;

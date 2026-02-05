@@ -41,9 +41,9 @@ int main(void)
 {
     auto &cfg = loragro::ConfigManager::instance();
     cfg.load();
-    const auto &config_const = cfg.get();
+    const auto &dev_cfg = cfg.get();
 
-    LOG_INF("Device ID: %d", config_const.device_id);
+    LOG_INF("Device ID: %d", dev_cfg.device_id);
 
     LOG_INF("Registering sensors");
 
@@ -58,8 +58,8 @@ int main(void)
     loragro::BatterySenseAdapter battery_sense(adc_dev, loragro::SensorID::BATTERY_VOLTAGE);
 
     loragro::LoRaInterface lora_transiever(lora_dev);
-    lora_transiever.init(config_const);
-    loragro::LoRaPacketizer lora_packetizer;
+    lora_transiever.init(dev_cfg);
+    loragro::LoRaPacketizer lora_packetizer(cfg);
     loragro::LoRaProtocolHandler lora_rx_handler(cfg);
 
     if (device_is_ready(envi_dev))
@@ -95,7 +95,7 @@ int main(void)
         regulator.powerOn();
         // 2. Initialization and Configuration after powering ON
         sample_mgr.init_all();
-        lora_transiever.init(config_const);
+        lora_transiever.init(dev_cfg);
         // 3. Sample all sensors
         sample_mgr.sample_all();
         // 4. Get batch of measurements over LoRa
@@ -107,15 +107,14 @@ int main(void)
 
         while (lora_packetizer.has_packet_to_send())
         {
-
             int len = lora_packetizer.build_packet(packet, max_payload);
             if (len <= 0)
             {
                 break;
             }
-            uint8_t packet_nmbr = lora_packetizer.get_packet_number(packet, len);
             uint8_t device_id = lora_packetizer.get_device_id();
-            int ret = lora_transiever.send_confirmed(packet, len, packet_nmbr, device_id);
+            uint8_t packet_nmbr = lora_packetizer.get_packet_number(packet, len);
+            int ret = lora_transiever.send_confirmed(packet, len, device_id, packet_nmbr);
             if (ret < 0)
             {
                 LOG_ERR("Packet %d failed: %d", packet_nmbr, ret);
@@ -130,8 +129,29 @@ int main(void)
         Some kind of lora config based on snri or rssi would be nice but that shoudle be driven by gateway
         However maybe when transmision fails could be nice to somehow check if signal ok and so on
         */
-        lora_transiever.recieve(packet, max_payload);
-        lora_rx_handler.decode(packet, max_payload);
+
+        while (true)
+        {
+            int recieved_bytes = lora_transiever.recieve(packet, max_payload);
+
+            if (recieved_bytes <= 0)
+            {
+                LOG_INF("No RX in timeout after sensor data transmission");
+                break;
+            }
+
+            /* Gateway is waiting for acknowledge from Node so its not problem to process incoming data imidiately */
+            auto result = lora_rx_handler.decode(packet, recieved_bytes);
+
+            if (result == loragro::DecodeResult::PROTOCOL_MISMATCH ||
+                result == loragro::DecodeResult::UNKNOWN_COMMAND)
+            {
+                uint8_t len = lora_packetizer.build_packet(packet, max_payload, result);
+                uint8_t device_id = lora_packetizer.get_device_id();
+                uint8_t packet_nmbr = lora_packetizer.get_packet_number(packet, len);
+                lora_transiever.send_confirmed(packet, len, device_id, packet_nmbr);
+            }
+        }
 
         // 6. Turning OFF 3V3 rail (all sensors and components) for maximum power saving
         regulator.powerOff();
@@ -140,13 +160,3 @@ int main(void)
         k_sleep(K_MINUTES(15));
     }
 }
-
-// Simulated LoRa transmit function
-// void lora_transmit(const std::vector<Measurement> &batch) {
-//     printk("=== LoRa TX ===\n");
-//     for (auto &m : batch) {
-//         printk("Sensor %u type %u value %d timestamp %u\n",
-//                m.sensor_id, m.sensor_type, m.value, m.timestamp);
-//     }
-//     printk("=== End TX ===\n\n");
-// }

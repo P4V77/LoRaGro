@@ -1,5 +1,6 @@
 #include "lora/lora_interface.hpp"
 
+LOG_MODULE_REGISTER(lora_interface, LOG_LEVEL_INF);
 namespace loragro
 {
 
@@ -43,12 +44,24 @@ namespace loragro
 
     int LoRaInterface::recieve(uint8_t *buffer, size_t max_length)
     {
-        return lora_recv(dev_,
-                         buffer,
-                         static_cast<uint8_t>(max_length),
-                         K_MSEC(300),
-                         &last_rssi_,
-                         &last_snr_);
+        int rx = lora_recv(dev_,
+                           buffer,
+                           static_cast<uint8_t>(max_length),
+                           rx_window_timeout(),
+                           &last_rssi_,
+                           &last_snr_);
+
+        if (rx < 0)
+        {
+            LOG_ERR("RX length %d", rx);
+            return rx;
+        }
+        if (rx == 0)
+        {
+            LOG_INF("RX timeout");
+        }
+
+        return rx;
     }
 
     /* =========================================================
@@ -82,34 +95,22 @@ namespace loragro
      * ========================================================= */
 
     int LoRaInterface::wait_for_ack(uint8_t &expected_id,
-                                    uint8_t &expected_ctr,
-                                    k_timeout_t total_timeout)
+                                    uint8_t &expected_ctr)
     {
-
-        int64_t timeout_ms =
-            k_ticks_to_ms_floor64(total_timeout.ticks);
-
-        int64_t deadline = k_uptime_get() + timeout_ms;
-
         uint8_t buffer[64];
 
-        while (k_uptime_get() < deadline)
-        {
-            int ret = lora_recv(dev_,
-                                buffer,
-                                sizeof(buffer),
-                                K_MSEC(100), // receive in small 100ms chunks
-                                &last_rssi_,
-                                &last_snr_);
+        int ret = lora_recv(dev_,
+                            buffer,
+                            sizeof(buffer),
+                            ack_timeout(),
+                            &last_rssi_,
+                            &last_snr_);
 
-            if (ret > 0)
-            {
-                if (is_valid_ack(buffer, ret, expected_id, expected_ctr))
-                {
-                    return 0; // ACK OK
-                }
-            }
-        }
+        if (ret <= 0)
+            return -ETIMEDOUT;
+
+        if (is_valid_ack(buffer, ret, expected_id, expected_ctr))
+            return 0;
 
         return -ETIMEDOUT;
     }
@@ -141,6 +142,27 @@ namespace loragro
      * ========================================================= */
 
     k_timeout_t LoRaInterface::ack_timeout() const
+    {
+        switch (cfg_.lora.datarate)
+        {
+        case SF_7:
+            return K_MSEC(200);
+        case SF_8:
+            return K_MSEC(300);
+        case SF_9:
+            return K_MSEC(500);
+        case SF_10:
+            return K_MSEC(800);
+        case SF_11:
+            return K_MSEC(1200);
+        case SF_12:
+            return K_MSEC(1800);
+        default:
+            return K_MSEC(800);
+        }
+    }
+
+    k_timeout_t LoRaInterface::rx_window_timeout() const
     {
         switch (cfg_.lora.datarate)
         {

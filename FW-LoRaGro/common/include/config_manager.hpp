@@ -40,8 +40,6 @@ namespace loragro
 
         uint8_t sample_interval_min;
         uint8_t sample_interval_min_low_battery;
-        uint16_t tx_interval_sec;
-        uint16_t rx_window_sec;
 
         uint8_t max_retries;
         uint16_t ack_timeout_ms;
@@ -51,6 +49,7 @@ namespace loragro
         uint16_t battery_critical_mv;
 
         uint8_t config_version;
+        uint8_t protocol_version;
     };
 
     class ConfigManager
@@ -71,6 +70,7 @@ namespace loragro
         DeviceConfig config_;
         int init_nvs();
         static constexpr uint8_t CONFIG_VERSION = 1;
+        static constexpr uint8_t PROTOCOL_VERSION = 1;
 
         bool config_loaded_{false};
     };

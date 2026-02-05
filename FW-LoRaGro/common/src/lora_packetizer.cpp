@@ -25,14 +25,15 @@ int loragro::LoRaPacketizer::build_packet(uint8_t *packet, size_t packet_length)
      * Header layout
      * -------------------------------------------------
      * [0] device_id
-     * [1] packet_counter
-     * [2] measurement_count
-     * [3..6] timestamp (shared for whole batch)
+     * [1] reserved/error frame
+     * [2] packet_counter
+     * [3] measurement_count
+     * [4..7] timestamp (shared for whole batch)
      * ------------------------------------------------- */
     packet[pos++] = device_id_;
+    packet[pos++] = 0; /* Reserved/ErrorFrame */
     packet[pos++] = packet_ctr_;
     packet[pos++] = 0; /* Reserved for measurement count stored inside of packet */
-    packet[pos++] = 0; /* Reserved */
 
     /* Use timestamp of first measurement in this packet */
     const Measurement &m = batch_.data[batch_count_offset_];
@@ -80,14 +81,46 @@ int loragro::LoRaPacketizer::build_packet(uint8_t *packet, size_t packet_length)
     return pos;
 }
 
+int loragro::LoRaPacketizer::build_packet(uint8_t *packet, size_t packet_length, DecodeResult error_id)
+{
+    if (!packet || packet_length < 3) // minimum header size
+    {
+        return -EINVAL;
+    }
+
+    size_t pos = 0;
+    const DeviceConfig dev_cfg = cfg_.get();
+
+    /* -------------------------------------------------
+     * LoRa Error Frame
+     * -------------------------------------------------
+     * [0] device_id
+     * [1] error frame flag
+     * [2] protocol_id
+     * [3] error_id
+     * ------------------------------------------------- */
+
+    packet[pos++] = device_id_;
+    packet[pos++] = 1; /* ErrorFrame */
+    packet[pos++] = dev_cfg.protocol_version;
+    packet[pos++] = static_cast<uint8_t>(error_id); /* Reserved for measurement count stored inside of packet */
+
+    return pos;
+}
+
 int loragro::LoRaPacketizer::get_packet_number(uint8_t *buffer, uint8_t len) const
 {
     if (len < 1)
     {
         return -EINVAL;
     }
+    if (buffer[1])
+    {
+        // For Error Frame return 0 as Error packets are only 4 bytes and will always fit LoRa payload
+        return 0;
+    }
 
-    return buffer[1]; /* Currently builded packet */
+    return buffer[2]; /* Currently builded packet */
 }
 
 int loragro::LoRaPacketizer::get_device_id() const
