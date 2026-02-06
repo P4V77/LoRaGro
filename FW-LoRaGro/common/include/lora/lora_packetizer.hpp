@@ -9,8 +9,8 @@ namespace loragro
     /* -------------------------------------------------
      * Lora Data Frame
      * -------------------------------------------------
-     * [0] device_id
-     * [1] reserved/error frame
+     * [0] device_id (source)
+     * [1] frame_type
      * [2] packet_counter
      * [3] measurement_count
      * [4..7] timestamp (shared for whole batch)
@@ -20,23 +20,23 @@ namespace loragro
     /* -------------------------------------------------
      * LoRa Error Frame
      * -------------------------------------------------
-     * [0] device_id
-     * [1] error frame flag
+     * [0] device_id (source)
+     * [1] error frame flag == 0x01
      * [2] protocol_id
      * [3] error_id
      * ------------------------------------------------- */
 
     /*
      * Simple ACK format:
-     * [0] = 0xA5 (ACK marker)
-     * [1] = Device ID
-     * [2] = Packet counter
+     * [0] device_id (source)
+     * [1] frame_type  (0=data, 1=error, 0xA5=ack, etc.)
+     * [2] packet_counter
      */
 
     class LoRaPacketizer
     {
     public:
-        LoRaPacketizer(ConfigManager cfg)
+        LoRaPacketizer(ConfigManager &cfg)
             : cfg_(cfg) {};
 
         int begin(struct BatchView batch);
@@ -46,15 +46,11 @@ namespace loragro
         int get_device_id() const;
         int has_packet_to_send();
 
-        void set_sensor_id(uint8_t device_id) { device_id_ = device_id; };
-
     private:
         struct BatchView batch_;
         const ConfigManager &cfg_;
 
         uint8_t batch_count_offset_{0};
         uint8_t packet_ctr_{0};
-
-        uint8_t device_id_{0x00};
     };
 };

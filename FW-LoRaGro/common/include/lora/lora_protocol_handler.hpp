@@ -7,14 +7,20 @@
 
 namespace loragro
 {
-    /* LoRa RX Data Frame */
-    /*
-    [0]  protocol_version   (1B)
-    [1]  command_id         (1B)
-    [2]  payload_length N   (1B)
-    [3..N] payload
-    [last] optional CRC (optional if PHY already CRC protected)
-    */
+    /* -------------------------------------------------
+     * Lora RX Config Frame
+     * -------------------------------------------------
+     * [0] device_id (target)
+     * [1] frame_type  (0=data, 1=config, 0xA5=ack, etc.)
+     * [2] packet_counter
+     * [3] command_count
+     * [4] protocol_version
+     * [5] command_id1
+     * [6..9] config1
+     * [10] command_idN
+     * [11..14] configN
+     * ------------------------------------------------- */
+
     class LoRaProtocolHandler
     {
     public:
@@ -27,9 +33,9 @@ namespace loragro
         const ConfigManager &cfg_;
         using HandlerFn = DecodeResult (LoRaProtocolHandler::*)(const uint8_t *, uint8_t);
 
-        DecodeResult handle_set_device_id(const uint8_t *data, const uint8_t data_len);
-        DecodeResult handle_sampling_interval(const uint8_t *data, const uint8_t data_len);
-        DecodeResult handle_reboot(const uint8_t *data, const uint8_t data_len);
+        DecodeResult handle_set_device_id(const uint8_t *data, const uint8_t payload_ctr);
+        DecodeResult handle_sampling_interval(const uint8_t *data, const uint8_t payload_ctr);
+        DecodeResult handle_reboot(const uint8_t *data, const uint8_t payload_ctr);
 
         static constexpr HandlerFn dispatch_table[static_cast<uint8_t>(MessageOp::MAX_OP)] = {
             &LoRaProtocolHandler::handle_set_device_id,

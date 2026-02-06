@@ -6,6 +6,7 @@
 #include <cstddef>
 
 #include "config_manager.hpp"
+#include "data_types.hpp"
 
 namespace loragro
 {
@@ -35,8 +36,14 @@ namespace loragro
 
         int send_confirmed(uint8_t *data,
                            size_t len,
-                           uint8_t &device_id,
                            uint8_t &packet_ctr);
+
+        /* =========================================================
+         * ACK message
+         * ========================================================= */
+
+        int send_ack(uint8_t *data,
+                     size_t len);
 
         /* =========================================================
          * Info
@@ -52,12 +59,10 @@ namespace loragro
          * ACK handling
          * ========================================================= */
 
-        int wait_for_ack(uint8_t &expected_id,
-                         uint8_t &expected_ctr);
+        int wait_for_ack(uint8_t &expected_ctr);
 
         bool is_valid_ack(uint8_t *buffer,
                           size_t len,
-                          uint8_t &expected_id,
                           uint8_t &expected_ctr);
 
         k_timeout_t ack_timeout() const;

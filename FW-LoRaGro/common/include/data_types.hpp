@@ -149,5 +149,67 @@ namespace loragro
         INVALID_LENGTH,
         UNKNOWN_COMMAND,
         EXECUTED_REBOOT,
+        DIFFERENT_ID,
     };
+
+    /* -------------------------------------------------
+     * Lora Data Frame
+     * -------------------------------------------------
+     * [0] device_id (source)
+     * [1] frame_type
+     * [2] packet_counter
+     * [3] measurement_count
+     * [4..7] timestamp (shared for whole batch)
+     * [8..payload_max] measurement data
+     * ------------------------------------------------- */
+
+    /* -------------------------------------------------
+     * Lora RX Config Frame
+     * -------------------------------------------------
+     * [0] device_id (target)
+     * [1] frame_type  (0=data, 1=config, 0xA5=ack, etc.)
+     * [2] packet_counter
+     * [3] command_count
+     * [4] protocol_version
+     * [5] command_id1
+     * [6..9] config1
+     * [10] command_idN
+     * [11..14] configN
+     * ------------------------------------------------- */
+
+    /* -------------------------------------------------
+     * LoRa Error Frame
+     * -------------------------------------------------
+     * [0] device_id (source)
+     * [1] error frame flag == 0x01
+     * [2] protocol_id
+     * [3] error_id
+     * ------------------------------------------------- */
+
+    /*
+     * Simple ACK format:
+     * [0] device_id (source)
+     * [1] frame_type  (0=data, 1=error, 0xA5=ack, etc.)
+     * [2] packet_counter
+     */
+
+    namespace LoRaGroFrame
+    {
+        constexpr uint8_t ID = 0;
+        constexpr uint8_t FRAME_TYPE = 1;
+        constexpr uint8_t PACKET_CTR = 2;
+        constexpr uint8_t PAYLOAD_CTR = 3;
+        constexpr uint8_t PROTOCOL_VERSION = 4;
+        constexpr uint8_t PAYLOAD = 5;
+    };
+
+    enum class LoRaGroFrameType : uint8_t
+    {
+        DATA = 1,
+        CONFIG,
+        ERROR,
+        ACK = 0xA5,
+        MAX_FRAME_TYPES
+    };
+
 }

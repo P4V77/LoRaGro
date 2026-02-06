@@ -101,7 +101,7 @@ int main(void)
         auto batch = sample_mgr.get_batch();
         // 5. Build and Send LoRa packets
         lora_packetizer.begin(batch);
-        uint8_t packet[255]; // safe max PHY size
+        uint8_t packet[255]{0xFF}; // safe max PHY size
         size_t max_payload = lora_transiever.get_max_payload();
 
         while (lora_packetizer.has_packet_to_send())
@@ -111,9 +111,8 @@ int main(void)
             {
                 break;
             }
-            uint8_t device_id = lora_packetizer.get_device_id();
             uint8_t packet_nmbr = lora_packetizer.get_packet_number(packet, len);
-            int ret = lora_transiever.send_confirmed(packet, len, device_id, packet_nmbr);
+            int ret = lora_transiever.send_confirmed(packet, len, packet_nmbr);
             if (ret < 0)
             {
                 LOG_ERR("Packet %d failed: %d", packet_nmbr, ret);
@@ -128,7 +127,6 @@ int main(void)
         Some kind of lora config based on snri or rssi would be nice but that shoudle be driven by gateway
         However maybe when transmision fails could be nice to somehow check if signal ok and so on
         */
-
         while (true)
         {
             int recieved_bytes = lora_transiever.recieve(packet, max_payload);
@@ -145,13 +143,9 @@ int main(void)
             if (result == loragro::DecodeResult::PROTOCOL_MISMATCH ||
                 result == loragro::DecodeResult::UNKNOWN_COMMAND)
             {
-                uint8_t len = lora_packetizer.build_packet(packet, max_payload, result);
-                uint8_t device_id = lora_packetizer.get_device_id();
-                uint8_t packet_nmbr = lora_packetizer.get_packet_number(packet, len);
-                lora_transiever.send_confirmed(packet, len, device_id, packet_nmbr);
+                lora_transiever.send_ack(packet, max_payload);
             }
         }
-
         // 6. Turning OFF 3V3 rail (all sensors and components) for maximum power saving
         regulator.powerOff();
         // 7. Deep sleep CPU

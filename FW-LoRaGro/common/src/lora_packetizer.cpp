@@ -1,5 +1,7 @@
 #include "lora/lora_packetizer.hpp"
 
+LOG_MODULE_REGISTER(lora_packetizer, LOG_LEVEL_DBG);
+
 int loragro::LoRaPacketizer::begin(struct BatchView batch)
 {
     batch_ = batch;
@@ -20,18 +22,21 @@ int loragro::LoRaPacketizer::build_packet(uint8_t *packet, size_t packet_length)
     }
 
     size_t pos = 0;
+    const DeviceConfig dev_cfg = cfg_.get();
 
     /* -------------------------------------------------
-     * Header layout
+     * Lora Data Frame
      * -------------------------------------------------
-     * [0] device_id
-     * [1] reserved/error frame
+     * [0] device_id (source)
+     * [1] frame_type
      * [2] packet_counter
      * [3] measurement_count
      * [4..7] timestamp (shared for whole batch)
+     * [8..payload_max] measurement data
      * ------------------------------------------------- */
-    packet[pos++] = device_id_;
-    packet[pos++] = 0; /* Reserved/ErrorFrame */
+
+    packet[pos++] = dev_cfg.device_id;
+    packet[pos++] = static_cast<uint8_t>(LoRaGroFrameType::DATA);
     packet[pos++] = packet_ctr_;
     packet[pos++] = 0; /* Reserved for measurement count stored inside of packet */
 
@@ -74,8 +79,8 @@ int loragro::LoRaPacketizer::build_packet(uint8_t *packet, size_t packet_length)
         return -ENOMEM; // nothing fits → caller must increase payload
     }
 
-    packet[2] = measurement_in_packet_ctr;            /* Updating measurement count in frame header */
-    batch_count_offset_ += measurement_in_packet_ctr; /* Updating batch offset for next frame */
+    packet[LoRaGroFrame::PAYLOAD_CTR] = measurement_in_packet_ctr; /* Updating measurement count in frame header */
+    batch_count_offset_ += measurement_in_packet_ctr;              /* Updating batch offset for next frame */
     packet_ctr_++;
 
     return pos;
@@ -100,8 +105,17 @@ int loragro::LoRaPacketizer::build_packet(uint8_t *packet, size_t packet_length,
      * [3] error_id
      * ------------------------------------------------- */
 
-    packet[pos++] = device_id_;
-    packet[pos++] = 1; /* ErrorFrame */
+    /* -------------------------------------------------
+     * LoRa Error Frame
+     * -------------------------------------------------
+     * [0] device_id (source)
+     * [1] error frame flag == 0x01
+     * [2] protocol_id
+     * [3] error_id
+     * ------------------------------------------------- */
+
+    packet[pos++] = dev_cfg.device_id;
+    packet[pos++] = static_cast<uint8_t>(LoRaGroFrameType::ERROR);
     packet[pos++] = dev_cfg.protocol_version;
     packet[pos++] = static_cast<uint8_t>(error_id); /* Reserved for measurement count stored inside of packet */
 
@@ -123,10 +137,6 @@ int loragro::LoRaPacketizer::get_packet_number(uint8_t *buffer, uint8_t len) con
     return buffer[2]; /* Currently builded packet */
 }
 
-int loragro::LoRaPacketizer::get_device_id() const
-{
-    return device_id_;
-}
 int loragro::LoRaPacketizer::has_packet_to_send()
 {
     bool has_more = (batch_count_offset_ < batch_.count);

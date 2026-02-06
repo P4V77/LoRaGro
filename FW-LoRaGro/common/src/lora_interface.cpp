@@ -70,7 +70,6 @@ namespace loragro
 
     int LoRaInterface::send_confirmed(uint8_t *data,
                                       size_t len,
-                                      uint8_t &device_id,
                                       uint8_t &packet_ctr)
     {
         for (int attempt = 0; attempt < cfg_.max_retries; ++attempt)
@@ -79,10 +78,10 @@ namespace loragro
             if (ret < 0)
                 return ret;
 
-            k_sleep(tx_airtime()); // Sleep for own TX duration
+            k_sleep(tx_airtime()); // Sleep for own (node) TX duration
 
-            // Wait for ACK with full timeout (node TX + GW TX + margin)
-            ret = wait_for_ack(device_id, packet_ctr);
+            // Wait for ACK with full timeout (GW TX airtime + margin)
+            ret = wait_for_ack(packet_ctr);
             if (ret == 0)
                 return 0; // ACK received
 
@@ -93,12 +92,36 @@ namespace loragro
         return -ETIMEDOUT;
     }
 
+    int LoRaInterface::send_ack(uint8_t *data, size_t len)
+    {
+        if (len < 3)
+        {
+            return -EINVAL;
+        }
+
+        /*
+         * Simple ACK format:
+         * [0] device_id (source) [now gateway]
+         * [1] frame_type  (0=data, 1=error, 0xA5=ack, etc.)
+         * [2] packet_counter
+         */
+
+        uint8_t rx_ack_packet[3];
+        uint8_t source_id = data[0];      /* Getting packet number from incoming packet */
+        uint8_t rx_packet_nmbr = data[2]; /* Getting packet number from incoming packet */
+
+        rx_ack_packet[LoRaGroFrame::ID] = source_id;
+        rx_ack_packet[LoRaGroFrame::FRAME_TYPE] = static_cast<uint8_t>(LoRaGroFrameType::ACK);
+        rx_ack_packet[LoRaGroFrame::PACKET_CTR] = rx_packet_nmbr;
+
+        return 0;
+    }
+
     /* =========================================================
      * ACK handling
      * ========================================================= */
 
-    int LoRaInterface::wait_for_ack(uint8_t &expected_id,
-                                    uint8_t &expected_ctr)
+    int LoRaInterface::wait_for_ack(uint8_t &expected_ctr)
     {
         uint8_t buffer[64];
 
@@ -112,7 +135,7 @@ namespace loragro
         if (ret <= 0)
             return -ETIMEDOUT;
 
-        if (is_valid_ack(buffer, ret, expected_id, expected_ctr))
+        if (is_valid_ack(buffer, ret, expected_ctr))
             return 0;
 
         return -ETIMEDOUT;
@@ -120,21 +143,22 @@ namespace loragro
 
     bool LoRaInterface::is_valid_ack(uint8_t *buffer,
                                      size_t len,
-                                     uint8_t &expected_id,
                                      uint8_t &expected_ctr)
     {
         if (len < 3)
             return false;
+        /*
+         * Simple ACK format:
+         * [0] device_id (target)
+         * [1] frame_type  (0=data, 1=error, 0xA5=ack, etc.)
+         * [2] packet_counter
+         */
 
-        // Simple ACK format:
-        // [0] = 0xA5 (ACK marker)
-        // [1] = Device ID
-        // [2] = Packet counter
-        if (buffer[0] != 0xA5)
+        if (buffer[LoRaGroFrame::ID] != cfg_.device_id)
             return false;
-        if (buffer[1] != expected_id)
+        if (buffer[LoRaGroFrame::FRAME_TYPE] != static_cast<uint8_t>(LoRaGroFrameType::ACK))
             return false;
-        if (buffer[2] != expected_ctr)
+        if (buffer[LoRaGroFrame::PACKET_CTR] != expected_ctr)
             return false;
 
         return true;
@@ -145,23 +169,23 @@ namespace loragro
      * ========================================================= */
     k_timeout_t LoRaInterface::ack_timeout() const
     {
-        // Node TX airtime + estimated gateway TX airtime + margin
+        // Gateway TX airtime + margin
         switch (cfg_.lora.datarate)
         {
         case SF_7:
-            return K_MSEC(60 + 60 + 50); // TX + GW + margin
+            return K_MSEC(60 + 50); // GW TX + margin
         case SF_8:
-            return K_MSEC(100 + 100 + 70);
+            return K_MSEC(100 + 70);
         case SF_9:
-            return K_MSEC(180 + 180 + 100);
+            return K_MSEC(180 + 100);
         case SF_10:
-            return K_MSEC(300 + 300 + 150);
+            return K_MSEC(300 + 150);
         case SF_11:
-            return K_MSEC(580 + 580 + 200);
+            return K_MSEC(580 + 200);
         case SF_12:
-            return K_MSEC(1020 + 1020 + 300);
+            return K_MSEC(1020 + 300);
         default:
-            return K_MSEC(300 + 300 + 150);
+            return K_MSEC(300 + 150);
         }
     }
 

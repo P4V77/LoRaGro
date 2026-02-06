@@ -137,10 +137,10 @@ static int fake_lora_send(const struct device *dev,
     data->ack_ready_time = k_uptime_get() + (int64_t)ack_airtime;
 
     data->ack_buffer_len = 3;
-    data->ack_buffer[0] = 0xA5;
-    if (data_len >= 2)
+    if (data_len >= 3)
     {
-        data->ack_buffer[1] = data_buf[0]; /* device ID */
+        data->ack_buffer[0] = data_buf[0]; /* device ID */
+        data->ack_buffer[1] = 0xA5;
         data->ack_buffer[2] = data_buf[2]; /* packet counter */
     }
     else
@@ -149,6 +149,9 @@ static int fake_lora_send(const struct device *dev,
         data->ack_buffer[2] = 0;
     }
     data->ack_pending = true;
+
+    LOG_INF("TX header: %02X %02X %02X",
+            data_buf[0], data_buf[1], data_buf[2]);
 
     return 0;
 }
@@ -169,7 +172,8 @@ static int fake_lora_recv(const struct device *dev,
 
     while (k_uptime_get() <= deadline)
     {
-        if (data->ack_pending && k_uptime_get() >= data->ack_ready_time)
+        if (data->ack_pending &&
+            k_uptime_get() >= data->ack_ready_time)
         {
             size_t len = MIN(data->ack_buffer_len, size);
             memcpy(data_buf, data->ack_buffer, len);
@@ -183,9 +187,9 @@ static int fake_lora_recv(const struct device *dev,
             LOG_INF("Fake SX1262 RX returning %u bytes", len);
             return len;
         }
-        k_sleep(K_MSEC(5)); // avoid busy loop
-    }
 
+        k_sleep(K_MSEC(5));
+    }
     return -EAGAIN;
 }
 
