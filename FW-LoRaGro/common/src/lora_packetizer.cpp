@@ -1,145 +1,203 @@
 #include "lora/lora_packetizer.hpp"
+#include "lora/lora_protocol.hpp"
 
 LOG_MODULE_REGISTER(lora_packetizer, LOG_LEVEL_DBG);
 
-int loragro::LoRaPacketizer::begin(struct BatchView batch)
+namespace loragro
 {
-    batch_ = batch;
-    batch_count_offset_ = 0;
-    packet_ctr_ = 0;
-    return 0;
-}
-int loragro::LoRaPacketizer::build_packet(uint8_t *packet, size_t packet_length)
-{
-    if (!packet || packet_length < 8) // minimum header size
+
+    /* =========================================================
+     * Compile-time layout guarantees
+     * ========================================================= */
+
+    static_assert(sizeof(uint8_t) == 1);
+    static_assert(sizeof(uint16_t) == 2);
+    static_assert(sizeof(int16_t) == 2);
+
+    static constexpr size_t MEASUREMENT_ENCODED_SIZE = 5; // 1 + 2 + 2
+    static_assert(MEASUREMENT_ENCODED_SIZE == 5);
+
+    static_assert(FrameLayout::HEADER_SIZE == 6,
+                  "Header size mismatch with protocol.hpp");
+
+    /* =========================================================
+     * BEGIN
+     * ========================================================= */
+
+    int LoRaPacketizer::begin(BatchView batch)
     {
-        return -EINVAL;
-    }
-
-    if (batch_count_offset_ >= batch_.count)
-    {
-        return 0; // nothing left
-    }
-
-    size_t pos = 0;
-    const DeviceConfig dev_cfg = cfg_.get();
-
-    /* -------------------------------------------------
-     * Lora Data Frame
-     * -------------------------------------------------
-     * [0] device_id (source)
-     * [1] frame_type
-     * [2] packet_counter
-     * [3] measurement_count
-     * [4..7] timestamp (shared for whole batch)
-     * [8..payload_max] measurement data
-     * ------------------------------------------------- */
-
-    packet[pos++] = dev_cfg.device_id;
-    packet[pos++] = static_cast<uint8_t>(LoRaGroFrameType::DATA);
-    packet[pos++] = packet_ctr_;
-    packet[pos++] = 0; /* Reserved for measurement count stored inside of packet */
-
-    /* Use timestamp of first measurement in this packet */
-    const Measurement &m = batch_.data[batch_count_offset_];
-
-    packet[pos++] = (m.timestamp >> 24) & 0xFF; /* Timestamp is (nearly) same for whole batch */
-    packet[pos++] = (m.timestamp >> 16) & 0xFF;
-    packet[pos++] = (m.timestamp >> 8) & 0xFF;
-    packet[pos++] = m.timestamp & 0xFF;
-
-    /* Filling Packet With Data */
-    uint8_t measurement_in_packet_ctr = 0;
-    for (size_t i = batch_count_offset_; i < batch_.count; i++)
-    {
-        const Measurement &m = batch_.data[i];
-
-        /* Measurement size consists of uint8 sensor id and 2x int16 fixed point vaules = 5; */
-        static constexpr size_t measurement_size = sizeof(uint8_t) +
-                                                   sizeof(static_cast<int16_t>(m.value.val1 / 1000)) +
-                                                   sizeof(static_cast<int16_t>(m.value.val2 / 1000));
-        if (pos + measurement_size > packet_length)
-        {
-            break;
-        }
-
-        packet[pos++] = m.sensor_id;
-
-        packet[pos++] = (static_cast<int16_t>(m.value.val1 / 1000) >> 8) & 0xFF; /* First part integer reduced to thousands */
-        packet[pos++] = static_cast<int16_t>(m.value.val1 / 1000);               /* Second part integer reduced to thousands */
-
-        packet[pos++] = (static_cast<int16_t>(m.value.val2 / 1000) >> 8) & 0xFF; /* First part of decimal reduced to 3 decimal points */
-        packet[pos++] = static_cast<int16_t>(m.value.val2 / 1000);
-
-        measurement_in_packet_ctr++;
-    }
-
-    if (measurement_in_packet_ctr == 0)
-    {
-        return -ENOMEM; // nothing fits → caller must increase payload
-    }
-
-    packet[LoRaGroFrame::PAYLOAD_CTR] = measurement_in_packet_ctr; /* Updating measurement count in frame header */
-    batch_count_offset_ += measurement_in_packet_ctr;              /* Updating batch offset for next frame */
-    packet_ctr_++;
-
-    return pos;
-}
-
-int loragro::LoRaPacketizer::build_packet(uint8_t *packet, size_t packet_length, DecodeResult error_id)
-{
-    if (!packet || packet_length < 3) // minimum header size
-    {
-        return -EINVAL;
-    }
-
-    size_t pos = 0;
-    const DeviceConfig dev_cfg = cfg_.get();
-
-    /* -------------------------------------------------
-     * LoRa Error Frame
-     * -------------------------------------------------
-     * [0] device_id
-     * [1] error frame flag
-     * [2] protocol_id
-     * [3] error_id
-     * ------------------------------------------------- */
-
-    /* -------------------------------------------------
-     * LoRa Error Frame
-     * -------------------------------------------------
-     * [0] device_id (source)
-     * [1] error frame flag == 0x01
-     * [2] protocol_id
-     * [3] error_id
-     * ------------------------------------------------- */
-
-    packet[pos++] = dev_cfg.device_id;
-    packet[pos++] = static_cast<uint8_t>(LoRaGroFrameType::ERROR);
-    packet[pos++] = dev_cfg.protocol_version;
-    packet[pos++] = static_cast<uint8_t>(error_id); /* Reserved for measurement count stored inside of packet */
-
-    return pos;
-}
-
-int loragro::LoRaPacketizer::get_packet_number(uint8_t *buffer, uint8_t len) const
-{
-    if (len < 1)
-    {
-        return -EINVAL;
-    }
-    if (buffer[1])
-    {
-        // For Error Frame return 0 as Error packets are only 4 bytes and will always fit LoRa payload
+        batch_ = batch;
+        batch_count_offset_ = 0;
+        packet_ctr_ = 0;
         return 0;
     }
 
-    return buffer[2]; /* Currently builded packet */
-}
+    /* =========================================================
+     * DATA FRAME
+     * ========================================================= */
 
-int loragro::LoRaPacketizer::has_packet_to_send()
-{
-    bool has_more = (batch_count_offset_ < batch_.count);
+    int LoRaPacketizer::build_packet(uint8_t *packet,
+                                     size_t packet_length)
+    {
+        if (!packet)
+            return -EINVAL;
 
-    return has_more;
-}
+        if (batch_count_offset_ >= batch_.count)
+            return 0;
+
+        const DeviceConfig dev_cfg = cfg_.get();
+
+        const uint16_t gateway_id =
+            make_combined_id(
+                extract_gateway(dev_cfg.combined_id),
+                0); // gateway node=0
+
+        const uint16_t node_id =
+            dev_cfg.combined_id;
+
+        size_t pos = 0;
+
+        /* --- Common header --- */
+
+        if (packet_length < FrameLayout::HEADER_SIZE + AUTH_TAG_SIZE)
+            return -EINVAL;
+
+        write_u16_be(packet, pos, gateway_id);
+        pos += 2;
+
+        write_u16_be(packet, pos, node_id);
+        pos += 2;
+
+        packet[pos++] = static_cast<uint8_t>(FrameType::DATA);
+        packet[pos++] = packet_ctr_;
+
+        /* --- Frame specific --- */
+
+        size_t measurement_count_pos = pos;
+        packet[pos++] = 0; // placeholder
+
+        /* Timestamp */
+        const Measurement &first =
+            batch_.data[batch_count_offset_];
+
+        if (packet_length < pos + 4 + AUTH_TAG_SIZE)
+            return -EINVAL;
+
+        packet[pos++] = (first.timestamp >> 24) & 0xFF;
+        packet[pos++] = (first.timestamp >> 16) & 0xFF;
+        packet[pos++] = (first.timestamp >> 8) & 0xFF;
+        packet[pos++] = first.timestamp & 0xFF;
+
+        uint8_t measurement_count = 0;
+
+        for (size_t i = batch_count_offset_; i < batch_.count; ++i)
+        {
+            if (pos + MEASUREMENT_ENCODED_SIZE + AUTH_TAG_SIZE > packet_length)
+                break;
+
+            const Measurement &m = batch_.data[i];
+
+            int16_t v1 = static_cast<int16_t>(m.value.val1 / 1000);
+            int16_t v2 = static_cast<int16_t>(m.value.val2 / 1000);
+
+            packet[pos++] = m.sensor_id;
+
+            packet[pos++] = (v1 >> 8) & 0xFF;
+            packet[pos++] = v1 & 0xFF;
+
+            packet[pos++] = (v2 >> 8) & 0xFF;
+            packet[pos++] = v2 & 0xFF;
+
+            measurement_count++;
+        }
+
+        if (measurement_count == 0)
+            return -ENOMEM;
+
+        packet[measurement_count_pos] = measurement_count;
+
+        batch_count_offset_ += measurement_count;
+        packet_ctr_++;
+
+        /* --- AUTH TAG PLACEHOLDER (4 bytes) --- */
+        /* Will be filled by crypto layer */
+        packet[pos++] = 0;
+        packet[pos++] = 0;
+        packet[pos++] = 0;
+        packet[pos++] = 0;
+
+        return static_cast<int>(pos);
+    }
+
+    /* =========================================================
+     * ERROR FRAME
+     * ========================================================= */
+
+    int LoRaPacketizer::build_packet(uint8_t *packet,
+                                     size_t packet_length,
+                                     DecodeResult error_id)
+    {
+        if (!packet)
+            return -EINVAL;
+
+        if (packet_length < FrameLayout::HEADER_SIZE + 2 + AUTH_TAG_SIZE)
+            return -EINVAL;
+
+        const DeviceConfig dev_cfg = cfg_.get();
+
+        const uint16_t gateway_id =
+            make_combined_id(
+                extract_gateway(dev_cfg.combined_id),
+                0);
+
+        const uint16_t node_id =
+            dev_cfg.combined_id;
+
+        size_t pos = 0;
+
+        write_u16_be(packet, pos, gateway_id);
+        pos += 2;
+
+        write_u16_be(packet, pos, node_id);
+        pos += 2;
+
+        packet[pos++] = static_cast<uint8_t>(FrameType::ERROR);
+        packet[pos++] = packet_ctr_;
+
+        packet[pos++] = PROTOCOL_VERSION;
+        packet[pos++] = static_cast<uint8_t>(error_id);
+
+        /* AUTH placeholder */
+        packet[pos++] = 0;
+        packet[pos++] = 0;
+        packet[pos++] = 0;
+        packet[pos++] = 0;
+
+        return static_cast<int>(pos);
+    }
+
+    /* =========================================================
+     * HELPERS
+     * ========================================================= */
+
+    int LoRaPacketizer::get_packet_number(const uint8_t *buffer,
+                                          uint8_t len) const
+    {
+        if (!buffer || len <= FrameLayout::PACKET_CTR)
+            return -EINVAL;
+
+        return buffer[FrameLayout::PACKET_CTR];
+    }
+
+    uint16_t LoRaPacketizer::get_device_id() const
+    {
+        const DeviceConfig dev_cfg = cfg_.get();
+        return extract_node(dev_cfg.combined_id);
+    }
+
+    bool LoRaPacketizer::has_packet_to_send() const
+    {
+        return (batch_count_offset_ < batch_.count);
+    }
+
+} // namespace loragro

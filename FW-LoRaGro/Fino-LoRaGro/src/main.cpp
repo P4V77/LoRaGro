@@ -43,7 +43,7 @@ int main(void)
     cfg.load();
     const auto &dev_cfg = cfg.get();
 
-    LOG_INF("Device ID: %d", dev_cfg.device_id);
+    LOG_INF("Device Combined ID (Device ID + ID of Gateway Assigned to this Device): %d", dev_cfg.combined_id);
 
     LOG_INF("Registering sensors");
 
@@ -129,7 +129,7 @@ int main(void)
         */
         while (true)
         {
-            int recieved_bytes = lora_transiever.recieve(packet, max_payload);
+            int recieved_bytes = lora_transiever.receive(packet, max_payload);
 
             if (recieved_bytes <= 0)
             {

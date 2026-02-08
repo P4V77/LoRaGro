@@ -149,7 +149,7 @@ namespace loragro
     void ConfigManager::load_defaults()
     {
         /* Device ID */
-        config_.device_id = 1;
+        config_.combined_id = 0;
 
         /* LoRa radio defaults */
         config_.lora.frequency = 868100000;

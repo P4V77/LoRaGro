@@ -28,28 +28,28 @@ namespace loragro
          * ========================================================= */
 
         int transmit(uint8_t *data, size_t length);
-        int recieve(uint8_t *buffer, size_t max_length);
+        int receive(uint8_t *buffer, size_t max_length);
 
         /* =========================================================
          * Confirmed TX (with retries)
          * ========================================================= */
 
         int send_confirmed(uint8_t *data,
-                           size_t len,
-                           uint8_t &packet_ctr);
+                           const size_t len,
+                           const uint8_t packet_ctr);
 
         /* =========================================================
          * ACK message
          * ========================================================= */
 
-        int send_ack(uint8_t *data,
+        int send_ack(const uint8_t *data,
                      size_t len);
 
         /* =========================================================
          * Info
          * ========================================================= */
 
-        uint8_t get_max_payload() const;
+        const uint8_t get_max_payload() const;
 
         int16_t last_rssi() const { return last_rssi_; }
         int8_t last_snr() const { return last_snr_; }
@@ -59,11 +59,11 @@ namespace loragro
          * ACK handling
          * ========================================================= */
 
-        int wait_for_ack(uint8_t &expected_ctr);
+        int wait_for_ack(const uint8_t expected_ctr);
 
-        bool is_valid_ack(uint8_t *buffer,
+        bool is_valid_ack(const uint8_t *buffer,
                           size_t len,
-                          uint8_t &expected_ctr);
+                          const uint8_t expected_ctr);
 
         k_timeout_t ack_timeout() const;
         k_timeout_t rx_window_timeout() const;

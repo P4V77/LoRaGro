@@ -1,6 +1,7 @@
 #include "lora/lora_interface.hpp"
 
 LOG_MODULE_REGISTER(lora_interface, LOG_LEVEL_INF);
+
 namespace loragro
 {
 
@@ -12,25 +13,21 @@ namespace loragro
     /* =========================================================
      * Initialization
      * ========================================================= */
+
     int LoRaInterface::init(const DeviceConfig &cfg)
     {
         if (!device_is_ready(dev_))
             return -ENODEV;
 
         cfg_ = cfg;
-        cfg_.lora.tx = false; /* Always default to RX */
+        cfg_.lora.tx = false; // Always RX by default
+
         return lora_config(dev_, &cfg_.lora);
     }
 
     int LoRaInterface::config(const DeviceConfig &cfg)
     {
-        if (!device_is_ready(dev_))
-            return -ENODEV;
-
-        cfg_ = cfg;
-        cfg_.lora.tx = false; /* Always default to RX */
-
-        return lora_config(dev_, &cfg_.lora);
+        return init(cfg);
     }
 
     /* =========================================================
@@ -39,26 +36,36 @@ namespace loragro
 
     int LoRaInterface::transmit(uint8_t *data, size_t length)
     {
+        if (!data || length == 0)
+            return -EINVAL;
+
+        if (length > get_max_payload())
+            return -EMSGSIZE;
+
         return lora_send(dev_, data, length);
     }
 
-    int LoRaInterface::recieve(uint8_t *buffer, size_t max_length)
+    int LoRaInterface::receive(uint8_t *buffer, size_t max_length)
     {
+        if (!buffer || max_length == 0)
+            return -EINVAL;
+
         int rx = lora_recv(dev_,
                            buffer,
-                           static_cast<uint8_t>(max_length),
+                           static_cast<const uint8_t>(max_length),
                            rx_window_timeout(),
                            &last_rssi_,
                            &last_snr_);
 
         if (rx < 0)
         {
-            LOG_ERR("RX length %d", rx);
+            LOG_ERR("RX error %d", rx);
             return rx;
         }
+
         if (rx == 0)
         {
-            LOG_INF("RX timeout");
+            LOG_DBG("RX timeout");
         }
 
         return rx;
@@ -70,7 +77,7 @@ namespace loragro
 
     int LoRaInterface::send_confirmed(uint8_t *data,
                                       size_t len,
-                                      uint8_t &packet_ctr)
+                                      const uint8_t packet_ctr)
     {
         for (int attempt = 0; attempt < cfg_.max_retries; ++attempt)
         {
@@ -78,60 +85,59 @@ namespace loragro
             if (ret < 0)
                 return ret;
 
-            k_sleep(tx_airtime()); // Sleep for own (node) TX duration
+            k_sleep(tx_airtime());
 
-            // Wait for ACK with full timeout (GW TX airtime + margin)
             ret = wait_for_ack(packet_ctr);
             if (ret == 0)
-                return 0; // ACK received
+                return 0;
 
-            // small backoff between retries
-            k_sleep(K_MSEC(200));
+            k_sleep(K_MSEC(200)); // backoff
         }
 
         return -ETIMEDOUT;
     }
 
-    int LoRaInterface::send_ack(uint8_t *data, size_t len)
+    /* =========================================================
+     * ACK handling (16-bit IDs)
+     * ========================================================= */
+
+    int LoRaInterface::send_ack(const uint8_t *data, size_t len)
     {
-        if (len < 3)
-        {
+        if (!data || len < 6)
             return -EINVAL;
-        }
 
-        /*
-         * Simple ACK format:
-         * [0] device_id (source) [now gateway]
-         * [1] frame_type  (0=data, 1=error, 0xA5=ack, etc.)
-         * [2] packet_counter
-         */
+        uint16_t original_sender =
+            (static_cast<uint16_t>(data[FrameLayout::SOURCE_ID_MSB]) << 8) |
+            data[FrameLayout::SOURCE_ID_LSB];
 
-        uint8_t rx_ack_packet[3];
-        uint8_t source_id = data[0];      /* Getting packet number from incoming packet */
-        uint8_t rx_packet_nmbr = data[2]; /* Getting packet number from incoming packet */
+        uint16_t my_id = cfg_.combined_id;
 
-        rx_ack_packet[LoRaGroFrame::ID] = source_id;
-        rx_ack_packet[LoRaGroFrame::FRAME_TYPE] = static_cast<uint8_t>(LoRaGroFrameType::ACK);
-        rx_ack_packet[LoRaGroFrame::PACKET_CTR] = rx_packet_nmbr;
+        uint8_t ack[6];
 
-        return 0;
+        ack[FrameLayout::TARGET_ID_MSB] = (original_sender >> 8) & 0xFF;
+        ack[FrameLayout::TARGET_ID_LSB] = original_sender & 0xFF;
+
+        ack[FrameLayout::SOURCE_ID_MSB] = (my_id >> 8) & 0xFF;
+        ack[FrameLayout::SOURCE_ID_LSB] = my_id & 0xFF;
+
+        ack[FrameLayout::FRAME_TYPE] =
+            static_cast<const uint8_t>(FrameType::ACK);
+
+        ack[FrameLayout::PACKET_CTR] =
+            data[FrameLayout::PACKET_CTR];
+
+        return transmit(ack, sizeof(ack));
     }
 
     /* =========================================================
-     * ACK handling
+     * Wait for ACK
      * ========================================================= */
 
-    int LoRaInterface::wait_for_ack(uint8_t &expected_ctr)
+    int LoRaInterface::wait_for_ack(const uint8_t expected_ctr)
     {
         uint8_t buffer[64];
 
-        int ret = lora_recv(dev_,
-                            buffer,
-                            sizeof(buffer),
-                            ack_timeout(),
-                            &last_rssi_,
-                            &last_snr_);
-
+        int ret = receive(buffer, sizeof(buffer));
         if (ret <= 0)
             return -ETIMEDOUT;
 
@@ -141,61 +147,68 @@ namespace loragro
         return -ETIMEDOUT;
     }
 
-    bool LoRaInterface::is_valid_ack(uint8_t *buffer,
+    bool LoRaInterface::is_valid_ack(const uint8_t *buffer,
                                      size_t len,
-                                     uint8_t &expected_ctr)
+                                     const uint8_t expected_ctr)
     {
-        if (len < 3)
+        if (!buffer || len < 6)
             return false;
-        /*
-         * Simple ACK format:
-         * [0] device_id (target)
-         * [1] frame_type  (0=data, 1=error, 0xA5=ack, etc.)
-         * [2] packet_counter
-         */
 
-        if (buffer[LoRaGroFrame::ID] != cfg_.device_id)
+        uint16_t target =
+            (static_cast<uint16_t>(buffer[FrameLayout::TARGET_ID_MSB]) << 8) |
+            buffer[FrameLayout::TARGET_ID_LSB];
+
+        if (target != cfg_.combined_id)
             return false;
-        if (buffer[LoRaGroFrame::FRAME_TYPE] != static_cast<uint8_t>(LoRaGroFrameType::ACK))
+
+        uint16_t source =
+            (static_cast<uint16_t>(buffer[FrameLayout::SOURCE_ID_MSB]) << 8) |
+            buffer[FrameLayout::SOURCE_ID_LSB];
+
+        // optional: validate gateway id if needed
+        (void)source;
+
+        if (buffer[FrameLayout::FRAME_TYPE] !=
+            static_cast<const uint8_t>(FrameType::ACK))
             return false;
-        if (buffer[LoRaGroFrame::PACKET_CTR] != expected_ctr)
+
+        if (buffer[FrameLayout::PACKET_CTR] != expected_ctr)
             return false;
 
         return true;
     }
 
     /* =========================================================
-     * ACK timeout based on spreading factor
+     * Timing
      * ========================================================= */
+
     k_timeout_t LoRaInterface::ack_timeout() const
     {
-        // Gateway TX airtime + margin
         switch (cfg_.lora.datarate)
         {
         case SF_7:
-            return K_MSEC(60 + 50); // GW TX + margin
+            return K_MSEC(110);
         case SF_8:
-            return K_MSEC(100 + 70);
+            return K_MSEC(170);
         case SF_9:
-            return K_MSEC(180 + 100);
+            return K_MSEC(280);
         case SF_10:
-            return K_MSEC(300 + 150);
+            return K_MSEC(450);
         case SF_11:
-            return K_MSEC(580 + 200);
+            return K_MSEC(780);
         case SF_12:
-            return K_MSEC(1020 + 300);
+            return K_MSEC(1320);
         default:
-            return K_MSEC(300 + 150);
+            return K_MSEC(450);
         }
     }
 
     k_timeout_t LoRaInterface::rx_window_timeout() const
     {
-        // RX window for max payload (~51 bytes for SF11/SF12)
         switch (cfg_.lora.datarate)
         {
         case SF_7:
-            return K_MSEC(250); // ~max payload airtime
+            return K_MSEC(250);
         case SF_8:
             return K_MSEC(350);
         case SF_9:
@@ -211,47 +224,37 @@ namespace loragro
         }
     }
 
-    /* =========================================================
-     * TX airtime
-     * ========================================================= */
     k_timeout_t LoRaInterface::tx_airtime() const
     {
-        // Approximate airtime for a "max payload" for each SF
-        // BW = 125 kHz, CR = 4/5, preamble 8 symbols
         switch (cfg_.lora.datarate)
         {
         case SF_7:
-            return K_MSEC(60); // ~60 ms
+            return K_MSEC(60);
         case SF_8:
-            return K_MSEC(100); // ~100 ms
+            return K_MSEC(100);
         case SF_9:
-            return K_MSEC(180); // ~180 ms
+            return K_MSEC(180);
         case SF_10:
-            return K_MSEC(300); // ~300 ms
+            return K_MSEC(300);
         case SF_11:
-            return K_MSEC(580); // ~580 ms
+            return K_MSEC(580);
         case SF_12:
-            return K_MSEC(1020); // ~1.02 s
+            return K_MSEC(1020);
         default:
-            return K_MSEC(300); // fallback
+            return K_MSEC(300);
         }
     }
 
-    /* =========================================================
-     * Max payload per SF
-     * ========================================================= */
-    uint8_t LoRaInterface::get_max_payload() const
+    const uint8_t LoRaInterface::get_max_payload() const
     {
         switch (cfg_.lora.datarate)
         {
         case SF_7:
         case SF_8:
             return 242;
-
         case SF_9:
         case SF_10:
             return 115;
-
         case SF_11:
         case SF_12:
         default:

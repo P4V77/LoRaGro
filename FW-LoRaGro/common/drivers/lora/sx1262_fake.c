@@ -7,6 +7,8 @@
 #include <string.h>
 #include <math.h>
 
+#include <lora/lora_protocol_c.h>
+
 LOG_MODULE_REGISTER(sx1262_fake, CONFIG_LOG_DEFAULT_LEVEL);
 
 /* =========================================================
@@ -15,7 +17,6 @@ LOG_MODULE_REGISTER(sx1262_fake, CONFIG_LOG_DEFAULT_LEVEL);
 
 struct sx1262_fake_config
 {
-    /* Nothing needed for fake driver */
 };
 
 struct sx1262_fake_data
@@ -33,28 +34,36 @@ struct sx1262_fake_data
 };
 
 /* =========================================================
- * Airtime calculation helpers
+ * Airtime helpers
  * ========================================================= */
 
-/* Symbol duration in milliseconds */
 static inline double sx1262_symbol_time_ms(uint8_t sf, uint32_t bw_hz)
 {
     return ((1 << sf) * 1000.0) / (double)bw_hz;
 }
 
-/* LoRa payload airtime (ms) using Semtech formula */
-static double sx1262_airtime_ms(uint8_t sf, uint32_t bw_hz, uint8_t cr, uint8_t payload_len, bool header_explicit)
+static double sx1262_airtime_ms(uint8_t sf,
+                                uint32_t bw_hz,
+                                uint8_t cr,
+                                uint8_t payload_len,
+                                bool header_explicit)
 {
     double ts = sx1262_symbol_time_ms(sf, bw_hz);
-    double h = header_explicit ? 0 : 1; // implicit header
-    double de = (sf >= 11) ? 1 : 0;     // low data rate optimization
-    double n_payload = 8 + fmax(ceil((8.0 * payload_len - 4 * sf + 28 + 16 - 20 * h) / (4.0 * (sf - 2 * de))) * (cr + 4), 0);
+    double h = header_explicit ? 0 : 1;
+    double de = (sf >= 11) ? 1 : 0;
+
+    double n_payload = 8 + fmax(
+                               ceil((8.0 * payload_len - 4 * sf + 28 + 16 - 20 * h) /
+                                    (4.0 * (sf - 2 * de))) *
+                                   (cr + 4),
+                               0);
+
     double t_payload = n_payload * ts;
-    double t_preamble = (8 + 4.25) * ts; // default 8 symbols preamble
+    double t_preamble = (8 + 4.25) * ts;
+
     return t_preamble + t_payload;
 }
 
-/* Convert SF enum to actual number */
 static inline uint8_t sf_enum_to_num(uint8_t sf_enum)
 {
     switch (sf_enum)
@@ -77,7 +86,7 @@ static inline uint8_t sf_enum_to_num(uint8_t sf_enum)
 }
 
 /* =========================================================
- * Fake LoRa API implementation
+ * Fake LoRa API
  * ========================================================= */
 
 static int fake_lora_config(const struct device *dev,
@@ -90,12 +99,10 @@ static int fake_lora_config(const struct device *dev,
 
     data->modem_cfg = *config;
 
-    LOG_INF("Fake SX1262 configured:");
-    LOG_INF("  freq: %u", config->frequency);
-    LOG_INF("  SF:   %u", config->datarate);
-    LOG_INF("  BW:   %u", config->bandwidth);
-    LOG_INF("  CR:   %u", config->coding_rate);
-    LOG_INF("  TXP:  %d", config->tx_power);
+    LOG_INF("Fake SX1262 configured (SF=%u BW=%u CR=%u)",
+            config->datarate,
+            config->bandwidth,
+            config->coding_rate);
 
     return 0;
 }
@@ -117,42 +124,68 @@ static int fake_lora_send(const struct device *dev,
 
     LOG_INF("Fake SX1262 TX (%u bytes)", data_len);
 
-    /* Airtime calculation */
+    /* --- Airtime simulation --- */
+
     uint8_t sf = sf_enum_to_num(data->modem_cfg.datarate);
-    uint32_t bw_hz = 125000; // default 125 kHz
-    if (data->modem_cfg.bandwidth == 0)
-        bw_hz = 125000;
-    else if (data->modem_cfg.bandwidth == 1)
+
+    uint32_t bw_hz = 125000;
+    if (data->modem_cfg.bandwidth == 1)
         bw_hz = 250000;
-    else if (data->modem_cfg.bandwidth == 2)
+    if (data->modem_cfg.bandwidth == 2)
         bw_hz = 500000;
 
-    uint8_t cr = (data->modem_cfg.coding_rate >= 1 && data->modem_cfg.coding_rate <= 4) ? data->modem_cfg.coding_rate : 1;
+    uint8_t cr = (data->modem_cfg.coding_rate >= 1 &&
+                  data->modem_cfg.coding_rate <= 4)
+                     ? data->modem_cfg.coding_rate
+                     : 1;
 
-    double airtime_ms = sx1262_airtime_ms(sf, bw_hz, cr, data_len, true);
+    double airtime_ms =
+        sx1262_airtime_ms(sf, bw_hz, cr, data_len, true);
+
     k_sleep(K_MSEC((uint32_t)airtime_ms));
 
-    /* Generate ACK packet after realistic airtime */
-    double ack_airtime = sx1262_airtime_ms(sf, bw_hz, cr, 3, true);
-    data->ack_ready_time = k_uptime_get() + (int64_t)ack_airtime;
+    /* --- Generate ACK using protocol layout --- */
 
-    data->ack_buffer_len = 3;
-    if (data_len >= 3)
+    if (data_len >= LORAGRO_PACKET_CTR + 1)
     {
-        data->ack_buffer[0] = data_buf[0]; /* device ID */
-        data->ack_buffer[1] = 0xA5;
-        data->ack_buffer[2] = data_buf[2]; /* packet counter */
-    }
-    else
-    {
-        data->ack_buffer[1] = 0;
-        data->ack_buffer[2] = 0;
-    }
-    data->ack_pending = true;
+        uint16_t original_sender =
+            ((uint16_t)data_buf[LORAGRO_SOURCE_ID_MSB] << 8) |
+            (uint16_t)data_buf[LORAGRO_SOURCE_ID_LSB];
 
-    LOG_INF("TX header: %02X %02X %02X",
-            data_buf[0], data_buf[1], data_buf[2]);
+        uint16_t fake_gateway_id = 0x00FF;
 
+        /* Target = original sender */
+        data->ack_buffer[LORAGRO_TARGET_ID_MSB] =
+            (original_sender >> 8) & 0xFF;
+        data->ack_buffer[LORAGRO_TARGET_ID_LSB] =
+            original_sender & 0xFF;
+
+        /* Source = fake gateway */
+        data->ack_buffer[LORAGRO_SOURCE_ID_MSB] =
+            (fake_gateway_id >> 8) & 0xFF;
+        data->ack_buffer[LORAGRO_SOURCE_ID_LSB] =
+            fake_gateway_id & 0xFF;
+
+        /* Frame type */
+        data->ack_buffer[LORAGRO_FRAME_TYPE] =
+            LORAGRO_FRAME_TYPE_ACK;
+
+        /* Packet counter mirror */
+        data->ack_buffer[LORAGRO_PACKET_CTR] =
+            data_buf[LORAGRO_PACKET_CTR];
+
+        data->ack_buffer_len = LORAGRO_PACKET_CTR + 1;
+
+        double ack_airtime =
+            sx1262_airtime_ms(sf, bw_hz, cr,
+                              data->ack_buffer_len,
+                              true);
+
+        data->ack_ready_time =
+            k_uptime_get() + (int64_t)ack_airtime;
+
+        data->ack_pending = true;
+    }
     return 0;
 }
 
@@ -168,7 +201,11 @@ static int fake_lora_recv(const struct device *dev,
     if (!data_buf || size == 0)
         return -EINVAL;
 
-    int64_t deadline = K_TIMEOUT_EQ(timeout, K_FOREVER) ? INT64_MAX : k_uptime_get() + k_ticks_to_ms_floor64(timeout.ticks);
+    int64_t deadline =
+        K_TIMEOUT_EQ(timeout, K_FOREVER)
+            ? INT64_MAX
+            : k_uptime_get() +
+                  k_ticks_to_ms_floor64(timeout.ticks);
 
     while (k_uptime_get() <= deadline)
     {
@@ -177,6 +214,7 @@ static int fake_lora_recv(const struct device *dev,
         {
             size_t len = MIN(data->ack_buffer_len, size);
             memcpy(data_buf, data->ack_buffer, len);
+
             data->ack_pending = false;
 
             if (rssi)
@@ -184,17 +222,17 @@ static int fake_lora_recv(const struct device *dev,
             if (snr)
                 *snr = 12;
 
-            LOG_INF("Fake SX1262 RX returning %u bytes", len);
             return len;
         }
 
         k_sleep(K_MSEC(5));
     }
+
     return -EAGAIN;
 }
 
 /* =========================================================
- * Driver API struct
+ * Driver API
  * ========================================================= */
 
 static const struct lora_driver_api sx1262_fake_api = {
@@ -223,10 +261,8 @@ static int sx1262_fake_init(const struct device *dev)
 
 #define SX1262_FAKE_DEFINE(inst)                              \
     static struct sx1262_fake_data sx1262_fake_data_##inst;   \
-                                                              \
     static const struct sx1262_fake_config                    \
         sx1262_fake_config_##inst = {};                       \
-                                                              \
     DEVICE_DT_INST_DEFINE(inst,                               \
                           sx1262_fake_init,                   \
                           NULL,                               \

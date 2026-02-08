@@ -7,19 +7,20 @@
 
 namespace loragro
 {
-    /* -------------------------------------------------
-     * Lora RX Config Frame
-     * -------------------------------------------------
-     * [0] device_id (target)
-     * [1] frame_type  (0=data, 1=config, 0xA5=ack, etc.)
-     * [2] packet_counter
-     * [3] command_count
-     * [4] protocol_version
-     * [5] command_id1
-     * [6..9] config1
-     * [10] command_idN
-     * [11..14] configN
-     * ------------------------------------------------- */
+    /* =========================================================
+     * LoRa RX Config Frame (from gateway to node)
+     * ---------------------------------------------------------
+     * [0] target_id         - node ID
+     * [1] source_id         - gateway ID
+     * [2] frame_type        - CONFIG frame type
+     * [3] packet_counter
+     * [4] command_count
+     * [5] protocol_version
+     * [6] command_id1
+     * [7..10] config1
+     * [11] command_idN
+     * [12..15] configN
+     * --------------------------------------------------------- */
 
     class LoRaProtocolHandler
     {
@@ -45,5 +46,23 @@ namespace loragro
 
         static constexpr size_t dispatch_table_size_ =
             sizeof(dispatch_table) / sizeof(dispatch_table[0]);
+
+        constexpr uint8_t decode_cmd_id(uint8_t raw) { return raw >> 2; }
+        constexpr uint8_t decode_cmd_size(uint8_t raw) { return raw & 0x03; }
+
+        static constexpr uint8_t payload_size(uint8_t encoded_size)
+        {
+            switch (encoded_size)
+            {
+            case 0x00:
+                return 1;
+            case 0x01:
+                return 2;
+            case 0x02:
+                return 4;
+            default:
+                return 0;
+            }
+        }
     };
 }

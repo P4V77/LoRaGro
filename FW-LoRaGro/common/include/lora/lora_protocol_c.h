@@ -1,0 +1,11 @@
+#pragma once
+#include <stdint.h>
+
+#define LORAGRO_TARGET_ID_MSB 0
+#define LORAGRO_TARGET_ID_LSB 1
+#define LORAGRO_SOURCE_ID_MSB 2
+#define LORAGRO_SOURCE_ID_LSB 3
+#define LORAGRO_FRAME_TYPE 4
+#define LORAGRO_PACKET_CTR 5
+
+#define LORAGRO_FRAME_TYPE_ACK 0x02

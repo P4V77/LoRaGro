@@ -1,41 +1,21 @@
 #pragma once
 
 #include <cstdint>
-#include <string.h>
-
 #include <zephyr/drivers/lora.h>
+#include <zephyr/logging/log.h>
 #include <zephyr/fs/nvs.h>
 #include <zephyr/storage/flash_map.h>
-#include <zephyr/logging/log.h>
-#include <zephyr/kernel.h>
-#include <zephyr/logging/log.h>
 #include <zephyr/drivers/flash.h>
 
 namespace loragro
 {
-    // struct LoRaConfig
-    // {
-    //     uint32_t frequency; // Hz
-
-    //     enum lora_signal_bandwidth bandwidth;
-    //     enum lora_datarate datarate;
-    //     enum lora_coding_rate coding_rate;
-
-    //     uint16_t preamble_len;
-    //     int8_t tx_power; // dBm
-
-    //     bool enable_crc;
-    //     bool explicit_header;
-
-    //     uint8_t sync_word;
-    //     bool iq_inverted;
-    // };
-
+    // -----------------------------
+    // Device configuration
+    // -----------------------------
     struct DeviceConfig
     {
-        uint16_t device_id;
+        uint16_t combined_id; // 5-bit gateway + 11-bit node
 
-        // LoRaConfig lora;
         lora_modem_config lora;
 
         uint8_t sample_interval_min;
@@ -52,13 +32,16 @@ namespace loragro
         uint8_t protocol_version;
     };
 
+    // -----------------------------
+    // ConfigManager singleton
+    // -----------------------------
     class ConfigManager
     {
     public:
         static ConfigManager &instance();
 
         int load();                             // Load from NVS
-        int set_config(const DeviceConfig cfg); // Sets config into config_ (RAM)
+        int set_config(const DeviceConfig cfg); // Sets config into RAM
         int save();                             // Save config to NVS
         void load_defaults();
 
