@@ -4,5 +4,6 @@ zephyr_library_sources(
     lora_interface.cpp
     lora_frame_codec.cpp
     lora_protocol_handler.cpp
+    lora_auth.cpp
     config_manager.cpp
 )

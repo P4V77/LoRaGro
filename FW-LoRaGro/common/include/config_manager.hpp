@@ -16,10 +16,16 @@ namespace loragro
     {
         uint16_t combined_id; // 5-bit gateway + 11-bit node
 
+        /* Authenticator */
+        uint8_t auth_key[16];
+        uint32_t rx_security_counter; // local monotonic RX counter
+        uint32_t tx_security_counter; // local monotonic TX counter
+
         lora_modem_config lora;
 
         uint8_t sample_interval_min;
         uint8_t sample_interval_min_low_battery;
+        uint8_t critically_low_battery_timeout_hours;
 
         uint8_t max_retries;
         uint16_t ack_timeout_ms;

@@ -33,6 +33,7 @@ namespace loragro
         int add_sensor(SensorBase *sensor);
         int init_all();
         int sample_all();
+        loragro::Measurement sample_one(uint8_t sensor_id);
         const BatchView get_batch();
 
         size_t batch_size() const { return batch_size_; }

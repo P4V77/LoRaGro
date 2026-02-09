@@ -49,6 +49,7 @@ namespace loragro
         static constexpr size_t FRAME_CTR = 3;
 
         static constexpr size_t HEADER_SIZE = 4;
+        static constexpr size_t AUTH_SIZE = 4;
         static constexpr size_t ACK_FRAME_SIZE = 4;
     };
 

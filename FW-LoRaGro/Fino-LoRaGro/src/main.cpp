@@ -13,6 +13,7 @@
 #include "sensors/soil_capacitive_adapter.hpp"
 #include "sensors/battery_sense.hpp"
 #include "lora/lora_interface.hpp"
+#include "lora/lora_auth.hpp"
 #include "lora/lora_frame_codec.hpp"
 #include "lora/lora_protocol_handler.hpp"
 #include "config_manager.hpp"
@@ -42,6 +43,7 @@ int main(void)
     auto &cfg = loragro::ConfigManager::instance();
     cfg.load();
     const auto &dev_cfg = cfg.get();
+    auto &mut_dev_cfg = cfg.get();
 
     LOG_INF("Device ID: %d", loragro::extract_node(dev_cfg.combined_id));
     LOG_INF("Assiged Gateway ID: %d", loragro::extract_gateway(dev_cfg.combined_id));
@@ -59,6 +61,7 @@ int main(void)
     loragro::BatterySenseAdapter battery_sense(adc_dev, loragro::SensorID::BATTERY_VOLTAGE);
 
     loragro::LoRaInterface lora_transiever(lora_dev);
+    loragro::LoRaAuth auth(mut_dev_cfg);
     loragro::LoRaFrameCodec tx_codec(cfg);
     loragro::LoRaProtocolHandler rx_nadler(cfg);
 
@@ -82,9 +85,10 @@ int main(void)
     {
         sample_mgr.add_sensor(&soil_analog_sensor);
     }
+    int16_t battery_sense_id = -1;
     if (device_is_ready(adc_dev) && battery_sense.is_connected())
     {
-        sample_mgr.add_sensor(&battery_sense);
+        battery_sense_id = sample_mgr.add_sensor(&battery_sense);
     }
 
     LOG_INF("Starting application");
@@ -104,24 +108,24 @@ int main(void)
         tx_codec.begin(batch);
         uint8_t frame[255]{0xFF}; // safe max PHY size
         size_t max_payload = lora_transiever.get_max_payload();
+        size_t usable_payload = max_payload - loragro::FrameLayout::AUTH_SIZE;
 
         while (tx_codec.has_frame_to_send())
         {
-            int len = tx_codec.build_frame(frame, max_payload);
+            int len = tx_codec.build_frame(frame, usable_payload);
             if (len <= 0)
-            {
                 break;
-            }
-            uint8_t frame_nmbr = tx_codec.get_frame_number(frame, len);
-            int ret = lora_transiever.send_confirmed(frame, len);
+
+            int ret = auth.sign_frame(frame, usable_payload, max_payload);
             if (ret < 0)
-            {
+                LOG_ERR("Frame Auth Failed");
+
+            uint8_t frame_nmbr = tx_codec.get_frame_number(frame, len);
+            ret = lora_transiever.send_confirmed(frame, len);
+            if (ret < 0)
                 LOG_ERR("Frame %d failed: %d", frame_nmbr, ret);
-            }
             else
-            {
                 LOG_INF("Frame %d ACKed", frame_nmbr);
-            }
         }
         // 6. Recieve and Decode any Messages from Gateway Node
         /*
@@ -139,7 +143,7 @@ int main(void)
             }
             /* Gateway is waiting for acknowledge from Node so its not problem to process incoming data immediately */
             const loragro::DecodeResult result = rx_nadler.decode(frame, recieved_bytes);
-            const int len = tx_codec.build_frame(frame, max_payload, result);
+            const int len = tx_codec.build_frame(frame, usable_payload, result);
             if (len <= 0)
             {
                 break;
@@ -148,8 +152,36 @@ int main(void)
         }
         // 6. Turning OFF 3V3 rail (all sensors and components) for maximum power saving
         regulator.powerOff();
-        // 7. Deep sleep CPU
-        // power_sleep_until(sample_interval_ms);
-        k_sleep(K_MINUTES(15));
+
+        // 7. Save Config to Flash
+        cfg.save();
+        // 8. Deep sleep CPU based on battery voltage
+        if (batch.data[battery_sense_id].value.val1 < dev_cfg.battery_cutoff_mv)
+        {
+            while (true)
+            {
+                k_sleep(K_HOURS(dev_cfg.critically_low_battery_timeout_hours));
+
+                auto battery_meas = sample_mgr.sample_one(battery_sense_id);
+
+                if (battery_meas.value.val1 >= dev_cfg.battery_cutoff_mv)
+                {
+                    LOG_INF("Battery recovered: %d mV", battery_meas.value.val1);
+                    break; // exit low-battery sleep
+                }
+                else
+                {
+                    LOG_WRN("Battery still low: %d mV", battery_meas.value.val1);
+                }
+            }
+        }
+        else if (batch.data[battery_sense_id].value.val1 < dev_cfg.battery_critical_mv)
+        {
+            k_sleep(K_MINUTES(dev_cfg.sample_interval_min_low_battery));
+        }
+        else
+        {
+            k_sleep(K_MINUTES(dev_cfg.sample_interval_min));
+        }
     }
 }

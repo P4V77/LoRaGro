@@ -151,6 +151,10 @@ namespace loragro
         /* Device ID */
         config_.combined_id = 0;
 
+        /* Auth */
+        config_.rx_security_counter = 0; // local monotonic counter
+        config_.tx_security_counter = 0; // default for new device
+
         /* LoRa radio defaults */
         config_.lora.frequency = 868100000;
         config_.lora.bandwidth = BW_125_KHZ;
@@ -164,6 +168,7 @@ namespace loragro
         /* Communication */
         config_.sample_interval_min = 15;
         config_.sample_interval_min_low_battery = 240;
+        config_.critically_low_battery_timeout_hours = 12;
 
         config_.max_retries = 3;
         config_.ack_timeout_ms = 2000;
