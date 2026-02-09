@@ -23,6 +23,7 @@ namespace loragro
 
         uint8_t max_retries;
         uint16_t ack_timeout_ms;
+        float air_time_margin_factor;
         bool confirmed_uplink;
 
         uint16_t battery_cutoff_mv;

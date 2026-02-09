@@ -13,7 +13,7 @@ namespace loragro
             return DecodeResult::INVALID_LENGTH;
 
         /* Minimum size:
-           header (6)
+           header (4)
            + command_count (1)
            + protocol_version (1)
            + auth (4)
@@ -31,40 +31,25 @@ namespace loragro
         const DeviceConfig &dev_cfg = cfg_.get();
 
         /* -------------------------------------------------
-         * Extract 16-bit IDs (MSB/LSB defined in layout)
+         * Extract 16-bit combined ID
          * ------------------------------------------------- */
+        uint16_t frame_id = read_u16_be(data, FrameLayout::COMBINED_ID_LSB);
 
-        uint16_t frame_target =
-            (static_cast<uint16_t>(data[FrameLayout::TARGET_ID_MSB]) << 8) |
-            static_cast<uint16_t>(data[FrameLayout::TARGET_ID_LSB]);
-
-        uint16_t frame_source =
-            (static_cast<uint16_t>(data[FrameLayout::SOURCE_ID_MSB]) << 8) |
-            static_cast<uint16_t>(data[FrameLayout::SOURCE_ID_LSB]);
-
-        /* Check target matches this device */
-        if (frame_target != dev_cfg.combined_id)
-            return DecodeResult::DIFFERENT_ID;
-
-        /* Check source gateway matches expected gateway */
-        uint8_t expected_gateway =
-            extract_gateway(dev_cfg.combined_id);
-
-        if (extract_gateway(frame_source) != expected_gateway)
+        /* -------------------------------------------------
+         * Check if the frame is addressed to this device
+         * ------------------------------------------------- */
+        if (frame_id != dev_cfg.combined_id)
             return DecodeResult::DIFFERENT_ID;
 
         /* -------------------------------------------------
-         * Packet counter
+         * Packet counter (future replay protection)
          * ------------------------------------------------- */
-        uint8_t packet_ctr =
-            data[FrameLayout::PACKET_CTR];
-
-        (void)packet_ctr; // replay protection later
+        uint8_t frame_ctr = data[FrameLayout::FRAME_CTR];
+        (void)frame_ctr;
 
         /* -------------------------------------------------
          * Commands
          * ------------------------------------------------- */
-
         size_t offset = FrameLayout::HEADER_SIZE;
 
         uint8_t command_count = data[offset++];
@@ -117,20 +102,39 @@ namespace loragro
         /* -------------------------------------------------
          * AUTH TAG (verification placeholder)
          * ------------------------------------------------- */
-
         const uint8_t *received_tag = &data[auth_start];
-
-        // TODO: compute expected tag and compare constant-time
-
         (void)received_tag;
 
         return DecodeResult::OK;
     }
 
-    DecodeResult LoRaProtocolHandler::handle_set_device_id(const uint8_t *data,
-                                                           uint8_t data_len)
+    /* =========================================================
+     * Command handlers (placeholders)
+     * ========================================================= */
+    DecodeResult LoRaProtocolHandler::handle_set_combined_id(const uint8_t *data,
+                                                             uint8_t data_len)
     {
-        return DecodeResult::OK;
+        if (data_len < 2)
+        {
+            return DecodeResult::INVALID_LENGTH;
+        }
+
+        const uint8_t lsb_id = data[0];
+        const uint8_t msb_id = data[1];
+        const uint16_t new_combined_id = static_cast<uint16_t>(msb_id << 8) | lsb_id;
+
+        DeviceConfig cfg = cfg_.get();
+
+        cfg.combined_id = new_combined_id;
+
+        int err = cfg_.save(); /* Saving to NVM */
+        if (err < 0)
+        {
+            LOG_ERR("Save to NVM failed");
+            return DecodeResult::FLASH_FAILED;
+        }
+
+        return DecodeResult::OK_AND_REBOOT_NEED;
     }
 
     DecodeResult LoRaProtocolHandler::handle_sampling_interval(const uint8_t *data,

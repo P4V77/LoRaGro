@@ -4,9 +4,11 @@
 #include <zephyr/kernel.h>
 #include <cstdint>
 #include <cstddef>
+#include <cmath>
 
 #include "config_manager.hpp"
 #include "data_types.hpp"
+#include "lora/lora_protocol.hpp"
 
 namespace loragro
 {
@@ -35,8 +37,21 @@ namespace loragro
          * ========================================================= */
 
         int send_confirmed(uint8_t *data,
-                           const size_t len,
-                           const uint8_t packet_ctr);
+                           const size_t len);
+
+        /* =========================================================
+         * Confirmed TX (no retries)
+         * ========================================================= */
+
+        int send_unconfirmed(uint8_t *data,
+                             const size_t len);
+
+        /* =========================================================
+         * Response RX on Incoming TX (no retries)
+         * ========================================================= */
+
+        int send_response(uint8_t *data,
+                          const size_t len);
 
         /* =========================================================
          * ACK message
@@ -65,9 +80,8 @@ namespace loragro
                           size_t len,
                           const uint8_t expected_ctr);
 
-        k_timeout_t ack_timeout() const;
-        k_timeout_t rx_window_timeout() const;
-        k_timeout_t tx_airtime() const;
+        float calculate_airtime_ms(uint8_t payload_len) const;
+        k_timeout_t compute_rx_timeout(size_t payload_len) const;
 
     private:
         const struct device *dev_;

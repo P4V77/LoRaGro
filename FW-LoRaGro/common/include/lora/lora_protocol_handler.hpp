@@ -29,17 +29,18 @@ namespace loragro
             : cfg_(cfg) {};
 
         DecodeResult decode(const uint8_t *buffer, const uint8_t buffer_len);
+        int rx_message_response(const uint8_t result);
 
     private:
-        const ConfigManager &cfg_;
+        ConfigManager &cfg_;
         using HandlerFn = DecodeResult (LoRaProtocolHandler::*)(const uint8_t *, uint8_t);
 
-        DecodeResult handle_set_device_id(const uint8_t *data, const uint8_t payload_ctr);
+        DecodeResult handle_set_combined_id(const uint8_t *data, const uint8_t payload_ctr);
         DecodeResult handle_sampling_interval(const uint8_t *data, const uint8_t payload_ctr);
         DecodeResult handle_reboot(const uint8_t *data, const uint8_t payload_ctr);
 
         static constexpr HandlerFn dispatch_table[static_cast<uint8_t>(MessageOp::MAX_OP)] = {
-            &LoRaProtocolHandler::handle_set_device_id,
+            &LoRaProtocolHandler::handle_set_combined_id,
             &LoRaProtocolHandler::handle_sampling_interval,
             &LoRaProtocolHandler::handle_reboot,
         };

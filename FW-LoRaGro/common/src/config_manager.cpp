@@ -167,6 +167,7 @@ namespace loragro
 
         config_.max_retries = 3;
         config_.ack_timeout_ms = 2000;
+        config_.air_time_margin_factor = 1.3f;
         config_.confirmed_uplink = true;
 
         /* Power */

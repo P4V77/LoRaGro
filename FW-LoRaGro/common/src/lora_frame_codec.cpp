@@ -1,4 +1,4 @@
-#include "lora/lora_packetizer.hpp"
+#include "lora/lora_frame_codec.hpp"
 #include "lora/lora_protocol.hpp"
 
 LOG_MODULE_REGISTER(lora_packetizer, LOG_LEVEL_DBG);
@@ -9,7 +9,6 @@ namespace loragro
     /* =========================================================
      * Compile-time layout guarantees
      * ========================================================= */
-
     static_assert(sizeof(uint8_t) == 1);
     static_assert(sizeof(uint16_t) == 2);
     static_assert(sizeof(int16_t) == 2);
@@ -17,27 +16,24 @@ namespace loragro
     static constexpr size_t MEASUREMENT_ENCODED_SIZE = 5; // 1 + 2 + 2
     static_assert(MEASUREMENT_ENCODED_SIZE == 5);
 
-    static_assert(FrameLayout::HEADER_SIZE == 6,
+    static_assert(FrameLayout::HEADER_SIZE == 4,
                   "Header size mismatch with protocol.hpp");
 
     /* =========================================================
      * BEGIN
      * ========================================================= */
-
-    int LoRaPacketizer::begin(BatchView batch)
+    int LoRaFrameCodec::begin(BatchView batch)
     {
         batch_ = batch;
         batch_count_offset_ = 0;
-        packet_ctr_ = 0;
+        frame_ctr_ = 0;
         return 0;
     }
 
     /* =========================================================
-     * DATA FRAME
+     * DATA FRAME (Node → Gateway)
      * ========================================================= */
-
-    int LoRaPacketizer::build_packet(uint8_t *packet,
-                                     size_t packet_length)
+    int LoRaFrameCodec::build_frame(uint8_t *packet, size_t packet_length)
     {
         if (!packet)
             return -EINVAL;
@@ -45,40 +41,27 @@ namespace loragro
         if (batch_count_offset_ >= batch_.count)
             return 0;
 
+        if (packet_length < FrameLayout::HEADER_SIZE + AUTH_TAG_SIZE)
+            return -EINVAL;
+
         const DeviceConfig dev_cfg = cfg_.get();
-
-        const uint16_t gateway_id =
-            make_combined_id(
-                extract_gateway(dev_cfg.combined_id),
-                0); // gateway node=0
-
-        const uint16_t node_id =
-            dev_cfg.combined_id;
+        const uint16_t combined_id = dev_cfg.combined_id;
 
         size_t pos = 0;
 
         /* --- Common header --- */
-
-        if (packet_length < FrameLayout::HEADER_SIZE + AUTH_TAG_SIZE)
-            return -EINVAL;
-
-        write_u16_be(packet, pos, gateway_id);
-        pos += 2;
-
-        write_u16_be(packet, pos, node_id);
+        write_u16_be(packet, pos, combined_id); // single combined ID
         pos += 2;
 
         packet[pos++] = static_cast<uint8_t>(FrameType::DATA);
-        packet[pos++] = packet_ctr_;
+        packet[pos++] = frame_ctr_;
 
         /* --- Frame specific --- */
-
         size_t measurement_count_pos = pos;
-        packet[pos++] = 0; // placeholder
+        packet[pos++] = 0; // placeholder for measurement count
 
-        /* Timestamp */
-        const Measurement &first =
-            batch_.data[batch_count_offset_];
+        /* Timestamp from first measurement */
+        const Measurement &first = batch_.data[batch_count_offset_];
 
         if (packet_length < pos + 4 + AUTH_TAG_SIZE)
             return -EINVAL;
@@ -117,10 +100,9 @@ namespace loragro
         packet[measurement_count_pos] = measurement_count;
 
         batch_count_offset_ += measurement_count;
-        packet_ctr_++;
+        frame_ctr_++;
 
         /* --- AUTH TAG PLACEHOLDER (4 bytes) --- */
-        /* Will be filled by crypto layer */
         packet[pos++] = 0;
         packet[pos++] = 0;
         packet[pos++] = 0;
@@ -130,72 +112,32 @@ namespace loragro
     }
 
     /* =========================================================
-     * ERROR FRAME
+     * Response Frame
      * ========================================================= */
-
-    int LoRaPacketizer::build_packet(uint8_t *packet,
-                                     size_t packet_length,
-                                     DecodeResult error_id)
+    int LoRaFrameCodec::build_frame(uint8_t *packet, size_t packet_length, DecodeResult result)
     {
-        if (!packet)
-            return -EINVAL;
-
-        if (packet_length < FrameLayout::HEADER_SIZE + 2 + AUTH_TAG_SIZE)
-            return -EINVAL;
-
-        const DeviceConfig dev_cfg = cfg_.get();
-
-        const uint16_t gateway_id =
-            make_combined_id(
-                extract_gateway(dev_cfg.combined_id),
-                0);
-
-        const uint16_t node_id =
-            dev_cfg.combined_id;
-
-        size_t pos = 0;
-
-        write_u16_be(packet, pos, gateway_id);
-        pos += 2;
-
-        write_u16_be(packet, pos, node_id);
-        pos += 2;
-
-        packet[pos++] = static_cast<uint8_t>(FrameType::ERROR);
-        packet[pos++] = packet_ctr_;
-
-        packet[pos++] = PROTOCOL_VERSION;
-        packet[pos++] = static_cast<uint8_t>(error_id);
-
-        /* AUTH placeholder */
-        packet[pos++] = 0;
-        packet[pos++] = 0;
-        packet[pos++] = 0;
-        packet[pos++] = 0;
-
-        return static_cast<int>(pos);
+        return 0;
     }
 
     /* =========================================================
      * HELPERS
      * ========================================================= */
-
-    int LoRaPacketizer::get_packet_number(const uint8_t *buffer,
-                                          uint8_t len) const
+    int LoRaFrameCodec::get_frame_number(const uint8_t *buffer,
+                                         uint8_t len) const
     {
-        if (!buffer || len <= FrameLayout::PACKET_CTR)
+        if (!buffer || len <= FrameLayout::FRAME_CTR)
             return -EINVAL;
 
-        return buffer[FrameLayout::PACKET_CTR];
+        return buffer[FrameLayout::FRAME_CTR];
     }
 
-    uint16_t LoRaPacketizer::get_device_id() const
+    uint16_t LoRaFrameCodec::get_device_id() const
     {
         const DeviceConfig dev_cfg = cfg_.get();
-        return extract_node(dev_cfg.combined_id);
+        return dev_cfg.combined_id;
     }
 
-    bool LoRaPacketizer::has_packet_to_send() const
+    bool LoRaFrameCodec::has_frame_to_send() const
     {
         return (batch_count_offset_ < batch_.count);
     }

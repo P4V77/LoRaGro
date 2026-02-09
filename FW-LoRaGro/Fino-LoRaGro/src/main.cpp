@@ -13,7 +13,7 @@
 #include "sensors/soil_capacitive_adapter.hpp"
 #include "sensors/battery_sense.hpp"
 #include "lora/lora_interface.hpp"
-#include "lora/lora_packetizer.hpp"
+#include "lora/lora_frame_codec.hpp"
 #include "lora/lora_protocol_handler.hpp"
 #include "config_manager.hpp"
 
@@ -43,7 +43,8 @@ int main(void)
     cfg.load();
     const auto &dev_cfg = cfg.get();
 
-    LOG_INF("Device Combined ID (Device ID + ID of Gateway Assigned to this Device): %d", dev_cfg.combined_id);
+    LOG_INF("Device ID: %d", loragro::extract_node(dev_cfg.combined_id));
+    LOG_INF("Assiged Gateway ID: %d", loragro::extract_gateway(dev_cfg.combined_id));
 
     LOG_INF("Registering sensors");
 
@@ -58,8 +59,8 @@ int main(void)
     loragro::BatterySenseAdapter battery_sense(adc_dev, loragro::SensorID::BATTERY_VOLTAGE);
 
     loragro::LoRaInterface lora_transiever(lora_dev);
-    loragro::LoRaPacketizer lora_packetizer(cfg);
-    loragro::LoRaProtocolHandler lora_rx_handler(cfg);
+    loragro::LoRaFrameCodec tx_codec(cfg);
+    loragro::LoRaProtocolHandler rx_nadler(cfg);
 
     if (device_is_ready(envi_dev))
     {
@@ -99,27 +100,27 @@ int main(void)
         sample_mgr.sample_all();
         // 4. Get batch of measurements over LoRa
         auto batch = sample_mgr.get_batch();
-        // 5. Build and Send LoRa packets
-        lora_packetizer.begin(batch);
-        uint8_t packet[255]{0xFF}; // safe max PHY size
+        // 5. Build and Send LoRa frames
+        tx_codec.begin(batch);
+        uint8_t frame[255]{0xFF}; // safe max PHY size
         size_t max_payload = lora_transiever.get_max_payload();
 
-        while (lora_packetizer.has_packet_to_send())
+        while (tx_codec.has_frame_to_send())
         {
-            int len = lora_packetizer.build_packet(packet, max_payload);
+            int len = tx_codec.build_frame(frame, max_payload);
             if (len <= 0)
             {
                 break;
             }
-            uint8_t packet_nmbr = lora_packetizer.get_packet_number(packet, len);
-            int ret = lora_transiever.send_confirmed(packet, len, packet_nmbr);
+            uint8_t frame_nmbr = tx_codec.get_frame_number(frame, len);
+            int ret = lora_transiever.send_confirmed(frame, len);
             if (ret < 0)
             {
-                LOG_ERR("Packet %d failed: %d", packet_nmbr, ret);
+                LOG_ERR("Frame %d failed: %d", frame_nmbr, ret);
             }
             else
             {
-                LOG_INF("Packet %d ACKed", packet_nmbr);
+                LOG_INF("Frame %d ACKed", frame_nmbr);
             }
         }
         // 6. Recieve and Decode any Messages from Gateway Node
@@ -129,22 +130,21 @@ int main(void)
         */
         while (true)
         {
-            int recieved_bytes = lora_transiever.receive(packet, max_payload);
+            int recieved_bytes = lora_transiever.receive(frame, max_payload);
 
             if (recieved_bytes <= 0)
             {
                 LOG_INF("No RX in timeout after sensor data transmission");
                 break;
             }
-
-            /* Gateway is waiting for acknowledge from Node so its not problem to process incoming data imidiately */
-            auto result = lora_rx_handler.decode(packet, recieved_bytes);
-
-            if (result == loragro::DecodeResult::PROTOCOL_MISMATCH ||
-                result == loragro::DecodeResult::UNKNOWN_COMMAND)
+            /* Gateway is waiting for acknowledge from Node so its not problem to process incoming data immediately */
+            const loragro::DecodeResult result = rx_nadler.decode(frame, recieved_bytes);
+            const int len = tx_codec.build_frame(frame, max_payload, result);
+            if (len <= 0)
             {
-                lora_transiever.send_ack(packet, max_payload);
+                break;
             }
+            lora_transiever.send_response(frame, len);
         }
         // 6. Turning OFF 3V3 rail (all sensors and components) for maximum power saving
         regulator.powerOff();
