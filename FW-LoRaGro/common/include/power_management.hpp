@@ -23,7 +23,7 @@ namespace loragro
 
     private:
         SampleManager &sample_mgr_;
-        const uint8_t &battery_sense_id_;
+        const uint8_t battery_sense_id_;
         const DeviceConfig &dev_cfg_;
     };
 }

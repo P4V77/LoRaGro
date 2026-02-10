@@ -9,11 +9,11 @@
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
+static loragro::App app;
+
 int main(void)
 {
     LOG_INF("Starting application");
-
-    loragro::App app;
 
     if (app.init() != 0)
     {
