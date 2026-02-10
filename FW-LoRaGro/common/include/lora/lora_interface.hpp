@@ -13,10 +13,10 @@
 namespace loragro
 {
 
-    class LoRaInterface
+    class Interface
     {
     public:
-        explicit LoRaInterface(const struct device *dev);
+        explicit Interface(const struct device *dev);
 
         /* =========================================================
          * Initialization

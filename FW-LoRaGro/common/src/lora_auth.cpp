@@ -4,13 +4,13 @@
 namespace loragro
 {
 
-    LoRaAuth::LoRaAuth(DeviceConfig &cfg)
+    Auth::Auth(DeviceConfig &cfg)
         : cfg_(cfg)
     {
     }
 
     // Derive device key from 16-bit device ID
-    int LoRaAuth::derive_device_key(uint16_t device_id)
+    int Auth::derive_device_key(uint16_t device_id)
     {
         static constexpr uint8_t MASTER_KEY[16] = {
             0x91, 0xA4, 0x3C, 0x7F, 0x55, 0x12, 0xB8, 0x66,
@@ -27,7 +27,7 @@ namespace loragro
     }
 
     // Sign a frame (TX)
-    int LoRaAuth::sign_frame(uint8_t *data, size_t len, size_t max_frame_len)
+    int Auth::sign_frame(uint8_t *data, size_t len, size_t max_frame_len)
     {
         if (!data)
             return -EINVAL;
@@ -48,7 +48,7 @@ namespace loragro
     }
 
     // Verify a frame (RX)
-    int LoRaAuth::verify_frame(const uint8_t *data, size_t len, uint32_t frame_counter, const uint8_t tag[4])
+    int Auth::verify_frame(const uint8_t *data, size_t len, uint32_t frame_counter, const uint8_t tag[4])
     {
         if (!data || !tag)
             return -EINVAL;
@@ -69,7 +69,7 @@ namespace loragro
     }
 
     // Compute full 16-byte CMAC
-    int LoRaAuth::compute_cmac(const uint8_t *data, size_t len, uint32_t counter, uint8_t *out_mac)
+    int Auth::compute_cmac(const uint8_t *data, size_t len, uint32_t counter, uint8_t *out_mac)
     {
         if (!data || !out_mac)
             return -EINVAL;

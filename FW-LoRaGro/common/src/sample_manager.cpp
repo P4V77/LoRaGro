@@ -84,30 +84,34 @@ namespace loragro
         return 0;
     }
 
-    loragro::Measurement SampleManager::sample_one(uint8_t sensor_id)
+    loragro::Measurement SampleManager::sample_one(uint8_t logical_id)
     {
-        if (sensor_id >= sensor_count_ || !sensors_[sensor_id])
+        for (size_t s = 0; s < sensor_count_; ++s)
         {
-            LOG_ERR("Invalid sensor_id %u", sensor_id);
-            return Measurement{}; // return default / invalid measurement
+            SensorBase *sensor = sensors_[s];
+
+            const Measurement *m = sensor->measurements();
+            size_t count = sensor->count();
+
+            for (size_t i = 0; i < count; ++i)
+            {
+                if (m[i].sensor_id == logical_id)
+                {
+                    int ret = sensor->sample();
+                    if (ret)
+                    {
+                        LOG_ERR("Sampling failed for sensor %s", sensor->getName());
+                        return Measurement{};
+                    }
+
+                    // return updated measurement
+                    return sensor->measurements()[i];
+                }
+            }
         }
 
-        int ret = sensors_[sensor_id]->sample();
-        if (ret)
-        {
-            LOG_ERR("Sampling sensor %u failed: %d", sensor_id, ret);
-            return Measurement{}; // invalid
-        }
-
-        const Measurement *m = sensors_[sensor_id]->measurements();
-        size_t n = sensors_[sensor_id]->count();
-        if (n == 0)
-        {
-            LOG_ERR("Sensor %u returned no measurement", sensor_id);
-            return Measurement{};
-        }
-
-        return m[0]; // battery sensor usually returns single measurement
+        LOG_ERR("Logical sensor ID %u not found", logical_id);
+        return Measurement{};
     }
 
     const BatchView SampleManager::get_batch()

@@ -5,7 +5,7 @@ LOG_MODULE_REGISTER(lora_interface, LOG_LEVEL_INF);
 namespace loragro
 {
 
-    LoRaInterface::LoRaInterface(const struct device *dev)
+    Interface::Interface(const struct device *dev)
         : dev_(dev)
     {
     }
@@ -14,7 +14,7 @@ namespace loragro
      * Initialization
      * ========================================================= */
 
-    int LoRaInterface::init(const DeviceConfig &cfg)
+    int Interface::init(const DeviceConfig &cfg)
     {
         if (!device_is_ready(dev_))
             return -ENODEV;
@@ -25,7 +25,7 @@ namespace loragro
         return lora_config(dev_, &cfg_.lora);
     }
 
-    int LoRaInterface::config(const DeviceConfig &cfg)
+    int Interface::config(const DeviceConfig &cfg)
     {
         return init(cfg);
     }
@@ -34,7 +34,7 @@ namespace loragro
      * Basic TX / RX
      * ========================================================= */
 
-    int LoRaInterface::transmit(uint8_t *data, size_t length)
+    int Interface::transmit(uint8_t *data, size_t length)
     {
         if (!data || length == 0)
             return -EINVAL;
@@ -45,7 +45,7 @@ namespace loragro
         return lora_send(dev_, data, length);
     }
 
-    int LoRaInterface::receive(uint8_t *buffer, size_t max_length)
+    int Interface::receive(uint8_t *buffer, size_t max_length)
     {
         if (!buffer || max_length == 0)
             return -EINVAL;
@@ -62,8 +62,8 @@ namespace loragro
      * Confirmed TX (with retries)
      * ========================================================= */
 
-    int LoRaInterface::send_confirmed(uint8_t *data,
-                                      size_t len)
+    int Interface::send_confirmed(uint8_t *data,
+                                  size_t len)
     {
         if (!data || len < FrameLayout::HEADER_SIZE)
             return -EINVAL;
@@ -99,8 +99,8 @@ namespace loragro
      * Unonfirmed TX (no retries)
      * ========================================================= */
 
-    int LoRaInterface::send_unconfirmed(uint8_t *data,
-                                        size_t len)
+    int Interface::send_unconfirmed(uint8_t *data,
+                                    size_t len)
     {
         if (!data || len < FrameLayout::HEADER_SIZE)
             return -EINVAL;
@@ -112,8 +112,8 @@ namespace loragro
      * Response RX on Incoming TX (no retries)
      * ========================================================= */
 
-    int LoRaInterface::send_response(uint8_t *data,
-                                     size_t len)
+    int Interface::send_response(uint8_t *data,
+                                 size_t len)
     {
         return send_unconfirmed(data, len);
     }
@@ -122,7 +122,7 @@ namespace loragro
      * ACK handling
      * ========================================================= */
 
-    int LoRaInterface::send_ack(const uint8_t *rx_frame, size_t len)
+    int Interface::send_ack(const uint8_t *rx_frame, size_t len)
     {
         if (!rx_frame || len < FrameLayout::HEADER_SIZE)
             return -EINVAL;
@@ -151,7 +151,7 @@ namespace loragro
      * Wait for ACK
      * ========================================================= */
 
-    int LoRaInterface::wait_for_ack(uint8_t expected_ctr)
+    int Interface::wait_for_ack(uint8_t expected_ctr)
     {
         uint8_t buffer[64];
 
@@ -177,9 +177,9 @@ namespace loragro
         return -EIO; // something received but not valid ACK
     }
 
-    bool LoRaInterface::is_valid_ack(const uint8_t *buffer,
-                                     size_t len,
-                                     uint8_t expected_ctr)
+    bool Interface::is_valid_ack(const uint8_t *buffer,
+                                 size_t len,
+                                 uint8_t expected_ctr)
     {
         if (!buffer || len < FrameLayout::ACK_FRAME_SIZE)
             return false;
@@ -199,7 +199,7 @@ namespace loragro
         return true;
     }
 
-    float LoRaInterface::calculate_airtime_ms(uint8_t payload_len) const
+    float Interface::calculate_airtime_ms(uint8_t payload_len) const
     {
         const uint8_t sf = static_cast<uint8_t>(cfg_.lora.datarate);
 
@@ -227,7 +227,7 @@ namespace loragro
         return tpacket * 1000.0f; // ms
     }
 
-    const uint8_t LoRaInterface::get_max_payload() const
+    const uint8_t Interface::get_max_payload() const
     {
         switch (cfg_.lora.datarate)
         {
@@ -244,7 +244,7 @@ namespace loragro
         }
     }
 
-    k_timeout_t LoRaInterface::compute_rx_timeout(size_t payload_len) const
+    k_timeout_t Interface::compute_rx_timeout(size_t payload_len) const
     {
 
         const float airtime_ms = calculate_airtime_ms(payload_len);

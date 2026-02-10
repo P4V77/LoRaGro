@@ -60,35 +60,49 @@ namespace loragro
 
         int sample() override
         {
+            int ret;
+
 #ifdef CONFIG_ADC_EMUL
-            /* Fake battery ramp */
-            static int fake_raw = 1800;
-            fake_raw += 20;
-            if (fake_raw > 3000)
-                fake_raw = 1800;
+            /* Simulate battery ramp in RAW domain */
+            static int32_t fake_raw = 1400;
+
+            fake_raw += 25;
+
+            if (fake_raw > 2300) // upper limit
+                fake_raw = 1300; // wrap around
+
             adc_emul_const_raw_value_set(dev_, BATTERY_ADC_CHANNEL, fake_raw);
 #endif
 
-            int ret = adc_read(dev_, &sequence_);
-            if (ret)
+            /* Trigger ADC sampling */
+            ret = adc_read(dev_, &sequence_);
+            if (ret < 0)
+            {
                 return ret;
+            }
 
-            // Convert raw ADC value to millivolts
-            ret = adc_raw_to_millivolts(
-                channel_cfg_.reference,
-                channel_cfg_.gain,
-                BATTERY_ADC_RESOLUTION,
-                &raw_value_);
-            if (ret)
-                return ret;
+            int32_t raw = raw_value_;
 
-            /* Undo voltage divider */
-            int32_t battery_mv = scale_by_divider(raw_value_);
+            /* ---- Convert RAW -> mV at ADC pin ---- */
 
-            measurements_[0].value.val1 = battery_mv;
-            measurements_[0].value.val2 = 0;
-            measurements_[0].timestamp = TimeManager::best_effort_unix_s(k_uptime_seconds());
+            constexpr int32_t max_adc = (1 << BATTERY_ADC_RESOLUTION) - 1; // e.g. 4095 (12bit)
+            constexpr int32_t vref_mv = 600;                               // nRF internal reference
+            constexpr int32_t gain_multiplier = 6;                         // gain = 1/6
 
+            int32_t adc_mv = (raw * vref_mv * gain_multiplier) / max_adc;
+
+            /* ---- Compensate resistor divider (from DT ideally) ---- */
+
+            int32_t battery_mv = adc_mv * (r1_ohm_ + r2_ohm_) / r2_ohm_;
+
+            /* ---- Store measurement ---- */
+
+            measurements_[0].sensor_id = measurements_[0].sensor_id;
+            measurements_[0].timestamp =
+                TimeManager::best_effort_unix_s(k_uptime_seconds());
+
+            /* Store as volts + microvolts */
+            measurements_[0].value.val1 = battery_mv; // integer volts
             return 0;
         }
 
@@ -118,7 +132,7 @@ namespace loragro
 
             // Also check actual battery voltage range
             int32_t battery_mv = scale_by_divider(raw_value_);
-            if (battery_mv < 2500 || battery_mv > 4500)
+            if (battery_mv < 1100 || battery_mv > 2200)
             {
                 return -EIO;
             }

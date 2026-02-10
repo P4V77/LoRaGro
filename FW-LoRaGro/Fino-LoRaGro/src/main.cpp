@@ -17,6 +17,7 @@
 #include "lora/lora_frame_codec.hpp"
 #include "lora/lora_protocol_handler.hpp"
 #include "config_manager.hpp"
+#include "power_management.hpp"
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
@@ -60,11 +61,6 @@ int main(void)
     loragro::SoilCapacitiveSensor soil_analog_sensor(adc_dev, loragro::SensorID::SOIL_ANALOG_MOISTURE);
     loragro::BatterySenseAdapter battery_sense(adc_dev, loragro::SensorID::BATTERY_VOLTAGE);
 
-    loragro::LoRaInterface lora_transiever(lora_dev);
-    loragro::LoRaAuth auth(mut_dev_cfg);
-    loragro::LoRaFrameCodec tx_codec(cfg);
-    loragro::LoRaProtocolHandler rx_nadler(cfg);
-
     if (device_is_ready(envi_dev))
     {
         sample_mgr.add_sensor(&env_sensor);
@@ -85,11 +81,16 @@ int main(void)
     {
         sample_mgr.add_sensor(&soil_analog_sensor);
     }
-    int16_t battery_sense_id = -1;
     if (device_is_ready(adc_dev) && battery_sense.is_connected())
     {
-        battery_sense_id = sample_mgr.add_sensor(&battery_sense);
+        sample_mgr.add_sensor(&battery_sense);
     }
+
+    loragro::Interface lora_transiever(lora_dev);
+    loragro::Auth auth(mut_dev_cfg);
+    loragro::FrameCodec tx_codec(cfg);
+    loragro::ProtocolHandler rx_nadler(cfg);
+    loragro::PowerManagement pwr_mgr(sample_mgr, loragro::SensorID::BATTERY_VOLTAGE, dev_cfg);
 
     LOG_INF("Starting application");
 
@@ -153,35 +154,9 @@ int main(void)
         // 6. Turning OFF 3V3 rail (all sensors and components) for maximum power saving
         regulator.powerOff();
 
-        // 7. Save Config to Flash
+        // 7. Save Config to Flash (only if changed)
         cfg.save();
-        // 8. Deep sleep CPU based on battery voltage
-        if (batch.data[battery_sense_id].value.val1 < dev_cfg.battery_cutoff_mv)
-        {
-            while (true)
-            {
-                k_sleep(K_HOURS(dev_cfg.critically_low_battery_timeout_hours));
-
-                auto battery_meas = sample_mgr.sample_one(battery_sense_id);
-
-                if (battery_meas.value.val1 >= dev_cfg.battery_cutoff_mv)
-                {
-                    LOG_INF("Battery recovered: %d mV", battery_meas.value.val1);
-                    break; // exit low-battery sleep
-                }
-                else
-                {
-                    LOG_WRN("Battery still low: %d mV", battery_meas.value.val1);
-                }
-            }
-        }
-        else if (batch.data[battery_sense_id].value.val1 < dev_cfg.battery_critical_mv)
-        {
-            k_sleep(K_MINUTES(dev_cfg.sample_interval_min_low_battery));
-        }
-        else
-        {
-            k_sleep(K_MINUTES(dev_cfg.sample_interval_min));
-        }
+        // 8. Check battery and deep sleep CPU
+        pwr_mgr.handle_sleep();
     }
 }

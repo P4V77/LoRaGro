@@ -122,11 +122,23 @@ namespace loragro
     {
         if (!config_loaded_)
         {
-            LOG_ERR("Config must be loaded at the start of the device befor trying to save to it");
+            LOG_ERR("Config must be loaded before saving");
             return -ECANCELED;
         }
 
         config_.config_version = CONFIG_VERSION;
+
+        // Read current config from NVS to compare
+        DeviceConfig stored{};
+        ssize_t len = nvs_read(&nvs, CONFIG_NVS_ID, &stored, sizeof(DeviceConfig));
+        if (len == sizeof(DeviceConfig))
+        {
+            if (memcmp(&stored, &config_, sizeof(DeviceConfig)) == 0)
+            {
+                LOG_INF("Config unchanged, skipping NVS write");
+                return 0;
+            }
+        }
 
         int rc = nvs_write(&nvs,
                            CONFIG_NVS_ID,
@@ -176,8 +188,8 @@ namespace loragro
         config_.confirmed_uplink = true;
 
         /* Power */
-        config_.battery_cutoff_mv = 3300;
-        config_.battery_critical_mv = 3100;
+        config_.battery_cutoff_mv = 2600;
+        config_.battery_critical_mv = 3000;
 
         config_.config_version = CONFIG_VERSION;
         config_.protocol_version = PROTOCOL_VERSION;

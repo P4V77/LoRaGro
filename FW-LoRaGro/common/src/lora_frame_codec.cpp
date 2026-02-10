@@ -22,7 +22,7 @@ namespace loragro
     /* =========================================================
      * BEGIN
      * ========================================================= */
-    int LoRaFrameCodec::begin(BatchView batch)
+    int FrameCodec::begin(BatchView batch)
     {
         batch_ = batch;
         batch_count_offset_ = 0;
@@ -33,7 +33,7 @@ namespace loragro
     /* =========================================================
      * DATA FRAME (Node → Gateway)
      * ========================================================= */
-    int LoRaFrameCodec::build_frame(uint8_t *packet, size_t packet_length)
+    int FrameCodec::build_frame(uint8_t *packet, size_t packet_length)
     {
         if (!packet)
             return -EINVAL;
@@ -114,7 +114,7 @@ namespace loragro
     /* =========================================================
      * Response Frame
      * ========================================================= */
-    int LoRaFrameCodec::build_frame(uint8_t *packet, size_t packet_length, DecodeResult result)
+    int FrameCodec::build_frame(uint8_t *packet, size_t packet_length, DecodeResult result)
     {
         return 0;
     }
@@ -122,8 +122,8 @@ namespace loragro
     /* =========================================================
      * HELPERS
      * ========================================================= */
-    int LoRaFrameCodec::get_frame_number(const uint8_t *buffer,
-                                         uint8_t len) const
+    int FrameCodec::get_frame_number(const uint8_t *buffer,
+                                     uint8_t len) const
     {
         if (!buffer || len <= FrameLayout::FRAME_CTR)
             return -EINVAL;
@@ -131,13 +131,13 @@ namespace loragro
         return buffer[FrameLayout::FRAME_CTR];
     }
 
-    uint16_t LoRaFrameCodec::get_device_id() const
+    uint16_t FrameCodec::get_device_id() const
     {
         const DeviceConfig dev_cfg = cfg_.get();
         return dev_cfg.combined_id;
     }
 
-    bool LoRaFrameCodec::has_frame_to_send() const
+    bool FrameCodec::has_frame_to_send() const
     {
         return (batch_count_offset_ < batch_.count);
     }

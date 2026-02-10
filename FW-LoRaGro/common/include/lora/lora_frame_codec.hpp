@@ -8,10 +8,10 @@
 namespace loragro
 {
 
-    class LoRaFrameCodec
+    class FrameCodec
     {
     public:
-        explicit LoRaFrameCodec(ConfigManager &cfg)
+        explicit FrameCodec(ConfigManager &cfg)
             : cfg_(cfg)
         {
         }

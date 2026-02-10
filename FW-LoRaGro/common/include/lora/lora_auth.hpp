@@ -8,10 +8,10 @@
 namespace loragro
 {
 
-    class LoRaAuth
+    class Auth
     {
     public:
-        explicit LoRaAuth(DeviceConfig &cfg);
+        explicit Auth(DeviceConfig &cfg);
 
         // Derive 16-byte device key from 16-bit device ID
         int derive_device_key(uint16_t device_id);

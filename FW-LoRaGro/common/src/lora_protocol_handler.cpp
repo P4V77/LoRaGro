@@ -6,8 +6,8 @@ LOG_MODULE_REGISTER(lora_protocol_handler, LOG_LEVEL_ERR);
 namespace loragro
 {
 
-    DecodeResult LoRaProtocolHandler::decode(const uint8_t *data,
-                                             const uint8_t data_len)
+    DecodeResult ProtocolHandler::decode(const uint8_t *data,
+                                         const uint8_t data_len)
     {
         if (!data)
             return DecodeResult::INVALID_LENGTH;
@@ -111,8 +111,8 @@ namespace loragro
     /* =========================================================
      * Command handlers (placeholders)
      * ========================================================= */
-    DecodeResult LoRaProtocolHandler::handle_set_combined_id(const uint8_t *data,
-                                                             uint8_t data_len)
+    DecodeResult ProtocolHandler::handle_set_combined_id(const uint8_t *data,
+                                                         uint8_t data_len)
     {
         if (data_len < 2)
         {
@@ -137,14 +137,14 @@ namespace loragro
         return DecodeResult::OK_AND_REBOOT_NEED;
     }
 
-    DecodeResult LoRaProtocolHandler::handle_sampling_interval(const uint8_t *data,
-                                                               uint8_t data_len)
+    DecodeResult ProtocolHandler::handle_sampling_interval(const uint8_t *data,
+                                                           uint8_t data_len)
     {
         return DecodeResult::OK;
     }
 
-    DecodeResult LoRaProtocolHandler::handle_reboot(const uint8_t *data,
-                                                    uint8_t data_len)
+    DecodeResult ProtocolHandler::handle_reboot(const uint8_t *data,
+                                                uint8_t data_len)
     {
         return DecodeResult::OK;
     }

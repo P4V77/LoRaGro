@@ -22,10 +22,10 @@ namespace loragro
      * [12..15] configN
      * --------------------------------------------------------- */
 
-    class LoRaProtocolHandler
+    class ProtocolHandler
     {
     public:
-        LoRaProtocolHandler(ConfigManager &cfg)
+        ProtocolHandler(ConfigManager &cfg)
             : cfg_(cfg) {};
 
         DecodeResult decode(const uint8_t *buffer, const uint8_t buffer_len);
@@ -33,16 +33,16 @@ namespace loragro
 
     private:
         ConfigManager &cfg_;
-        using HandlerFn = DecodeResult (LoRaProtocolHandler::*)(const uint8_t *, uint8_t);
+        using HandlerFn = DecodeResult (ProtocolHandler::*)(const uint8_t *, uint8_t);
 
         DecodeResult handle_set_combined_id(const uint8_t *data, const uint8_t payload_ctr);
         DecodeResult handle_sampling_interval(const uint8_t *data, const uint8_t payload_ctr);
         DecodeResult handle_reboot(const uint8_t *data, const uint8_t payload_ctr);
 
         static constexpr HandlerFn dispatch_table[static_cast<uint8_t>(MessageOp::MAX_OP)] = {
-            &LoRaProtocolHandler::handle_set_combined_id,
-            &LoRaProtocolHandler::handle_sampling_interval,
-            &LoRaProtocolHandler::handle_reboot,
+            &ProtocolHandler::handle_set_combined_id,
+            &ProtocolHandler::handle_sampling_interval,
+            &ProtocolHandler::handle_reboot,
         };
 
         static constexpr size_t dispatch_table_size_ =
