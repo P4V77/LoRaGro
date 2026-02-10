@@ -189,8 +189,8 @@ Bridge the LoRa network to IP‑based infrastructure.
 
 **Power options**
 
-* USB‑C / mains
-* Optional solar for remote locations
+* Battery with solar for remote locations (mainly planned for FiNo)
+* USB‑C / mains (mainly planned for GaNo)
 
 **Status**
 Planned for **Phase 2**

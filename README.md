@@ -7,60 +7,64 @@
 
 **Solar-Powered Agricultural IoT Platform with Modular LoRa Nodes**
 
-LoRaGro is an open-source agricultural monitoring platform for long-term, autonomous crop and soil sensing. Solar-powered nodes run indefinitely, or 6–12 months on battery alone.
+LoRaGro is an open-source agricultural monitoring platform designed for long-term autonomous field deployment using ultra-low-power LoRa nodes. The firmware is built on Zephyr RTOS, designed simulation-first (BSIM), and structured to run unchanged on real nRF52 hardware.
 
 ```
 [FiNo Node] ──LoRa──> [GaNo Gateway] ──WiFi/Ethernet──> [Server/App]
      ↓                        ↓                                ↓
   Sensors                Bridge logic                    Data storage
   Solar + battery        Time sync                       Visualization
-  Waterproof             Buffering                       Alerts
+  Deep sleep             Buffering                       Alerts
 ```
 
-> **🚧 Project Status:** Phase 1 (Firmware Development)  
-> Hardware PCB design coming in Phase 2
+> **🚧 Current Status:** Phase 1 – Firmware architecture & simulation  
+> Hardware PCB design planned for Phase 2
 
 ---
 
-## ✨ Why LoRaGro?
+## ✨ What Makes LoRaGro Different?
 
-- **Energy autonomous** — Solar + battery for indefinite operation
-- **Long battery life** — 6-12 months on single 18650 (battery-only)
-- **Fully modular** — Add or remove sensors as needed
-- **Plug-and-play sensors** — Auto-detected via Devicetree
-- **Single firmware** — One codebase for all node types
-- **Open source** — Apache 2.0 firmware, CERN-OHL hardware
-- **LoRa connectivity** — Long range (2-10 km), no cellular needed for sensore nodes
-- **Weatherproof** — IP67 enclosure (planned)
+- 🔋 **Energy autonomous** — Solar + battery for indefinite operation
+- 💤 **Battery-aware deep sleep** — Intelligent power management
+- 🧠 **Modular sensor managers** — Devicetree-driven architecture
+- 🧪 **Full native simulation** — nRF52 BSIM for development without hardware
+- 🧩 **Single firmware** — One codebase for all node variants
+- 📡 **Raw LoRa protocol** — No LoRaWAN dependency
+- 💾 **Persistent configuration** — NVS storage
+- 🔁 **Production-ready architecture** — Not a prototype sketch
+
+**This is structured as deployable embedded firmware from day one.**
 
 ---
 
-## 🧩 System Overview
+## 🧩 System Architecture
 
 ### Node Types
 
-| Node     | Purpose       | Power           | Location       | Status       |
-| -------- | ------------- | --------------- | -------------- | ------------ |
-| **FiNo** | Field sensing | Battery + solar | Outdoor        | 🔨 Active dev |
-| **GaNo** | Data gateway  | Mains           | Farm buildings | 📅 Planned    |
+| Node     | Purpose             | Power           | Location       | Status       |
+| -------- | ------------------- | --------------- | -------------- | ------------ |
+| **FiNo** | Field sensing       | Battery + solar | Outdoor        | 🔨 Active dev |
+| **GaNo** | Data gateway/bridge | Mains           | Farm buildings | 📅 Planned    |
 
 ### FiNo — Field Node
 
-Autonomous sensing node for agricultural monitoring.
+Autonomous agricultural sensing unit for long-term deployment.
 
-**Power:**
-- Primary: Single 18650 Li-ion (3000mAh)
-- Optional: 5W solar panel for indefinite runtime
+**Power System:**
+- Single 18650 Li-ion (3000mAh)
+- Optional 5W solar panel for indefinite runtime
+- Battery-aware sleep intervals
+- Critical deep-sleep recovery mode
+- Graceful brownout behavior
 - Battery life: 6-12 months depending on configuration
 
 **Communication:**
 - LoRa uplink (868MHz EU / 915MHz US)
 - Range: 2-10 km depending on terrain
-- Optional: BLE for commissioning
 
 **Enclosure:** IP67 waterproof (planned)
 
-**Key feature:** Fully modular — add or remove sensors based on your needs.
+**Key feature:** Fully modular — sensors auto-detected via Devicetree
 
 ### GaNo — Gateway Node
 
@@ -85,7 +89,7 @@ LoRa-to-IP bridge for data collection.
 - Hot-swappable between configurations
 - Optional in any configuration
 
-**All configurations start with capacitive humidity sensors as the foundation.** Where your operation requires it, you can upgrade to a professional RS485 probe, which provides enhanced moisture precision and adds salinity and soil temperature measurement.
+**All configurations start with capacitive sensors as the foundation.** Where your operation requires it, you can upgrade to a professional RS485 probe for enhanced precision and additional measurements.
 
 ---
 
@@ -95,7 +99,7 @@ LoRa-to-IP bridge for data collection.
 
 **Core sensors:**
 - **Soil moisture** — Capacitive sensor (ADC)
-- **Soil temperature** —   (1-Wire)
+- **Soil temperature** — DS18B20 (1-Wire)
 - **Air temp/humidity/pressure** — BME280 (I²C)
 - **Battery monitoring** — Built-in ADC
 
@@ -106,9 +110,7 @@ LoRa-to-IP bridge for data collection.
 - Planting timing (soil warmth)
 - Weather patterns (pressure trends)
 
-**Battery life:** ~12 months  
-**Est. BOM cost:** $35-45  
-**Target price:** $60-80
+**Battery life:** ~12 months
 
 **Best for:**
 - Field crops (wheat, corn, soybeans)
@@ -138,13 +140,7 @@ LoRa-to-IP bridge for data collection.
 - **Recommended for:** Commercial orchards with fertigation systems or salinity concerns
 - **Skip if:** Running basic drip irrigation with good soil quality
 
-**Battery life:** ~10 months  
-**Est. BOM cost:** 
-- Basic: $45-60
-- Premium: $100-145  
-**Target price:** 
-- Basic: $75-110
-- Premium: $155-220
+**Battery life:** ~10 months
 
 **Best for:**
 - Apple, peach, citrus, stone fruit orchards
@@ -177,13 +173,7 @@ LoRa-to-IP bridge for data collection.
 - **Recommended for:** Premium wine grapes, organic vineyards tracking soil health
 - **Skip if:** Standard table grapes or basic disease monitoring is your primary goal
 
-**Battery life:** ~8 months  
-**Est. BOM cost:** 
-- Basic: $65-85
-- Premium: $120-165  
-**Target price:** 
-- Basic: $95-135
-- Premium: $175-250
+**Battery life:** ~8 months
 
 **Best for:** High-value crops requiring disease management
 
@@ -220,20 +210,11 @@ LoRa-to-IP bridge for data collection.
 - Light: every 1-5 minutes (daytime adaptive)
 - Soil moisture: every 10-15 minutes
 
-**Alerts (planned):**
-- CO₂ too high/low → ventilation alert
-- Excess heat under high light → shading alert
-- Prolonged humidity → disease risk
-
-**Battery life:** 3-6 months (backup mode)  
-**Est. BOM cost:** 
-- Basic: $65-90
-- Premium: $120-175  
-**Target price:** 
-- Basic: $100-150
-- Premium: $180-260
+**Battery life:** 3-6 months (backup mode)
 
 **Best for:**
+
+**Sampling intervals:**
 - Greenhouses and polytunnels
 - Hydroponics / aquaponics
 - Indoor vertical farms
@@ -267,9 +248,7 @@ LoRa-to-IP bridge for data collection.
 - Safe thresholds for crop tolerance
 - Irrigation water quality impact
 
-**Battery life:** ~12 months  
-**Est. BOM cost:** $90-130  
-**Target price:** $140-200
+**Battery life:** ~12 months
 
 **Best for:**
 - Coastal farms (salt intrusion issues)
@@ -313,50 +292,37 @@ LoRa-to-IP bridge for data collection.
 - ✅ Budget-conscious deployments
 - ✅ Testing LoRaGro before scaling up
 
-### Configuration-Specific Recommendations
-
-| Configuration    | Basic Recommended?             | Premium Upgrade Worth It?                        |
-| ---------------- | ------------------------------ | ------------------------------------------------ |
-| **FIELD BASIC**  | ✅ Perfect as-is                | Only if you need EC monitoring                   |
-| **ORCHARD**      | ✅ Great for most               | Upgrade if fertigation or salinity concerns      |
-| **VINEYARD**     | ✅ Disease focus, basic is fine | Upgrade for premium wines, organic certification |
-| **GREENHOUSE**   | ✅ CO₂/light are priorities     | Upgrade only for hydro/aquaponic fertigation     |
-| **COASTAL/ARID** | ❌ Premium required             | EC monitoring is mandatory, not optional         |
-
 ---
 
-## 🔄 Mix and Match Examples
+## 🏗️ Technical Architecture
 
-**Remember: Sensors are modular!** 
+### Software Architecture (Actual Implementation)
 
-**Budget-conscious builds:**
-- FIELD BASIC standalone ($60-80)
-- ORCHARD with basic sensors ($75-110)
-- VINEYARD with basic sensors ($95-135)
-- GREENHOUSE with basic sensors ($100-150)
+```
+Application
+   ↓
+SampleManager
+   ↓
+Sensor Managers (Devicetree-registered)
+   ↓
+Measurements
+   ↓
+LoRa TX (SX1262)
+   ↓
+PowerManagement (battery-aware sleep decision)
+```
 
-**Professional builds:**
-- FIELD BASIC → Premium upgrade ($140-200)
-- ORCHARD → Premium upgrade ($155-220)
-- VINEYARD → Premium upgrade ($175-250)
-- GREENHOUSE → Premium upgrade ($180-260)
+### Core Components
 
-**Custom combinations:**
-- FIELD BASIC + rain gauge only (budget orchard, no leaf wetness)
-- ORCHARD basic + CO₂ sensor (enclosed orchard with canopy management)
-- GREENHOUSE without CO₂ (cost-optimized polytunnel)
-- Start basic, add rain gauge later, upgrade to premium probe in year 2
-
-**Deployment strategy for large farms:**
-- Use Premium nodes in critical zones (near irrigation heads, problem areas)
-- Use Basic nodes for general monitoring across fields
-- Example: 20 basic nodes + 5 premium nodes = comprehensive coverage at reasonable cost
-
-Sensors are detected automatically at boot—just plug them in!
-
----
-
-## 🏗️ System Architecture
+| Component       | Responsibility                        |
+| --------------- | ------------------------------------- |
+| Application     | Main orchestration loop               |
+| SampleManager   | Aggregates sensor managers            |
+| Sensor Adapters | Hardware abstraction                  |
+| PowerManagement | Battery-aware sleep logic             |
+| ConfigManager   | Persistent configuration (NVS)        |
+| LoRaAuth        | Frame signing & counters              |
+| SX1262          | LoRa driver (fake in sim, real on hw) |
 
 ### Hardware Block Diagram
 
@@ -407,36 +373,79 @@ Sensors are detected automatically at boot—just plug them in!
 └─────────────────────────────────────────┘
 ```
 
-### Software Architecture
+---
+
+## 🧪 Simulation-First Development
+
+LoRaGro firmware runs in:
+
+- 🖥 **nRF52 BSIM** (BabbleSim) — Full system simulation
+- 🔌 **Real nRF52840 hardware** — Same firmware, no changes
+
+**Fake drivers implemented for:**
+- SX1262 LoRa transceiver
+- BME280 environmental sensor
+- BH1750 light sensor
+- SCD41 CO₂ sensor
+- RS485 soil probe (Modbus)
+- ADC (battery + soil analog)
+
+**This allows:**
+- Full application testing without hardware
+- Power logic verification
+- Config persistence testing
+- LoRa frame handling validation
+- Rapid development iteration
+
+---
+
+## 🔋 Power Management
+
+**Implemented logic:**
+- Normal sampling interval
+- Low battery interval
+- Critical cutoff loop
+- Recovery re-sampling after long sleep
+- Single battery re-check instead of full batch (energy optimized)
+
+**Example behavior:**
 
 ```
-┌──────────────────────────────────────────────┐
-│          Zephyr RTOS Application             │
-├──────────────────────────────────────────────┤
-│  ┌────────────┐  ┌──────────────┐            │
-│  │   Sensor   │  │   LoRa       │            │
-│  │ Abstraction│  │ Communication│            │
-│  │   Layer    │  │    Layer     │            │
-│  └────────────┘  └──────────────┘            │
-│                                              │
-│  ┌────────────┐  ┌──────────────┐            │
-│  │   Power    │  │ Configuration│            │
-│  │ Management │  │   Manager    │            │
-│  └────────────┘  └──────────────┘            │
-├──────────────────────────────────────────────┤
-│         Zephyr RTOS Kernel                   │
-│  (Scheduling, Power, Drivers, Devicetree)    │
-├──────────────────────────────────────────────┤
-│         nRF52840 Hardware (BSP)              │
-└──────────────────────────────────────────────┘
+Battery OK → normal interval
+Battery low → shorter interval
+Battery critical → sleep N hours → re-sample battery only
+Recovered → resume normal operation
 ```
+
+**No unnecessary sensor sampling during recovery loop.**
+
+**Battery monitoring:**
+- Via ADC with manual millivolt conversion
+- Zephyr `adc_raw_to_millivolts()` proved unreliable in emulation
+- Manual conversion ensures deterministic behavior
+
+---
+
+## 📡 Communication
+
+**SX1262 LoRa:**
+- Custom lightweight protocol
+- Frame counters
+- ACK handling
+- CMAC frame signing
+- Security counter persistence
+
+**Architecture prepared for:**
+- Gateway time sync
+- Downlink config updates
+- OTA extension (future)
 
 ---
 
 ## 🔧 Technology Stack
 
 ### Firmware
-- **RTOS:** Zephyr 3.x
+- **RTOS:** Zephyr 4.x
 - **SDK:** nRF Connect SDK
 - **Language:** C++17
 - **Build:** CMake + west
@@ -445,7 +454,8 @@ Sensors are detected automatically at boot—just plug them in!
   - Deep sleep power management
   - NVS storage
   - Logging and debug shell
-  - OTA/DFU updates
+  - BSIM native simulation
+  - OTA/DFU updates (planned)
 
 ### Hardware
 - **MCU:** nRF52840 (Cortex-M4F, 64MHz, 1MB Flash, 256KB RAM)
@@ -474,7 +484,7 @@ Sensors are detected automatically at boot—just plug them in!
 - Solar panels + TP4056 charging circuits
 - 18650 batteries
 
-**Production PCB:** Not yet designed (Phase 2, months 7-8)
+**Production PCB:** Not yet designed (Phase 2)
 
 ---
 
@@ -482,27 +492,31 @@ Sensors are detected automatically at boot—just plug them in!
 
 ### ✅ Phase 1: Foundation (IN PROGRESS)
 - [x] Project setup (GitHub, docs)
-- [x] Zephyr RTOS "Hello World"
+- [x] Zephyr RTOS integration
 - [x] LoRa communication (SX1262 driver)
-- [x] Sensor abstraction layer
+- [x] Modular sensor abstraction
 - [x] Power management (deep sleep)
 - [x] Configuration system (NVS)
-- [ ] FiNo Native Sim FW Completed
-- [ ] Tests for Fino Native Sim
-- [ ] FiNo Node Native Sim FW  Tested
-- [ ] GaNo Native Sim FW Completed 
+- [x] CMAC frame signing
+- [x] Fake driver layer for simulation
+- [x] Devicetree-based sensor registration
+- [ ] FiNo Native Sim FW completed
+- [ ] Tests for FiNo Native Sim
+- [ ] GaNo Native Sim FW completed 
 - [ ] Tests for GaNo Native Sim
-- [ ] FiNo Node Native Sim FW Tested
+- [ ] Integration test scenarios
 
-### 📅 Phase 2: Product Development
+### 📅 Phase 2: Hardware Integration
+- [ ] Pro Micro NRF52840 board integration
+- [ ] Real sensor integration
+- [ ] Solar validation
+- [ ] Power profiling
 - [ ] Mobile app development
-- [ ] FiNo and GaNo for Pro Micro NRF52840 development
-- [ ] Building HW of Nodes (Mostly from finished modules)
+- [ ] Building HW nodes from modules
 - [ ] Field testing (2-3 locations)
-- [ ] Iterate based on feedback
 
-### 📅 Phase 3: Launch & Growth
-- [ ] Production PCB with (50-100 units)
+### 📅 Phase 3: Production
+- [ ] Production PCB design (50-100 units)
 - [ ] IP67 enclosure design
 - [ ] User documentation and tutorials
 - [ ] Certification
@@ -515,6 +529,22 @@ Sensors are detected automatically at boot—just plug them in!
 
 ---
 
+## 📁 Repository Structure
+
+```
+LoRaGro/
+├── FW-LoRaGro/
+│   ├── Fino-LoRaGro/      # FiNo node firmware
+│   └── Gano-LoRaGro/      # GaNo gateway firmware (planned)
+├── docs/                  # Documentation
+├── hardware/              # PCB designs (future)
+└── README.md              # This file
+```
+
+**Detailed firmware README available inside `FW-LoRaGro/Fino-LoRaGro/`**
+
+---
+
 ## 🤝 Contributing
 
 Contributions welcome! Help us build LoRaGro:
@@ -524,6 +554,8 @@ Contributions welcome! Help us build LoRaGro:
 - 📖 Documentation improvements
 - 🔧 Code contributions
 - 🧪 Testing and feedback
+- 🏗️ Architecture discussion
+- ⚡ Power optimization ideas
 
 **How to contribute:**
 1. Fork the repository
@@ -535,9 +567,8 @@ Contributions welcome! Help us build LoRaGro:
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 **Contact:**
-- [GitHub Issues](https://github.com/yourusername/loragro/issues)
+- [GitHub Issues](https://github.com/P4V77/Zephyr/LoRaGro/issues)
 - Email: pavelmich.id@gmail.com
-- Discord: Coming soon
 
 ---
 
@@ -580,6 +611,37 @@ See [LICENSE](LICENSE) for details.
 
 ---
 
+## 💰 Estimated Pricing
+
+**Note:** These are estimated costs based on component pricing and small-scale production (50-100 units). Final pricing will be confirmed during Phase 3.
+
+### Configuration Pricing
+
+| Configuration    | BOM Cost (Basic) | Target Price (Basic) | BOM Cost (Premium)  | Target Price (Premium) |
+| ---------------- | ---------------- | -------------------- | ------------------- | ---------------------- |
+| **FIELD BASIC**  | $35-45           | $60-80               | —                   | —                      |
+| **ORCHARD**      | $45-60           | $75-110              | $100-145            | $155-220               |
+| **VINEYARD**     | $65-85           | $95-135              | $120-165            | $175-250               |
+| **GREENHOUSE**   | $65-90           | $100-150             | $120-175            | $180-260               |
+| **COASTAL/ARID** | $90-130          | $140-200             | Required by default | Required by default    |
+
+**Premium upgrade:** +$60-100 per node (RS485 3-in-1 soil probe)
+
+**What affects pricing:**
+- Component selection (basic vs premium sensors)
+- Production volume (economies of scale)
+- Enclosure choice (IP67 housing)
+- Solar panel inclusion (optional)
+- Bulk ordering discounts
+
+**Deployment cost optimization:**
+- Mix basic and premium nodes strategically
+- Use premium sensors in critical monitoring zones
+- Use basic sensors for general field coverage
+- Example: 20 basic + 5 premium nodes = comprehensive coverage at lower total cost
+
+---
+
 ## 📞 Contact
 
 - **GitHub:** [github.com/P4V77/Zephyr/LoRaGro](https://github.com/P4V77/Zephyr/LoRaGro)
@@ -588,4 +650,6 @@ See [LICENSE](LICENSE) for details.
 
 ---
 
-**Built with ❤️ for farmers, by makers.**
+**LoRaGro — modular, simulation-first, production-ready agricultural IoT. 🌾**
+
+*Built with ❤️ for farmers, by makers.*
