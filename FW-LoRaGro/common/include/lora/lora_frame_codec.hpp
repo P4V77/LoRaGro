@@ -20,12 +20,12 @@ namespace loragro
         int begin(BatchView batch);
 
         /* Build DATA frame */
-        int build_frame(uint8_t *packet, size_t packet_length);
+        int build_frame(uint8_t *frame, size_t packet_length);
 
         /* Build Response frame */
-        int build_frame(uint8_t *packet, size_t packet_length, DecodeResult result);
+        int build_frame(uint8_t *frame, size_t packet_length, DecodeResult result);
 
-        /* Extract packet counter */
+        /* Extract frame counter */
         int get_frame_number(const uint8_t *buffer,
                              uint8_t len) const;
 

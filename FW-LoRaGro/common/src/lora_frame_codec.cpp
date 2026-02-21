@@ -1,5 +1,6 @@
 #include "lora/lora_frame_codec.hpp"
 #include "lora/lora_protocol.hpp"
+#include <array>
 
 LOG_MODULE_REGISTER(lora_packetizer, LOG_LEVEL_DBG);
 
@@ -33,9 +34,9 @@ namespace loragro
     /* =========================================================
      * DATA FRAME (Node → Gateway)
      * ========================================================= */
-    int FrameCodec::build_frame(uint8_t *packet, size_t packet_length)
+    int FrameCodec::build_frame(uint8_t *frame, size_t packet_length)
     {
-        if (!packet)
+        if (!frame)
             return -EINVAL;
 
         if (batch_count_offset_ >= batch_.count)
@@ -50,15 +51,15 @@ namespace loragro
         size_t pos = 0;
 
         /* --- Common header --- */
-        write_u16_be(packet, pos, combined_id); // single combined ID
+        write_u16_be(frame, pos, combined_id); // single combined ID
         pos += 2;
 
-        packet[pos++] = static_cast<uint8_t>(FrameType::DATA);
-        packet[pos++] = frame_ctr_;
+        frame[pos++] = static_cast<uint8_t>(FrameType::DATA);
+        frame[pos++] = frame_ctr_;
 
         /* --- Frame specific --- */
         size_t measurement_count_pos = pos;
-        packet[pos++] = 0; // placeholder for measurement count
+        frame[pos++] = 0; // placeholder for measurement count
 
         /* Timestamp from first measurement */
         const Measurement &first = batch_.data[batch_count_offset_];
@@ -66,10 +67,10 @@ namespace loragro
         if (packet_length < pos + 4 + AUTH_TAG_SIZE)
             return -EINVAL;
 
-        packet[pos++] = (first.timestamp >> 24) & 0xFF;
-        packet[pos++] = (first.timestamp >> 16) & 0xFF;
-        packet[pos++] = (first.timestamp >> 8) & 0xFF;
-        packet[pos++] = first.timestamp & 0xFF;
+        frame[pos++] = (first.timestamp >> 24) & 0xFF;
+        frame[pos++] = (first.timestamp >> 16) & 0xFF;
+        frame[pos++] = (first.timestamp >> 8) & 0xFF;
+        frame[pos++] = first.timestamp & 0xFF;
 
         uint8_t measurement_count = 0;
 
@@ -83,13 +84,13 @@ namespace loragro
             int16_t v1 = static_cast<int16_t>(m.value.val1 / 1000);
             int16_t v2 = static_cast<int16_t>(m.value.val2 / 1000);
 
-            packet[pos++] = m.sensor_id;
+            frame[pos++] = m.sensor_id;
 
-            packet[pos++] = (v1 >> 8) & 0xFF;
-            packet[pos++] = v1 & 0xFF;
+            frame[pos++] = (v1 >> 8) & 0xFF;
+            frame[pos++] = v1 & 0xFF;
 
-            packet[pos++] = (v2 >> 8) & 0xFF;
-            packet[pos++] = v2 & 0xFF;
+            frame[pos++] = (v2 >> 8) & 0xFF;
+            frame[pos++] = v2 & 0xFF;
 
             measurement_count++;
         }
@@ -97,16 +98,10 @@ namespace loragro
         if (measurement_count == 0)
             return -ENOMEM;
 
-        packet[measurement_count_pos] = measurement_count;
+        frame[measurement_count_pos] = measurement_count;
 
         batch_count_offset_ += measurement_count;
         frame_ctr_++;
-
-        /* --- AUTH TAG PLACEHOLDER (4 bytes) --- */
-        packet[pos++] = 0;
-        packet[pos++] = 0;
-        packet[pos++] = 0;
-        packet[pos++] = 0;
 
         return static_cast<int>(pos);
     }
@@ -114,11 +109,31 @@ namespace loragro
     /* =========================================================
      * Response Frame
      * ========================================================= */
-    int FrameCodec::build_frame(uint8_t *packet, size_t packet_length, DecodeResult result)
+    int FrameCodec::build_frame(uint8_t *frame, size_t packet_length, DecodeResult result)
     {
-        return 0;
-    }
+        if (!frame)
+            return -EINVAL;
+        if (packet_length < FrameLayout::RESPONSE_FRAME_SIZE + FrameLayout::AUTH_SIZE)
+            return -EINVAL;
 
+        uint8_t *au8Frame = frame;
+        uint8_t u8Pos = 0;
+        const DeviceConfig dev_cfg = cfg_.get();
+
+        /* Combined ID (dev + gateway) */
+        au8Frame[u8Pos++] = static_cast<uint8_t>((dev_cfg.combined_id << 0) & 0xFF);
+        au8Frame[u8Pos++] = static_cast<uint8_t>((dev_cfg.combined_id << 8) & 0xFF);
+
+        /* Frame Type */
+        /* Response is frame generated on incoming tx from gateway,
+        gateway determines if tx was correct or not based on 5th byte */
+        au8Frame[u8Pos++] = static_cast<uint8_t>(FrameType::RESPONSE);
+        au8Frame[u8Pos++] = static_cast<uint8_t>(frame_ctr_);
+        /* Sending Result of incoming messages*/
+        au8Frame[u8Pos++] = static_cast<uint8_t>(result);
+
+        return u8Pos;
+    }
     /* =========================================================
      * HELPERS
      * ========================================================= */

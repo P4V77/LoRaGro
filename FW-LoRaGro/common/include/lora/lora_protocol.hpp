@@ -37,8 +37,8 @@ namespace loragro
     {
         DATA = 1,
         CONFIG,
-        ERROR,
-        ACK = 0xA5
+        ACK = 0xA5,
+        RESPONSE = 0x5A,
     };
 
     struct FrameLayout
@@ -51,6 +51,7 @@ namespace loragro
         static constexpr size_t HEADER_SIZE = 4;
         static constexpr size_t AUTH_SIZE = 4;
         static constexpr size_t ACK_FRAME_SIZE = 4;
+        static constexpr size_t RESPONSE_FRAME_SIZE = 5;
     };
 
     /* =========================================================

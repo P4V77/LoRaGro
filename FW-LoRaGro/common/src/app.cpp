@@ -5,7 +5,7 @@ LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
 /* ---- Device tree bindings ---- */
 
 static const struct device *const envi_dev =
-    DEVICE_DT_GET(DT_ALIAS(envirmoental_sensor));
+    DEVICE_DT_GET(DT_ALIAS(environmental_sensor));
 
 static const struct device *const light_dev =
     DEVICE_DT_GET(DT_ALIAS(light_sensor));
@@ -28,7 +28,7 @@ static const struct device *const lora_dev =
 
 loragro::App::App()
     : cfg_(ConfigManager::instance()),
-      lora_transceiver_(lora_dev),
+      lora_transceiver_(lora_dev, dev_cfg_, auth_),
       auth_(dev_cfg_),
       tx_codec_(cfg_),
       rx_handler_(cfg_),
@@ -69,6 +69,10 @@ int loragro::App::init()
             loragro::extract_gateway(dev_cfg_.combined_id));
 
     register_sensors();
+
+    /* Check lora_dev if ready */
+    if (!device_is_ready(lora_dev))
+        return -ENODEV;
 
     return 0;
 }
@@ -130,44 +134,51 @@ void loragro::App::run_cycle()
 
     tx_codec_.begin(batch);
 
-    uint8_t frame[255]{};
+    std::array<uint8_t, 255> au8Frame;
     size_t max_payload = lora_transceiver_.get_max_payload();
     size_t usable_payload = max_payload - FrameLayout::AUTH_SIZE;
 
     while (tx_codec_.has_frame_to_send())
     {
-        int len = tx_codec_.build_frame(frame, usable_payload);
+        au8Frame.fill(0);
+
+        int len = tx_codec_.build_frame(au8Frame.begin(), usable_payload);
         if (len <= 0)
             break;
 
-        if (auth_.sign_frame(frame, usable_payload, max_payload) < 0)
+        if (auth_.sign_frame(au8Frame.begin(), len, max_payload) < 0)
             LOG_ERR("Frame Auth Failed");
 
-        uint8_t frame_nmbr = tx_codec_.get_frame_number(frame, len);
-
-        int ret = lora_transceiver_.send_confirmed(frame, len);
+        uint8_t frame_nmbr = tx_codec_.get_frame_number(au8Frame.begin(), len);
+        len += FrameLayout::AUTH_SIZE;
+        int ret = lora_transceiver_.send_confirmed(au8Frame.begin(), len);
         if (ret < 0)
             LOG_ERR("Frame %d failed: %d", frame_nmbr, ret);
         else
             LOG_INF("Frame %d ACKed", frame_nmbr);
     }
 
-    while (true)
+    while (false)
     {
-        int received = lora_transceiver_.receive(frame, max_payload);
+        au8Frame.fill(0);
+
+        int received = lora_transceiver_.receive(au8Frame.begin(), max_payload);
         if (received <= 0)
             break;
 
         const DecodeResult result =
-            rx_handler_.decode(frame, received);
+            rx_handler_.decode(au8Frame.begin(), received);
 
         const int len =
-            tx_codec_.build_frame(frame, usable_payload, result);
+            tx_codec_.build_frame(au8Frame.begin(), usable_payload, result);
 
         if (len <= 0)
             break;
 
-        lora_transceiver_.send_response(frame, len);
+        if (auth_.sign_frame(au8Frame.begin(), len, max_payload) < 0)
+            LOG_ERR("Response Frame Auth Failed");
+
+        lora_transceiver_.send_response(au8Frame.begin(), len);
     }
 
     regulator_.powerOff();

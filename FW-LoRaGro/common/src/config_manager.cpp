@@ -165,7 +165,7 @@ namespace loragro
 
         /* Auth */
         config_.rx_security_counter = 0; // local monotonic counter
-        config_.tx_security_counter = 0; // default for new device
+        config_.tx_security_counter = 1; // default for new device
 
         /* LoRa radio defaults */
         config_.lora.frequency = 868100000;

@@ -9,6 +9,7 @@
 #include "config_manager.hpp"
 #include "data_types.hpp"
 #include "lora/lora_protocol.hpp"
+#include "lora/lora_auth.hpp"
 
 namespace loragro
 {
@@ -16,13 +17,13 @@ namespace loragro
     class Interface
     {
     public:
-        explicit Interface(const struct device *dev);
+        explicit Interface(const struct device *dev, DeviceConfig &cfg, Auth &auth);
 
         /* =========================================================
          * Initialization
          * ========================================================= */
 
-        int init(const DeviceConfig &cfg);   // custom config
+        int init(const DeviceConfig &cfg);
         int config(const DeviceConfig &cfg); // reconfigure
 
         /* =========================================================
@@ -85,7 +86,8 @@ namespace loragro
 
     private:
         const struct device *dev_;
-        struct DeviceConfig cfg_;
+        struct DeviceConfig &cfg_;
+        Auth &auth_;
 
         int16_t last_rssi_{0};
         int8_t last_snr_{0};

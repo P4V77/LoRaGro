@@ -5,8 +5,10 @@ LOG_MODULE_REGISTER(lora_interface, LOG_LEVEL_INF);
 namespace loragro
 {
 
-    Interface::Interface(const struct device *dev)
-        : dev_(dev)
+    Interface::Interface(const struct device *dev, DeviceConfig &cfg, Auth &auth)
+        : dev_(dev),
+          cfg_(cfg),
+          auth_(auth)
     {
     }
 
@@ -19,7 +21,6 @@ namespace loragro
         if (!device_is_ready(dev_))
             return -ENODEV;
 
-        cfg_ = cfg;
         cfg_.lora.tx = false; // default RX mode
 
         return lora_config(dev_, &cfg_.lora);
@@ -181,22 +182,34 @@ namespace loragro
                                  size_t len,
                                  uint8_t expected_ctr)
     {
-        if (!buffer || len < FrameLayout::ACK_FRAME_SIZE)
-            return false;
+        {
+            if (!buffer || len < FrameLayout::ACK_FRAME_SIZE + FrameLayout::AUTH_SIZE)
+                return false;
 
-        if (buffer[FrameLayout::FRAME_TYPE] != static_cast<uint8_t>(FrameType::ACK))
-            return false;
+            if (buffer[FrameLayout::FRAME_TYPE] != (uint8_t)FrameType::ACK)
+                return false;
 
-        const uint16_t incoming_id = read_u16_be(buffer, 0);
+            const uint16_t target = read_u16_be(buffer, 0);
+            if (target != cfg_.combined_id)
+                return false;
 
-        // Must be addressed to me
-        if (incoming_id != cfg_.combined_id)
-            return false;
+            const uint8_t frame_ctr = buffer[FrameLayout::FRAME_CTR];
+            if (frame_ctr != expected_ctr)
+                return false;
 
-        if (buffer[FrameLayout::FRAME_CTR] != expected_ctr)
-            return false;
+            if (len < FrameLayout::AUTH_SIZE + FrameLayout::HEADER_SIZE)
+                return false;
 
-        return true;
+            const uint8_t *tag = buffer + (len - FrameLayout::AUTH_SIZE);
+
+            if (auth_.verify_frame(buffer,
+                                   len - FrameLayout::AUTH_SIZE,
+                                   frame_ctr,
+                                   tag) != 0)
+                return false;
+
+            return true;
+        }
     }
 
     float Interface::calculate_airtime_ms(uint8_t payload_len) const

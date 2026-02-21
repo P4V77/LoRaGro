@@ -182,7 +182,7 @@
     aliases {
         adc0 = &adc0;
         battery-sense = &battery_sense;
-        envirmoental-sensor = &bme280;
+        environmental-sensor = &bme280;
         light-sensor = &bh1750;
         co2-sensor = &scd41;
         soil-sensor = &soil0;

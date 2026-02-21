@@ -23,5 +23,5 @@ int main(void)
 
     app.run();
 
-    return 0; // unreachable, but explicit
+    return 0;
 }
