@@ -25,5 +25,8 @@ namespace loragro
         SampleManager &sample_mgr_;
         const uint8_t battery_sense_id_;
         const DeviceConfig &dev_cfg_;
+
+        static const float calculate_airtime_s(const DeviceConfig &cfg);
+        static const uint8_t get_max_payload(const DeviceConfig &cfg);
     };
 }

@@ -65,6 +65,8 @@ namespace loragro
          * Info
          * ========================================================= */
 
+        float calculate_airtime_ms(uint8_t payload_len) const;
+
         const uint8_t get_max_payload() const;
 
         int16_t last_rssi() const { return last_rssi_; }
@@ -81,7 +83,6 @@ namespace loragro
                           size_t len,
                           const uint8_t expected_ctr);
 
-        float calculate_airtime_ms(uint8_t payload_len) const;
         k_timeout_t compute_rx_timeout(size_t payload_len) const;
 
     private:

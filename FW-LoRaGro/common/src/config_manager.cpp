@@ -170,7 +170,7 @@ namespace loragro
         /* LoRa radio defaults */
         config_.lora.frequency = 868100000;
         config_.lora.bandwidth = BW_125_KHZ;
-        config_.lora.datarate = SF_7;
+        config_.lora.datarate = SF_12;
         config_.lora.coding_rate = CR_4_5;
         config_.lora.preamble_len = 8;
         config_.lora.tx_power = 14;
@@ -178,13 +178,14 @@ namespace loragro
         config_.lora.iq_inverted = false;
 
         /* Communication */
-        config_.sample_interval_min = 15;
+        config_.sample_interval_minutes = 15;
         config_.sample_interval_min_low_battery = 240;
         config_.critically_low_battery_timeout_hours = 12;
 
         config_.max_retries = 3;
         config_.ack_timeout_ms = 2000;
         config_.air_time_margin_factor = 1.3f;
+        config_.rx_time_window_margin = 2.0f;
         config_.confirmed_uplink = true;
 
         /* Power */

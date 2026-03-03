@@ -1,0 +1,4 @@
+tests:
+  power_rail_3v3.basic:
+    platform_allow: native_sim
+    tags: power

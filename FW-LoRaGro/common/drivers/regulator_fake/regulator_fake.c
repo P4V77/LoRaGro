@@ -7,6 +7,10 @@
 
 LOG_MODULE_REGISTER(regulator_fake, LOG_LEVEL_DBG); // ← Changed to DBG
 
+#ifndef CONFIG_REGULATOR_P4V_FAKE_INIT_PRIORITY
+#define CONFIG_REGULATOR_P4V_FAKE_INIT_PRIORITY 55
+#endif
+
 struct regulator_fake_data
 {
     struct regulator_common_data common;

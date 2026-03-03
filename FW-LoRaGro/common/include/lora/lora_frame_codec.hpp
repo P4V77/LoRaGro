@@ -41,13 +41,6 @@ namespace loragro
 
         uint16_t batch_count_offset_{0};
         uint8_t frame_ctr_{0};
-
-        /* Helpers for 16-bit IDs */
-        static inline void write_u16(uint8_t *buf, size_t pos, uint16_t v)
-        {
-            buf[pos] = (v >> 8) & 0xFF;
-            buf[pos + 1] = v & 0xFF;
-        }
     };
 
 } // namespace loragro

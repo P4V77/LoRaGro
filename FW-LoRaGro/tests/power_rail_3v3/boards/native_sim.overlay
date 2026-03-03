@@ -1,0 +1,14 @@
+/* Copyright (c) 2025 P4V77 */
+/ {
+    power_rail_3v3: regulator-3v3 {
+        compatible = "p4v,fake-regulator";
+        regulator-name = "3V3_RAIL";
+        regulator-min-microvolt = <3300000>;
+        regulator-max-microvolt = <3300000>;
+        status = "okay";
+    };
+
+    aliases {
+        power-rail-3v3 = &power_rail_3v3;
+    };
+};

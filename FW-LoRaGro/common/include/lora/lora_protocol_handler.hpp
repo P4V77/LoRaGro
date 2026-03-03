@@ -38,11 +38,15 @@ namespace loragro
         DecodeResult handle_set_combined_id(const uint8_t *data, const uint8_t payload_ctr);
         DecodeResult handle_sampling_interval(const uint8_t *data, const uint8_t payload_ctr);
         DecodeResult handle_reboot(const uint8_t *data, const uint8_t payload_ctr);
+        DecodeResult handle_set_unix_time(const uint8_t *data, const uint8_t payload_ctr);
+        DecodeResult handle_lora_config(const uint8_t *data, const uint8_t payload_ctr);
 
         static constexpr HandlerFn dispatch_table[static_cast<uint8_t>(MessageOp::MAX_OP)] = {
             &ProtocolHandler::handle_set_combined_id,
             &ProtocolHandler::handle_sampling_interval,
             &ProtocolHandler::handle_reboot,
+            &ProtocolHandler::handle_set_unix_time,
+            &ProtocolHandler::handle_lora_config,
         };
 
         static constexpr size_t dispatch_table_size_ =

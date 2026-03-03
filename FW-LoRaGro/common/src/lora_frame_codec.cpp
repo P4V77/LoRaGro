@@ -51,7 +51,7 @@ namespace loragro
         size_t pos = 0;
 
         /* --- Common header --- */
-        write_u16_be(frame, pos, combined_id); // single combined ID
+        write_u16_le(frame, pos, combined_id); // single combined ID
         pos += 2;
 
         frame[pos++] = static_cast<uint8_t>(FrameType::DATA);

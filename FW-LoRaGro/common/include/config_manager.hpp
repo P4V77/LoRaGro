@@ -23,13 +23,14 @@ namespace loragro
 
         lora_modem_config lora;
 
-        uint8_t sample_interval_min;
+        uint8_t sample_interval_minutes;
         uint8_t sample_interval_min_low_battery;
         uint8_t critically_low_battery_timeout_hours;
 
         uint8_t max_retries;
         uint16_t ack_timeout_ms;
         float air_time_margin_factor;
+        float rx_time_window_margin;
         bool confirmed_uplink;
 
         uint16_t battery_cutoff_mv;

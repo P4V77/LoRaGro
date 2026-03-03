@@ -17,6 +17,8 @@ namespace loragro
         SET_ID = 1,
         SET_SAMPLING_INTERVAL,
         REBOOT,
+        SET_UNIX_TIME,
+        SET_LORA_CONFIG,
         MAX_OP
     };
 
@@ -73,20 +75,32 @@ namespace loragro
         return combined & 0x7FF;
     }
 
-    /* =========================================================
-     * 16-bit BE read/write helpers
-     * ========================================================= */
-
-    static inline void write_u16_be(uint8_t *buf, size_t offset, uint16_t value)
+    static inline uint16_t read_u16_le(const uint8_t *buf, size_t offset)
     {
-        buf[offset] = (value >> 8) & 0xFF;
-        buf[offset + 1] = value & 0xFF;
+        return static_cast<uint16_t>(buf[offset]) |
+               (static_cast<uint16_t>(buf[offset + 1]) << 8);
     }
 
-    static inline uint16_t read_u16_be(const uint8_t *buf, size_t offset)
+    static inline void write_u16_le(uint8_t *buf, size_t offset, uint16_t val)
     {
-        return (static_cast<uint16_t>(buf[offset]) << 8) |
-               buf[offset + 1];
+        buf[offset] = val & 0xFF;
+        buf[offset + 1] = (val >> 8) & 0xFF;
+    }
+
+    static inline uint32_t read_u32_le(const uint8_t *buf, size_t offset)
+    {
+        return static_cast<uint32_t>(buf[offset]) |
+               (static_cast<uint32_t>(buf[offset + 1]) << 8) |
+               (static_cast<uint32_t>(buf[offset + 2]) << 16) |
+               (static_cast<uint32_t>(buf[offset + 3]) << 24);
+    }
+
+    static inline void write_u32_le(uint8_t *buf, size_t offset, uint32_t val)
+    {
+        buf[offset] = val & 0xFF;
+        buf[offset + 1] = (val >> 8) & 0xFF;
+        buf[offset + 2] = (val >> 16) & 0xFF;
+        buf[offset + 3] = (val >> 24) & 0xFF;
     }
 
 } // namespace loragro

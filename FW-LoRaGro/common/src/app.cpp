@@ -112,6 +112,9 @@ int loragro::App::register_sensors()
 
 void loragro::App::run()
 {
+    /* Sleeping for calculated time offset
+     * Every node has its own time slot based on id
+     * slot calculated on mcu start with 50% margin */
     while (true)
     {
         run_cycle();
