@@ -195,7 +195,7 @@ Calculated for BW = 125 kHz, CR = 4/5, preamble = 8, payload = 51 B, margin = 1.
 | SF9  | ≈ 1.27 s           | ~6 km        |        **≈ 709** |       **≈ 1417** |       **≈ 2835** |
 | SF10 | ≈ 2.46 s           | ~8 km        |        **≈ 366** |        **≈ 732** |       **≈ 1463** |
 | SF11 | ≈ 4.92 s           | ~11-15 km    |        **≈ 183** |        **≈ 366** |        **≈ 732** |
-| SF12 | ≈ 9.75 s           | <20> km      |         **≈ 92** |        **≈ 185** |        **≈ 369** |
+| SF12 | ≈ 9.75 s           | <20 km       |         **≈ 92** |        **≈ 185** |        **≈ 369** |
 
 > Range estimates are indicative values for open terrain with a typical gateway antenna. Actual range depends on environment, antenna gain, and obstacles.
 
