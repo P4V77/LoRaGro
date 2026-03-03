@@ -187,6 +187,7 @@ namespace loragro
         config_.air_time_margin_factor = 1.3f;
         config_.rx_time_window_margin = 2.0f;
         config_.confirmed_uplink = true;
+        config_.max_tx_frames_per_cycle = 3;
 
         /* Power */
         config_.battery_cutoff_mv = 2600;

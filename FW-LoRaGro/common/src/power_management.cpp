@@ -9,10 +9,17 @@ namespace loragro
     {
         // Calculate time frame offset of this node
         const uint16_t node_id = (dev_cfg_.combined_id >> 5) & 0xFFFF;
-        const uint32_t sleep_time_offset_s = static_cast<uint32_t>(calculate_airtime_s(dev_cfg_) *
-                                                                   dev_cfg_.air_time_margin_factor *
-                                                                   dev_cfg_.rx_time_window_margin *
-                                                                   node_id);
+        /* 2x Tx frame + 1 Rx frame + 2x Ack and margin */
+        float tx_time_window = static_cast<float>(dev_cfg_.max_tx_frames_per_cycle) *
+                               calculate_airtime_s(dev_cfg_, get_max_payload(dev_cfg_)); /* MAX 2 TX frames */
+
+        float rx_time_window = calculate_airtime_s(dev_cfg_, get_max_payload(dev_cfg_)); /* MAX 1 RX frame */
+        float ack_time_window = static_cast<float>(dev_cfg_.max_tx_frames_per_cycle + 1) *
+                                calculate_airtime_s(dev_cfg_, FrameLayout::RESPONSE_FRAME_SIZE); /* Max 3 ACK/Responses*/
+
+        float node_tdma_window = static_cast<uint32_t>((tx_time_window + rx_time_window + ack_time_window) *
+                                                       dev_cfg_.air_time_margin_factor);
+        const uint32_t node_sleep_time_offset_s = node_tdma_window * node_id;
 
         // If no battery sensor is available, fall back to normal sleep interval
         if (battery_sense_id_ < 0)
@@ -59,7 +66,7 @@ namespace loragro
 
             // Convert minutes to milliseconds and add airtime offset
             uint64_t sleep_time_s = static_cast<uint64_t>(sleep_min) * 60;
-            sleep_time_s += sleep_time_offset_s;
+            sleep_time_s += node_sleep_time_offset_s;
 
             LOG_DBG("Sleeping for %llu ms (battery level: %d mV)", sleep_time_s, meas.value.val1);
 
@@ -77,9 +84,9 @@ namespace loragro
      * coding rate, and payload length to estimate how long the packet will occupy
      * the channel. Used to add a safe sleep offset.
      */
-    const float PowerManagement::calculate_airtime_s(const DeviceConfig &cfg)
+
+    const float PowerManagement::calculate_airtime_s(const DeviceConfig &cfg, const uint8_t payload_len)
     {
-        const uint8_t payload_len = get_max_payload(cfg);
         const uint8_t sf = static_cast<uint8_t>(cfg.lora.datarate);
 
         const float bw = cfg.lora.bandwidth; // Bandwidth in Hz

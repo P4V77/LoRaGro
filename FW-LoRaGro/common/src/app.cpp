@@ -141,8 +141,16 @@ void loragro::App::run_cycle()
     size_t max_payload = lora_transceiver_.get_max_payload();
     size_t usable_payload = max_payload - FrameLayout::AUTH_SIZE;
 
+    uint8_t sent_frame_count = 0;
     while (tx_codec_.has_frame_to_send())
     {
+        if (sent_frame_count > dev_cfg_.max_tx_frames_per_cycle)
+        {
+            LOG_ERR("More than 3 frames (21 measurements) can't be sent, TDMA window cant allow");
+            LOG_ERR("Scraping last frame(s)");
+            break;
+        }
+
         au8Frame.fill(0);
 
         int len = tx_codec_.build_frame(au8Frame.begin(), usable_payload);
@@ -159,29 +167,27 @@ void loragro::App::run_cycle()
             LOG_ERR("Frame %d failed: %d", frame_nmbr, ret);
         else
             LOG_INF("Frame %d ACKed", frame_nmbr);
+
+        sent_frame_count++;
     }
 
-    while (false)
+    /* Only 1 RX for each sleep cycle */
+    au8Frame.fill(0);
+
+    int received = lora_transceiver_.receive(au8Frame.begin(), max_payload);
+    if (received > 0)
     {
-        au8Frame.fill(0);
+        const DecodeResult result = rx_handler_.decode(au8Frame.begin(), received);
 
-        int received = lora_transceiver_.receive(au8Frame.begin(), max_payload);
-        if (received <= 0)
-            break;
+        const int len = tx_codec_.build_frame(au8Frame.begin(), usable_payload, result);
 
-        const DecodeResult result =
-            rx_handler_.decode(au8Frame.begin(), received);
-
-        const int len =
-            tx_codec_.build_frame(au8Frame.begin(), usable_payload, result);
-
-        if (len <= 0)
-            break;
-
-        if (auth_.sign_frame(au8Frame.begin(), len, max_payload) < 0)
-            LOG_ERR("Response Frame Auth Failed");
-
-        lora_transceiver_.send_response(au8Frame.begin(), len);
+        if (len > 0)
+        {
+            if (auth_.sign_frame(au8Frame.begin(), len, max_payload) < 0)
+                LOG_ERR("Response Frame Auth Failed");
+            else
+                lora_transceiver_.send_response(au8Frame.begin(), len);
+        }
     }
 
     regulator_.powerOff();

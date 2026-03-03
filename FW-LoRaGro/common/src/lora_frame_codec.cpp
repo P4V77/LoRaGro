@@ -67,10 +67,8 @@ namespace loragro
         if (packet_length < pos + 4 + AUTH_TAG_SIZE)
             return -EINVAL;
 
-        frame[pos++] = (first.timestamp >> 24) & 0xFF;
-        frame[pos++] = (first.timestamp >> 16) & 0xFF;
-        frame[pos++] = (first.timestamp >> 8) & 0xFF;
-        frame[pos++] = first.timestamp & 0xFF;
+        write_u32_le(frame, pos, first.timestamp);
+        pos += 4;
 
         uint8_t measurement_count = 0;
 
@@ -86,11 +84,11 @@ namespace loragro
 
             frame[pos++] = m.sensor_id;
 
-            frame[pos++] = (v1 >> 8) & 0xFF;
-            frame[pos++] = v1 & 0xFF;
+            write_i16_le(frame, pos, v1);
+            pos += 2;
 
-            frame[pos++] = (v2 >> 8) & 0xFF;
-            frame[pos++] = v2 & 0xFF;
+            write_i16_le(frame, pos, v2);
+            pos += 2;
 
             measurement_count++;
         }
@@ -121,8 +119,8 @@ namespace loragro
         const DeviceConfig dev_cfg = cfg_.get();
 
         /* Combined ID (dev + gateway) */
-        au8Frame[u8Pos++] = static_cast<uint8_t>((dev_cfg.combined_id << 0) & 0xFF);
-        au8Frame[u8Pos++] = static_cast<uint8_t>((dev_cfg.combined_id << 8) & 0xFF);
+        write_u16_le(au8Frame, u8Pos, dev_cfg.combined_id);
+        u8Pos += 2;
 
         /* Frame Type */
         /* Response is frame generated on incoming tx from gateway,

@@ -87,6 +87,12 @@ namespace loragro
         buf[offset + 1] = (val >> 8) & 0xFF;
     }
 
+    static inline void write_i16_le(uint8_t *buf, size_t offset, int16_t val)
+    {
+        buf[offset] = val & 0xFF;
+        buf[offset + 1] = (val >> 8) & 0xFF;
+    }
+
     static inline uint32_t read_u32_le(const uint8_t *buf, size_t offset)
     {
         return static_cast<uint32_t>(buf[offset]) |

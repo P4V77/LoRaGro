@@ -26,6 +26,7 @@ namespace loragro
         uint8_t sample_interval_minutes;
         uint8_t sample_interval_min_low_battery;
         uint8_t critically_low_battery_timeout_hours;
+        uint8_t max_tx_frames_per_cycle;
 
         uint8_t max_retries;
         uint16_t ack_timeout_ms;
