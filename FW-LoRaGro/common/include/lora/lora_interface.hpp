@@ -68,6 +68,7 @@ namespace loragro
         float calculate_airtime_ms(uint8_t payload_len) const;
 
         const uint8_t get_max_payload() const;
+        const float get_bandwidth(lora_modem_config &lora_cfg) const;
 
         int16_t last_rssi() const { return last_rssi_; }
         int8_t last_snr() const { return last_snr_; }

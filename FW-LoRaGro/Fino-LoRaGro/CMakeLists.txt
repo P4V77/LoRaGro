@@ -9,6 +9,5 @@ list(APPEND ZEPHYR_EXTRA_MODULES
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 project(Fino-LoRaGro)
 
-# No need for target_include_directories anymore!
 
 target_sources(app PRIVATE src/main.cpp)

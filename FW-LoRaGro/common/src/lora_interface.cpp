@@ -1,6 +1,6 @@
 #include "lora/lora_interface.hpp"
 
-LOG_MODULE_REGISTER(lora_interface, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(lora_interface, LOG_LEVEL_DBG);
 
 namespace loragro
 {
@@ -74,6 +74,7 @@ namespace loragro
             return transmit(data, len);
 
         uint8_t frame_ctr = data[FrameLayout::FRAME_CTR];
+        cfg_.last_tx_len = len;
 
         for (int attempt = 0; attempt < cfg_.max_retries; ++attempt)
         {
@@ -82,7 +83,9 @@ namespace loragro
                 return ret;
 
             float tx_time = calculate_airtime_ms(len);
-            k_sleep(K_MSEC(static_cast<uint32_t>(tx_time)));
+            LOG_DBG("sleep for tx airtime: timeout=%u ms", static_cast<uint32_t>(tx_time));
+
+            k_sleep(K_MSEC(static_cast<uint32_t>(tx_time))); // spíme, šetříme energii
 
             ret = wait_for_ack(frame_ctr);
             if (ret == 0)
@@ -152,10 +155,10 @@ namespace loragro
     {
         uint8_t buffer[64];
 
-        const float ack_airtime =
-            calculate_airtime_ms(FrameLayout::ACK_FRAME_SIZE) * cfg_.air_time_margin_factor;
+        const float ack_airtime = calculate_airtime_ms(FrameLayout::ACK_FRAME_SIZE);
+        const uint32_t timeout_ms = static_cast<uint32_t>(ack_airtime * cfg_.air_time_margin_factor);
 
-        const uint32_t timeout_ms = static_cast<uint32_t>(ack_airtime);
+        LOG_DBG("wait_for_ack: timeout=%u ms", timeout_ms);
 
         int ret = lora_recv(dev_,
                             buffer,
@@ -175,13 +178,18 @@ namespace loragro
 
     bool Interface::is_valid_ack(const uint8_t *buffer, size_t len, uint8_t expected_ctr)
     {
+
+        LOG_HEXDUMP_DBG(buffer, len, "Received ACK");
+        const uint16_t target = read_u16_le(buffer, 0);
+        LOG_DBG("ACK target=0x%04x, our ID=0x%04x, ctr=%d, expected=%d",
+                target, cfg_.combined_id, buffer[FrameLayout::FRAME_CTR], expected_ctr);
+
         if (!buffer || len < FrameLayout::ACK_FRAME_SIZE + FrameLayout::AUTH_SIZE)
             return false;
 
         if (buffer[FrameLayout::FRAME_TYPE] != static_cast<uint8_t>(FrameType::ACK))
             return false;
 
-        const uint16_t target = read_u16_le(buffer, 0);
         if (target != cfg_.combined_id)
             return false;
 
@@ -206,8 +214,9 @@ namespace loragro
 
     float Interface::calculate_airtime_ms(uint8_t payload_len) const
     {
+
         const uint8_t sf = static_cast<uint8_t>(cfg_.lora.datarate);
-        const float bw = cfg_.lora.bandwidth;
+        const float bw = get_bandwidth(cfg_.lora);
         const float tsym = static_cast<float>(1UL << sf) / bw;
         const uint8_t preamble = cfg_.lora.preamble_len;
         const float tpreamble = (preamble + 4.25f) * tsym;
@@ -241,6 +250,26 @@ namespace loragro
         default:
             return 51;
         }
+    }
+    const float Interface::get_bandwidth(lora_modem_config &lora_cfg) const
+    {
+        switch (lora_cfg.bandwidth)
+        {
+        case BW_125_KHZ:
+            return 125000.0f;
+            break;
+        case BW_250_KHZ:
+            return 250000.0f;
+            break;
+        case BW_500_KHZ:
+            return 500000.0f;
+            break;
+        default:
+            LOG_WRN("Lora Bandwith wrongly set, falback to BW125");
+            return 125000.0f;
+            break;
+        }
+        return 125000.0f;
     }
 
     k_timeout_t Interface::compute_rx_timeout(size_t payload_len) const

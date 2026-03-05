@@ -161,7 +161,7 @@ namespace loragro
     void ConfigManager::load_defaults()
     {
         /* Device ID */
-        config_.combined_id = 0;
+        config_.combined_id = 0x801;
 
         /* Auth */
         config_.rx_security_counter = 0; // local monotonic counter
@@ -176,6 +176,7 @@ namespace loragro
         config_.lora.tx_power = 14;
         config_.lora.tx = false;
         config_.lora.iq_inverted = false;
+        config_.last_tx_len = 0;
 
         /* Communication */
         config_.sample_interval_minutes = 15;

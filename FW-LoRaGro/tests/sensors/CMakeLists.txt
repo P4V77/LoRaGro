@@ -1,14 +1,15 @@
 # /* Copyright (c) 2025 P4V77 */
 cmake_minimum_required(VERSION 3.20.0)
+
 list(APPEND DTS_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/../../common)
+
 find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
-project(power_rail_3v3)
+project(battery_sense)
+
 target_sources(app PRIVATE
-    test_power_rail_3v3.cpp
-    ../../common/src/power_rail_3v3.cpp
-    ../../common/drivers/regulator_fake/regulator_fake.c
+    test_battery_sense.cpp
 )
+
 target_include_directories(app PRIVATE
-    ../../common/drivers/regulator_fake/
-    ../../common/include/
+    ../../common/include
 )

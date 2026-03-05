@@ -33,6 +33,7 @@ namespace loragro
         float air_time_margin_factor;
         float rx_time_window_margin;
         bool confirmed_uplink;
+        uint8_t last_tx_len;
 
         uint16_t battery_cutoff_mv;
         uint16_t battery_critical_mv;

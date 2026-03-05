@@ -28,6 +28,8 @@ namespace loragro
             return device_is_ready(dev_);
         }
 
+        const Measurement *get_measurements() const { return this->measurements_; }
+
     protected:
         int fetch() const
         {

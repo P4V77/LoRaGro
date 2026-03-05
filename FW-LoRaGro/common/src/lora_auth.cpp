@@ -1,5 +1,6 @@
 #include "lora/lora_auth.hpp"
 #include "config_manager.hpp"
+
 #include "data_types.hpp"
 LOG_MODULE_REGISTER(lora_auth, LOG_LEVEL_WRN);
 
@@ -37,18 +38,19 @@ namespace loragro
         if (len + 4 > max_frame_len)
             return -ENOMEM;
 
-        uint8_t tx_counter = cfg_.tx_security_counter;
+        // Použít plný 32-bit counter pro CMAC
+        uint32_t tx_counter = cfg_.tx_security_counter;
 
-        data[FrameLayout::FRAME_CTR] = tx_counter;
+        // Do frame uložit jen spodních 8 bitů
+        data[FrameLayout::FRAME_CTR] = static_cast<uint8_t>(tx_counter & 0xFF);
 
-        // But compute CMAC with full 32-bit counter
         uint8_t full_tag[16];
-        int rc = compute_cmac(data, len, tx_counter, full_tag);
+        int rc = compute_cmac(data, len, tx_counter, full_tag); // plný counter!
         if (rc != 0)
             return rc;
 
         memcpy(data + len, full_tag, 4);
-        cfg_.tx_security_counter++; // Increment full 32-bit
+        cfg_.tx_security_counter++;
         return 0;
     }
 
@@ -71,10 +73,19 @@ namespace loragro
             last_rx_counter_ = 0;
         }
         bool b_1st_rx_after_reset = false;
-        if (last_rx_counter_ == 0 && frame_ctr_8bit != 1)
+
+        if (last_rx_counter_ == 0)
         {
-            LOG_WRN("After reset, rejecting frame with counter=%d", frame_ctr_8bit);
-            return -EBADMSG;
+            if (frame_ctr_8bit != 1)
+                return -EACCES;
+
+            b_1st_rx_after_reset = true;
+        }
+        else
+        {
+            b_1st_rx_after_reset = false;
+            if (reconstructed <= last_rx_counter_)
+                return -EALREADY;
         }
 
         b_1st_rx_after_reset = true;

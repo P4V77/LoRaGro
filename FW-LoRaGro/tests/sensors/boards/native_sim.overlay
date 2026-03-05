@@ -1,0 +1,33 @@
+/* Copyright (c) 2025 P4V77 */
+/ {
+    power_rail_3v3: regulator-3v3 {
+        compatible = "p4v,fake-regulator";
+        regulator-name = "3V3_RAIL";
+        regulator-min-microvolt = <3300000>;
+        regulator-max-microvolt = <3300000>;
+        status = "okay";
+    };
+
+    zephyr,user {
+        io-channels = <&adc0 5>, <&adc0 7>;
+        io-channel-names = "soil", "battery";
+        voltage-divider = <100000 100000>;
+        resolution = <12>;
+    };
+
+    aliases {
+        power-rail-3v3 = &power_rail_3v3;
+    };
+};
+
+/* Extend existing native_sim adc0 node */
+&adc0 {
+    compatible = "zephyr,adc-emul";
+    status = "okay";
+    #io-channel-cells = <1>;
+    nchannels = <10>;
+    ref-internal-mv = <600>;
+    ref-external0-mv = <0>;
+    ref-external1-mv = <3300>;
+    ref-vdd-mv = <3300>;  /* was missing — could cause gain_invert to fail */
+};

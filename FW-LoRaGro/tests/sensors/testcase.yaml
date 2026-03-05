@@ -1,0 +1,4 @@
+tests:
+  battery_sense.basic:
+    platform_allow: native_sim
+    tags: sensors

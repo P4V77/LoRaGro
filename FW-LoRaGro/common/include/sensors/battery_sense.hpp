@@ -81,9 +81,9 @@ namespace loragro
                 return ret;
             }
 
-            int32_t raw = raw_value_;
-
             /* ---- Convert RAW -> mV at ADC pin ---- */
+            const int32_t raw = raw_value_;
+            printk("raw_value_ = %d\n", (int)raw_value_);
 
             constexpr int32_t max_adc = (1 << BATTERY_ADC_RESOLUTION) - 1; // e.g. 4095 (12bit)
             constexpr int32_t vref_mv = 600;                               // nRF internal reference
@@ -114,25 +114,31 @@ namespace loragro
                 return ret;
             }
 
-            ret = adc_raw_to_millivolts(
-                channel_cfg_.reference,
-                channel_cfg_.gain,
-                BATTERY_ADC_RESOLUTION,
-                &raw_value_);
+            const int32_t raw = raw_value_;
+            printk("raw_value_ = %d\n", (int)raw_value_);
+
+            constexpr int32_t max_adc = (1 << BATTERY_ADC_RESOLUTION) - 1; // e.g. 4095 (12bit)
+            constexpr int32_t vref_mv = 600;                               // nRF internal reference
+            constexpr int32_t gain_multiplier = 6;                         // gain = 1/6
+
+            int32_t adc_mv = (raw * vref_mv * gain_multiplier) / max_adc;
+
+            if (adc_mv < 100)
+            {
+                return -EINVAL;
+            }
+
+            /* ---- Compensate resistor divider (from DT ideally) ---- */
+
+            int32_t battery_mv = adc_mv * (r1_ohm_ + r2_ohm_) / r2_ohm_;
+
             if (ret)
             {
                 return ret;
             }
 
-            // Check ADC voltage (before divider scaling)
-            if (raw_value_ < 100)
-            {
-                return -EIO;
-            }
-
             // Also check actual battery voltage range
-            int32_t battery_mv = scale_by_divider(raw_value_);
-            if (battery_mv < 1100 || battery_mv > 2200)
+            if (battery_mv < 2200 || battery_mv > 4400)
             {
                 return -EIO;
             }
