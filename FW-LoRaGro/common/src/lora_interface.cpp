@@ -179,10 +179,10 @@ namespace loragro
     bool Interface::is_valid_ack(const uint8_t *buffer, size_t len, uint8_t expected_ctr)
     {
 
-        LOG_HEXDUMP_DBG(buffer, len, "Received ACK");
+        // LOG_HEXDUMP_DBG(buffer, len, "Received ACK");
         const uint16_t target = read_u16_le(buffer, 0);
-        LOG_DBG("ACK target=0x%04x, our ID=0x%04x, ctr=%d, expected=%d",
-                target, cfg_.combined_id, buffer[FrameLayout::FRAME_CTR], expected_ctr);
+        // LOG_DBG("ACK target=0x%04x, our ID=0x%04x, ctr=%d, expected=%d",
+        //         target, cfg_.combined_id, buffer[FrameLayout::FRAME_CTR], expected_ctr);
 
         if (!buffer || len < FrameLayout::ACK_FRAME_SIZE + FrameLayout::AUTH_SIZE)
             return false;
@@ -202,7 +202,7 @@ namespace loragro
 
         const uint8_t *tag = buffer + (len - FrameLayout::AUTH_SIZE);
 
-        if (auth_.verify_frame(buffer, len - FrameLayout::AUTH_SIZE, frame_ctr, tag) != 0)
+        if (auth_.verify_ack(buffer, len - FrameLayout::AUTH_SIZE, frame_ctr, tag) != 0)
             return false;
 
         return true;
@@ -218,21 +218,21 @@ namespace loragro
         const uint8_t sf = static_cast<uint8_t>(cfg_.lora.datarate);
         const float bw = get_bandwidth(cfg_.lora);
         const float tsym = static_cast<float>(1UL << sf) / bw;
-        const uint8_t preamble = cfg_.lora.preamble_len;
-        const float tpreamble = (preamble + 4.25f) * tsym;
-        const uint8_t de = (sf >= 11) ? 1 : 0;
-        const uint8_t cr = 1; // 4/5
+        const uint8_t preamble_len = cfg_.lora.preamble_len;
 
-        float tmp = (8.0f * payload_len - 4.0f * sf + 28.0f + 16.0f - 20.0f) /
-                    (4.0f * (sf - 2.0f * de));
+        const float DE = (sf >= 11) ? 1.0f : 0.0f;
+        const float H = 0.0f;
+        const float tpreamble = (preamble_len + 4.25f) * tsym;
+        const float cr = 1.0f;
 
-        if (tmp < 0)
-            tmp = 0;
+        float tmp = (8.0f * payload_len - 4.0f * sf + 28.0f + 16.0f - 20.0f * H) /
+                    (4.0f * (sf - 2.0f * DE));
+        if (tmp < 0.0f)
+            tmp = 0.0f;
 
         float payloadSymbNb = 8.0f + ceilf(tmp) * (cr + 4);
         float tpacket = tpreamble + payloadSymbNb * tsym;
-
-        return tpacket * 1000.0f;
+        return static_cast<uint32_t>(tpacket * 1000.0f);
     }
 
     const uint8_t Interface::get_max_payload() const

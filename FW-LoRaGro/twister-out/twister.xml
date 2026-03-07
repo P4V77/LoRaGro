@@ -1,0 +1,9 @@
+<testsuites>
+	<testsuite name="native_sim/native" timestamp="2026-03-05T20:17:49.739344" time="0.02" tests="2" failures="0" errors="0" skipped="0">
+		<properties>
+			<property name="version" value="v4.2.0" />
+		</properties>
+		<testcase classname="native_sim/native:power_rail_3v3/power_rail_3v3.basic" name="power_rail_3v3/power_rail_3v3.basic" time="0.01" />
+		<testcase classname="native_sim/native:sensors/battery_sense.basic" name="sensors/battery_sense.basic" time="0.01" />
+	</testsuite>
+</testsuites>

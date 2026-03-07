@@ -7,5 +7,4 @@ zephyr_library_sources(
     lora_protocol_handler.cpp
     lora_auth.cpp
     config_manager.cpp
-    app.cpp
 )

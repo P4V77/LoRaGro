@@ -5,10 +5,9 @@
 #include <zephyr/drivers/regulator.h>
 #include <zephyr/logging/log.h>
 
-LOG_MODULE_REGISTER(power_rail_3v3, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(power_rail_3v3, LOG_LEVEL_DBG);
 
 #define REGULATOR_3V3_NODE DT_NODELABEL(power_rail_3v3)
-
 
 namespace loragro
 {

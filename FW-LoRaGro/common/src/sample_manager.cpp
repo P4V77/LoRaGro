@@ -116,6 +116,16 @@ namespace loragro
 
     const BatchView SampleManager::get_batch()
     {
+        // for (size_t i = 0; i < batch_size_; ++i)
+        // {
+        //     LOG_DBG("batch[%u]: sensor_id=0x%02x val1=%d val2=%d ts=%u",
+        //             i,
+        //             batch_[i].sensor_id,
+        //             batch_[i].value.val1,
+        //             batch_[i].value.val2,
+        //             batch_[i].timestamp);
+        // }
+
         return BatchView{
             .data = batch_.data(),
             .count = batch_size_};

@@ -91,11 +91,8 @@ namespace loragro
 
         uint16_t new_combined_id = read_u16_le(data, 0);
 
-        DeviceConfig cfg = cfg_.get();
+        DeviceConfig &cfg = cfg_.get();
         cfg.combined_id = new_combined_id;
-
-        if (cfg_.save() < 0)
-            return DecodeResult::FLASH_FAILED;
 
         return DecodeResult::OK_AND_REBOOT_NEED;
     }

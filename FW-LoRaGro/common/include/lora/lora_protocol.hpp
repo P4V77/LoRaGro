@@ -49,6 +49,10 @@ namespace loragro
         static constexpr size_t COMBINED_ID_MSB = 1;
         static constexpr size_t FRAME_TYPE = 2;
         static constexpr size_t FRAME_CTR = 3;
+        static constexpr size_t CMD_COUNT = 5;
+        static constexpr size_t PROTOCOL_VERSION = 6;
+        static constexpr size_t CMD_ID_AND_SIZE = 7;
+        static constexpr size_t CMD_PAYLOAD = 8;
 
         static constexpr size_t HEADER_SIZE = 4;
         static constexpr size_t AUTH_SIZE = 4;

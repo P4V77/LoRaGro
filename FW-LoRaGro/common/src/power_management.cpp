@@ -45,11 +45,12 @@ namespace loragro
         {
             while (true)
             {
-                LOG_WRN("Battery critically low: %d mV, entering deep sleep", meas.value.val1);
+                auto battery_meas = sample_mgr_.sample_one(battery_sense_id_);
+
+                LOG_WRN("Battery critically low: %d mV, entering deep sleep", battery_meas.value.val1);
                 k_sleep(K_HOURS(dev_cfg_.critically_low_battery_timeout_hours));
 
                 // Check battery after deep sleep
-                auto battery_meas = sample_mgr_.sample_one(battery_sense_id_);
                 if (battery_meas.value.val1 >= dev_cfg_.battery_cutoff_mv)
                 {
                     LOG_INF("Battery recovered: %d mV, resuming normal operation", battery_meas.value.val1);

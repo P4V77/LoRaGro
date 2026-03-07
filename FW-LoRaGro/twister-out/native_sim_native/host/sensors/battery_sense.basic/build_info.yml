@@ -1,0 +1,61 @@
+cmake:
+  application:
+    configuration-dir: '/home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/sensors'
+    source-dir: '/home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/sensors'
+  board:
+    name: 'native_sim'
+    path:
+     - '/home/pavel/.zephyr_ide/external/zephyr/boards/native/native_sim'
+    qualifiers: 'native'
+    revision: ''
+  devicetree:
+    bindings-dirs:
+     - '/home/pavel/Projects/LoRaGro/FW-LoRaGro/common/dts/bindings'
+     - '/home/pavel/.zephyr_ide/external/zephyr/dts/bindings'
+    files:
+     - '/home/pavel/.zephyr_ide/external/zephyr/boards/native/native_sim/native_sim.dts'
+     - '/home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/sensors/boards/native_sim.overlay'
+    include-dirs:
+     - '/home/pavel/Projects/LoRaGro/FW-LoRaGro/common/include'
+     - '/home/pavel/Projects/LoRaGro/FW-LoRaGro/common/dts'
+     - '/home/pavel/.zephyr_ide/external/modules/hal/ambiq/dts'
+     - '/home/pavel/.zephyr_ide/external/modules/hal/atmel/include'
+     - '/home/pavel/.zephyr_ide/external/modules/hal/bouffalolab/include'
+     - '/home/pavel/.zephyr_ide/external/modules/hal/bouffalolab/include/zephyr'
+     - '/home/pavel/.zephyr_ide/external/modules/hal/gigadevice/include'
+     - '/home/pavel/.zephyr_ide/external/modules/hal/microchip/include'
+     - '/home/pavel/.zephyr_ide/external/modules/hal/microchip/dts'
+     - '/home/pavel/.zephyr_ide/external/modules/hal/nuvoton/dts'
+     - '/home/pavel/.zephyr_ide/external/modules/hal/nxp/dts'
+     - '/home/pavel/.zephyr_ide/external/modules/hal/stm32/dts'
+     - '/home/pavel/.zephyr_ide/external/modules/hal/ti/dts'
+     - '/home/pavel/.zephyr_ide/external/zephyr/include'
+     - '/home/pavel/.zephyr_ide/external/zephyr/include/zephyr'
+     - '/home/pavel/.zephyr_ide/external/zephyr/dts/common'
+     - '/home/pavel/.zephyr_ide/external/zephyr/dts/vendor'
+     - '/home/pavel/.zephyr_ide/external/zephyr/dts/rx'
+     - '/home/pavel/.zephyr_ide/external/zephyr/dts/x86'
+     - '/home/pavel/.zephyr_ide/external/zephyr/dts/xtensa'
+     - '/home/pavel/.zephyr_ide/external/zephyr/dts/sparc'
+     - '/home/pavel/.zephyr_ide/external/zephyr/dts/riscv'
+     - '/home/pavel/.zephyr_ide/external/zephyr/dts/posix'
+     - '/home/pavel/.zephyr_ide/external/zephyr/dts/arm64'
+     - '/home/pavel/.zephyr_ide/external/zephyr/dts/arm'
+     - '/home/pavel/.zephyr_ide/external/zephyr/dts/arc'
+     - '/home/pavel/.zephyr_ide/external/zephyr/dts'
+    user-files:
+     - '/home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/sensors/boards/native_sim.overlay'
+  kconfig:
+    files:
+     - '/home/pavel/.zephyr_ide/external/zephyr/boards/native/native_sim/native_sim_defconfig'
+     - '/home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/sensors/prj.conf'
+     - '/home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/sensors/battery_sense.basic/zephyr/misc/generated/extra_kconfig_options.conf'
+    user-files:
+     - '/home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/sensors/prj.conf'
+  toolchain:
+    name: 'host'
+    path: ''
+  zephyr:
+    version: '4.2.0'
+    zephyr-base: '/home/pavel/.zephyr_ide/external/zephyr'
+version: '0.1.0'

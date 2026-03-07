@@ -13,12 +13,23 @@ namespace loragro
         derive_device_key(cfg_.combined_id);
     }
 
+    int Auth::init_key()
+    {
+        if (cfg_.combined_id == last_derived_id_)
+            return 0;
+
+        derive_device_key(cfg_.combined_id);
+        last_derived_id_ = cfg_.combined_id;
+
+        cfg_.tx_security_counter = 1;
+        last_rx_counter_ = 0;
+        last_rx_timestamp_ = 0;
+        return 0;
+    }
+
     // Derive device key from 16-bit device ID
     int Auth::derive_device_key(uint16_t device_id)
     {
-        static constexpr uint8_t MASTER_KEY[16] = {
-            0x91, 0xA4, 0x3C, 0x7F, 0x55, 0x12, 0xB8, 0x66,
-            0x2E, 0xD3, 0x19, 0x44, 0xAB, 0xCD, 0x88, 0xEF};
 
         uint8_t input_block[16]{};
         input_block[0] = (device_id >> 8) & 0xFF;
@@ -54,6 +65,24 @@ namespace loragro
         return 0;
     }
 
+    int Auth::verify_ack(const uint8_t *data, size_t len,
+                         uint8_t expected_ctr, const uint8_t tag[4])
+    {
+        if (!data || !tag)
+            return -EINVAL;
+
+        // Jen CMAC check — žádný replay
+        uint8_t full_tag[16];
+        int rc = compute_cmac(data, len, static_cast<uint32_t>(expected_ctr), full_tag);
+        if (rc != 0)
+            return rc;
+
+        if (memcmp(tag, full_tag, 4) != 0)
+            return -EBADMSG;
+
+        return 0;
+    }
+
     // Verify a frame (RX)
     int Auth::verify_frame(const uint8_t *data, size_t len,
                            uint8_t frame_ctr_8bit, const uint8_t tag[4])
@@ -71,6 +100,7 @@ namespace loragro
         {
             LOG_WRN("No Verified RX for 24 hours, resseting RX counter");
             last_rx_counter_ = 0;
+            last_rx_timestamp_ = time_now; // ← přidat toto
         }
         bool b_1st_rx_after_reset = false;
 
@@ -135,10 +165,19 @@ namespace loragro
 
         tc_aes128_set_encrypt_key(&sched, device_key_);
         tc_cmac_setup(&cmac, device_key_, &sched);
-        tc_cmac_update(&cmac, reinterpret_cast<const uint8_t *>(&counter), sizeof(counter));
+
+        // counter big-endian for TinyCrypt
+        uint8_t counter_be[4] = {
+            static_cast<uint8_t>((counter >> 24) & 0xFF),
+            static_cast<uint8_t>((counter >> 16) & 0xFF),
+            static_cast<uint8_t>((counter >> 8) & 0xFF),
+            static_cast<uint8_t>(counter & 0xFF)};
+
+        tc_cmac_update(&cmac, counter_be, sizeof(counter_be));
         tc_cmac_update(&cmac, data, len);
 
-        return tc_cmac_final(out_mac, &cmac);
+        int rc = tc_cmac_final(out_mac, &cmac);
+        return (rc == 1) ? 0 : -EIO; // normalizuj na 0 = success
     }
 
 } // namespace loragro

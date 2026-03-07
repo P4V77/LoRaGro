@@ -1,0 +1,27 @@
+[00:00:00.000,000] <inf> regulator_fake: === REGULATOR FAKE INIT START ===
+[00:00:00.000,000] <inf> regulator_fake: Device: regulator-3v3
+[00:00:00.000,000] <dbg> regulator_fake: fake_get_voltage: get_voltage: 3300000 uV
+[00:00:00.000,000] <inf> regulator_fake: regulator_common_init returned: 0
+[00:00:00.000,000] <inf> regulator_fake: === REGULATOR FAKE INIT END ===
+*** Booting Zephyr OS build v4.2.0 ***
+Running TESTSUITE power_3v3_suite
+===================================================================
+START - test_power_3v3_enable_disable
+ PASS - test_power_3v3_enable_disable in 0.020 seconds
+===================================================================
+START - test_power_3v3_read_voltage
+ PASS - test_power_3v3_read_voltage in 0.020 seconds
+===================================================================
+TESTSUITE power_3v3_suite succeeded
+
+------ TESTSUITE SUMMARY START ------
+
+SUITE PASS - 100.00% [power_3v3_suite]: pass = 2, fail = 0, skip = 0, total = 2 duration = 0.040 seconds
+ - PASS - [power_3v3_suite.test_power_3v3_enable_disable] duration = 0.020 seconds
+ - PASS - [power_3v3_suite.test_power_3v3_read_voltage] duration = 0.020 seconds
+
+------ TESTSUITE SUMMARY END ------
+
+===================================================================
+RunID: be2f0518c058c2e1e991948d774c1711
+PROJECT EXECUTION SUCCESSFUL

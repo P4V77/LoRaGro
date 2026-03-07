@@ -83,7 +83,7 @@ namespace loragro
 
             /* ---- Convert RAW -> mV at ADC pin ---- */
             const int32_t raw = raw_value_;
-            printk("raw_value_ = %d\n", (int)raw_value_);
+            // printk("raw_value_ = %d\n", (int)raw_value_);
 
             constexpr int32_t max_adc = (1 << BATTERY_ADC_RESOLUTION) - 1; // e.g. 4095 (12bit)
             constexpr int32_t vref_mv = 600;                               // nRF internal reference
@@ -115,7 +115,7 @@ namespace loragro
             }
 
             const int32_t raw = raw_value_;
-            printk("raw_value_ = %d\n", (int)raw_value_);
+            // printk("raw_value_ = %d\n", (int)raw_value_);
 
             constexpr int32_t max_adc = (1 << BATTERY_ADC_RESOLUTION) - 1; // e.g. 4095 (12bit)
             constexpr int32_t vref_mv = 600;                               // nRF internal reference

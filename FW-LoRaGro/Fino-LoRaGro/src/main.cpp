@@ -7,7 +7,7 @@
 
 #include "app.hpp"
 
-LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(main, LOG_LEVEL_DBG);
 
 static loragro::App app;
 

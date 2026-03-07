@@ -1,6 +1,6 @@
 #include "config_manager.hpp"
 
-LOG_MODULE_REGISTER(config_manager, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(config_manager, LOG_LEVEL_DBG);
 
 namespace loragro
 {
@@ -185,7 +185,7 @@ namespace loragro
 
         config_.max_retries = 3;
         config_.ack_timeout_ms = 2000;
-        config_.air_time_margin_factor = 1.3f;
+        config_.air_time_margin_factor = 1.4f;
         config_.rx_time_window_margin = 2.0f;
         config_.confirmed_uplink = true;
         config_.max_tx_frames_per_cycle = 3;

@@ -11,7 +11,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-LOG_MODULE_REGISTER(scd41_fake, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(scd41_fake, LOG_LEVEL_DBG);
 
 /* ----------------------------- */
 /* Helpers                       */

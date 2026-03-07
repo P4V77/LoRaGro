@@ -52,7 +52,7 @@ namespace loragro
         static constexpr size_t dispatch_table_size_ =
             sizeof(dispatch_table) / sizeof(dispatch_table[0]);
 
-        constexpr uint8_t decode_cmd_id(uint8_t raw) { return raw >> 2; }
+        constexpr uint8_t decode_cmd_id(uint8_t raw) { return (raw >> 2) & 0x3F; }
         constexpr uint8_t decode_cmd_size(uint8_t raw) { return raw & 0x03; }
 
         static constexpr uint8_t payload_size(uint8_t encoded_size)

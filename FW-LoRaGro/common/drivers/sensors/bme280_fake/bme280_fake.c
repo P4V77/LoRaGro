@@ -6,7 +6,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-LOG_MODULE_REGISTER(bme280_fake, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(bme280_fake, LOG_LEVEL_DBG);
 
 struct bme280_fake_data
 {

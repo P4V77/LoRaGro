@@ -5,7 +5,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 
-LOG_MODULE_REGISTER(bh1750_fake, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(bh1750_fake, LOG_LEVEL_DBG);
 
 struct bh1750_fake_config
 {

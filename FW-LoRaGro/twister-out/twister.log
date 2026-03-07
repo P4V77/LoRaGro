@@ -1,6 +1,137 @@
-2026-03-05 19:41:47,046 - twister - INFO - Using Ninja..
-2026-03-05 19:41:47,232 - twister - INFO - Zephyr version: v4.2.0
-2026-03-05 19:41:47,302 - twister - DEBUG - Running cmake script /home/pavel/.zephyr_ide/external/zephyr/cmake/verify-toolchain.cmake
-2026-03-05 19:41:47,302 - twister - DEBUG - Calling cmake: /usr/local/bin/cmake -DFORMAT=json -P /home/pavel/.zephyr_ide/external/zephyr/cmake/verify-toolchain.cmake
-2026-03-05 19:41:47,476 - twister - DEBUG - Finished running /home/pavel/.zephyr_ide/external/zephyr/cmake/verify-toolchain.cmake
-2026-03-05 19:41:47,476 - twister - INFO - Using 'zephyr' toolchain.
+2026-03-05 20:17:47,141 - twister - INFO - Using Ninja..
+2026-03-05 20:17:47,341 - twister - INFO - Zephyr version: v4.2.0
+2026-03-05 20:17:47,429 - twister - DEBUG - Running cmake script /home/pavel/.zephyr_ide/external/zephyr/cmake/verify-toolchain.cmake
+2026-03-05 20:17:47,429 - twister - DEBUG - Calling cmake: /usr/local/bin/cmake -DFORMAT=json -P /home/pavel/.zephyr_ide/external/zephyr/cmake/verify-toolchain.cmake
+2026-03-05 20:17:47,625 - twister - DEBUG - Finished running /home/pavel/.zephyr_ide/external/zephyr/cmake/verify-toolchain.cmake
+2026-03-05 20:17:47,625 - twister - INFO - Using 'zephyr' toolchain.
+2026-03-05 20:17:49,732 - twister - DEBUG - Reading testsuite configuration files under /home/pavel/Projects/LoRaGro/FW-LoRaGro/tests...
+2026-03-05 20:17:49,732 - twister - DEBUG - Found possible testsuite in /home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/power_rail_3v3
+2026-03-05 20:17:49,735 - twister - DEBUG - Found possible testsuite in /home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/sensors
+2026-03-05 20:17:49,737 - twister - DEBUG - No duplicates found.
+2026-03-05 20:17:49,738 - twister - DEBUG - platform filter: ['native_sim']
+2026-03-05 20:17:49,738 - twister - DEBUG -   vendor filter: []
+2026-03-05 20:17:49,738 - twister - DEBUG -     arch_filter: None
+2026-03-05 20:17:49,738 - twister - DEBUG -      tag_filter: None
+2026-03-05 20:17:49,738 - twister - DEBUG -     exclude_tag: None
+2026-03-05 20:17:49,738 - twister - DEBUG - Checking platform filter: ['native_sim']
+2026-03-05 20:17:49,738 - twister - INFO - Building initial testsuite list...
+2026-03-05 20:17:49,739 - twister - INFO - Writing JSON report /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/testplan.json
+2026-03-05 20:17:49,752 - twister - INFO - JOBS: 8
+2026-03-05 20:17:49,753 - twister - INFO - Adding tasks to the queue...
+2026-03-05 20:17:49,753 - twister - DEBUG - adding native_sim/native/host/power_rail_3v3/power_rail_3v3.basic
+2026-03-05 20:17:49,754 - twister - DEBUG - adding native_sim/native/host/sensors/battery_sense.basic
+2026-03-05 20:17:49,754 - twister - INFO - Added initial list of jobs to queue
+2026-03-05 20:17:49,760 - twister - DEBUG - Running cmake on /home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/sensors for native_sim/native
+2026-03-05 20:17:49,761 - twister - DEBUG - Calling cmake: /usr/local/bin/cmake -B/home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/sensors/battery_sense.basic -DTC_RUNID=3417e82c465931940b6615febaff9126 -DTC_NAME=sensors/battery_sense.basic -DCONFIG_COMPILER_WARNINGS_AS_ERRORS=y -DEXTRA_GEN_EDT_ARGS=--edtlib-Werror -GNinja -DPython3_EXECUTABLE=/home/pavel/.zephyr_ide/.venv/bin/python3 -DZEPHYR_TOOLCHAIN_VARIANT=host -S/home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/sensors -DBOARD=native_sim/native
+2026-03-05 20:17:49,764 - twister - DEBUG - Launched 8 jobs
+2026-03-05 20:17:49,767 - twister - DEBUG - Running cmake on /home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/power_rail_3v3 for native_sim/native
+2026-03-05 20:17:49,768 - twister - DEBUG - Calling cmake: /usr/local/bin/cmake -B/home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/power_rail_3v3/power_rail_3v3.basic -DTC_RUNID=be2f0518c058c2e1e991948d774c1711 -DTC_NAME=power_rail_3v3/power_rail_3v3.basic -DCONFIG_COMPILER_WARNINGS_AS_ERRORS=y -DEXTRA_GEN_EDT_ARGS=--edtlib-Werror -GNinja -DPython3_EXECUTABLE=/home/pavel/.zephyr_ide/.venv/bin/python3 -DZEPHYR_TOOLCHAIN_VARIANT=host -S/home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/power_rail_3v3 -DBOARD=native_sim/native
+2026-03-05 20:17:55,541 - twister - DEBUG - Finished running cmake /home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/power_rail_3v3 for native_sim/native in 5.77 seconds
+2026-03-05 20:17:55,544 - twister - DEBUG - build test: native_sim/native/host/power_rail_3v3/power_rail_3v3.basic
+2026-03-05 20:17:55,544 - twister - DEBUG - Finished running cmake /home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/sensors for native_sim/native in 5.78 seconds
+2026-03-05 20:17:55,544 - twister - DEBUG - Building /home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/power_rail_3v3 for native_sim/native
+2026-03-05 20:17:55,545 - twister - DEBUG - Running /usr/local/bin/cmake --build /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/power_rail_3v3/power_rail_3v3.basic
+2026-03-05 20:17:55,546 - twister - DEBUG - build test: native_sim/native/host/sensors/battery_sense.basic
+2026-03-05 20:17:55,547 - twister - DEBUG - Building /home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/sensors for native_sim/native
+2026-03-05 20:17:55,547 - twister - DEBUG - Running /usr/local/bin/cmake --build /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/sensors/battery_sense.basic
+2026-03-05 20:17:58,972 - twister - DEBUG - Finished building /home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/sensors for native_sim/native in 3.43 seconds
+2026-03-05 20:17:58,972 - twister - DEBUG - Determine test cases for test instance: native_sim/native/host/sensors/battery_sense.basic
+2026-03-05 20:17:58,972 - twister - DEBUG - Determine test cases for test suite: battery_sense.basic
+2026-03-05 20:17:58,985 - twister - DEBUG - Finished building /home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/power_rail_3v3 for native_sim/native in 3.44 seconds
+2026-03-05 20:17:58,985 - twister - DEBUG - Determine test cases for test instance: native_sim/native/host/power_rail_3v3/power_rail_3v3.basic
+2026-03-05 20:17:58,985 - twister - DEBUG - Determine test cases for test suite: power_rail_3v3.basic
+2026-03-05 20:17:59,050 - twister - DEBUG - Test instance native_sim/native/host/sensors/battery_sense.basic already has 4 testcase(s) known: [<TestCase battery_sense.basic.battery_sense_suite.sample_ramp with None>, <TestCase battery_sense.basic.battery_sense_suite.init with None>, <TestCase battery_sense.basic.battery_sense_suite.sample_returns_valid_voltage with None>, <TestCase battery_sense.basic.battery_sense_suite.is_connected with None>]
+2026-03-05 20:17:59,050 - twister - DEBUG - Detected 4 Ztest case(s): [battery_sense.basic.battery_sense_suite.sample_ramp, battery_sense.basic.battery_sense_suite.sample_returns_valid_voltage, battery_sense.basic.battery_sense_suite.is_connected, battery_sense.basic.battery_sense_suite.init] in /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/sensors/battery_sense.basic/zephyr/zephyr.elf
+2026-03-05 20:17:59,053 - twister - DEBUG - run test: native_sim/native/host/sensors/battery_sense.basic
+2026-03-05 20:17:59,053 - twister - DEBUG - Reset instance status from 'passed' to None before run.
+2026-03-05 20:17:59,053 - twister - DEBUG - Spawning process: /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/sensors/battery_sense.basic/zephyr/zephyr.exe
+in directory: /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/sensors/battery_sense.basic
+2026-03-05 20:17:59,054 - twister - DEBUG - Test instance native_sim/native/host/power_rail_3v3/power_rail_3v3.basic already has 2 testcase(s) known: [<TestCase power_rail_3v3.basic.power_3v3_suite.power_3v3_enable_disable with None>, <TestCase power_rail_3v3.basic.power_3v3_suite.power_3v3_read_voltage with None>]
+2026-03-05 20:17:59,054 - twister - DEBUG - Spawning BinaryHandler Thread for native_sim/native/host/sensors/battery_sense.basic
+2026-03-05 20:17:59,054 - twister - DEBUG - Detected 2 Ztest case(s): [power_rail_3v3.basic.power_3v3_suite.power_3v3_read_voltage, power_rail_3v3.basic.power_3v3_suite.power_3v3_enable_disable] in /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/power_rail_3v3/power_rail_3v3.basic/zephyr/zephyr.elf
+2026-03-05 20:17:59,056 - twister - DEBUG - OUTPUT: *** Booting Zephyr OS build v4.2.0 ***
+2026-03-05 20:17:59,056 - twister - DEBUG - OUTPUT: Running TESTSUITE battery_sense_suite
+2026-03-05 20:17:59,056 - twister - DEBUG - OUTPUT: ===================================================================
+2026-03-05 20:17:59,057 - twister - DEBUG - OUTPUT: START - test_init
+2026-03-05 20:17:59,057 - twister - DEBUG - OUTPUT:  PASS - test_init in 0.000 seconds
+2026-03-05 20:17:59,057 - twister - DEBUG - OUTPUT: ===================================================================
+2026-03-05 20:17:59,057 - twister - DEBUG - OUTPUT: START - test_is_connected
+2026-03-05 20:17:59,057 - twister - DEBUG - OUTPUT: raw_value_ = 2100
+2026-03-05 20:17:59,058 - twister - DEBUG - OUTPUT:  PASS - test_is_connected in 0.000 seconds
+2026-03-05 20:17:59,058 - twister - DEBUG - OUTPUT: ===================================================================
+2026-03-05 20:17:59,058 - twister - DEBUG - run test: native_sim/native/host/power_rail_3v3/power_rail_3v3.basic
+2026-03-05 20:17:59,058 - twister - DEBUG - OUTPUT: START - test_sample_ramp
+2026-03-05 20:17:59,058 - twister - DEBUG - Reset instance status from 'passed' to None before run.
+2026-03-05 20:17:59,058 - twister - DEBUG - Spawning process: /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/power_rail_3v3/power_rail_3v3.basic/zephyr/zephyr.exe
+in directory: /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/power_rail_3v3/power_rail_3v3.basic
+2026-03-05 20:17:59,058 - twister - DEBUG - OUTPUT: raw_value_ = 1425
+2026-03-05 20:17:59,058 - twister - DEBUG - OUTPUT: raw_value_ = 1450
+2026-03-05 20:17:59,059 - twister - DEBUG - OUTPUT: raw_value_ = 1475
+2026-03-05 20:17:59,059 - twister - DEBUG - OUTPUT: raw_value_ = 1500
+2026-03-05 20:17:59,059 - twister - DEBUG - OUTPUT: raw_value_ = 1525
+2026-03-05 20:17:59,059 - twister - DEBUG - Spawning BinaryHandler Thread for native_sim/native/host/power_rail_3v3/power_rail_3v3.basic
+2026-03-05 20:17:59,059 - twister - DEBUG - OUTPUT:  PASS - test_sample_ramp in 0.000 seconds
+2026-03-05 20:17:59,059 - twister - DEBUG - OUTPUT: ===================================================================
+2026-03-05 20:17:59,059 - twister - DEBUG - OUTPUT: START - test_sample_returns_valid_voltage
+2026-03-05 20:17:59,059 - twister - DEBUG - OUTPUT: [00:00:00.000,000] [0m<inf> regulator_fake: === REGULATOR FAKE INIT START ===[0m
+2026-03-05 20:17:59,060 - twister - DEBUG - OUTPUT: raw_value_ = 1550
+2026-03-05 20:17:59,060 - twister - DEBUG - OUTPUT:  PASS - test_sample_returns_valid_voltage in 0.000 seconds
+2026-03-05 20:17:59,060 - twister - DEBUG - OUTPUT: ===================================================================
+2026-03-05 20:17:59,060 - twister - DEBUG - OUTPUT: [00:00:00.000,000] [0m<inf> regulator_fake: Device: regulator-3v3[0m
+2026-03-05 20:17:59,060 - twister - DEBUG - OUTPUT: TESTSUITE battery_sense_suite succeeded
+2026-03-05 20:17:59,060 - twister - DEBUG - OUTPUT: [00:00:00.000,000] [0m<dbg> regulator_fake: fake_get_voltage: get_voltage: 3300000 uV[0m
+2026-03-05 20:17:59,060 - twister - DEBUG - OUTPUT: 
+2026-03-05 20:17:59,060 - twister - DEBUG - OUTPUT: [00:00:00.000,000] [0m<inf> regulator_fake: regulator_common_init returned: 0[0m
+2026-03-05 20:17:59,060 - twister - DEBUG - OUTPUT: ------ TESTSUITE SUMMARY START ------
+2026-03-05 20:17:59,060 - twister - DEBUG - OUTPUT: [00:00:00.000,000] [0m<inf> regulator_fake: === REGULATOR FAKE INIT END ===[0m
+2026-03-05 20:17:59,061 - twister - DEBUG - OUTPUT: 
+2026-03-05 20:17:59,061 - twister - DEBUG - OUTPUT: *** Booting Zephyr OS build v4.2.0 ***
+2026-03-05 20:17:59,061 - twister - DEBUG - OUTPUT: SUITE PASS - 100.00% [battery_sense_suite]: pass = 4, fail = 0, skip = 0, total = 4 duration = 0.000 seconds
+2026-03-05 20:17:59,061 - twister - DEBUG - OUTPUT: Running TESTSUITE power_3v3_suite
+2026-03-05 20:17:59,061 - twister - DEBUG - OUTPUT:  - PASS - [battery_sense_suite.test_init] duration = 0.000 seconds
+2026-03-05 20:17:59,061 - twister - DEBUG - OUTPUT: ===================================================================
+2026-03-05 20:17:59,061 - twister - DEBUG - OUTPUT:  - PASS - [battery_sense_suite.test_is_connected] duration = 0.000 seconds
+2026-03-05 20:17:59,061 - twister - DEBUG - OUTPUT: START - test_power_3v3_enable_disable
+2026-03-05 20:17:59,061 - twister - DEBUG - OUTPUT:  - PASS - [battery_sense_suite.test_sample_ramp] duration = 0.000 seconds
+2026-03-05 20:17:59,061 - twister - DEBUG - OUTPUT:  PASS - test_power_3v3_enable_disable in 0.020 seconds
+2026-03-05 20:17:59,062 - twister - DEBUG - OUTPUT:  - PASS - [battery_sense_suite.test_sample_returns_valid_voltage] duration = 0.000 seconds
+2026-03-05 20:17:59,062 - twister - DEBUG - OUTPUT: ===================================================================
+2026-03-05 20:17:59,062 - twister - DEBUG - OUTPUT: START - test_power_3v3_read_voltage
+2026-03-05 20:17:59,062 - twister - DEBUG - OUTPUT: 
+2026-03-05 20:17:59,062 - twister - DEBUG - OUTPUT: ------ TESTSUITE SUMMARY END ------
+2026-03-05 20:17:59,062 - twister - DEBUG - OUTPUT:  PASS - test_power_3v3_read_voltage in 0.020 seconds
+2026-03-05 20:17:59,062 - twister - DEBUG - OUTPUT: 
+2026-03-05 20:17:59,062 - twister - DEBUG - OUTPUT: ===================================================================
+2026-03-05 20:17:59,062 - twister - DEBUG - OUTPUT: ===================================================================
+2026-03-05 20:17:59,062 - twister - DEBUG - OUTPUT: TESTSUITE power_3v3_suite succeeded
+2026-03-05 20:17:59,062 - twister - DEBUG - OUTPUT: RunID: 3417e82c465931940b6615febaff9126
+2026-03-05 20:17:59,063 - twister - DEBUG - OUTPUT: 
+2026-03-05 20:17:59,063 - twister - DEBUG - OUTPUT: PROJECT EXECUTION SUCCESSFUL
+2026-03-05 20:17:59,063 - twister - DEBUG - OUTPUT: ------ TESTSUITE SUMMARY START ------
+2026-03-05 20:17:59,063 - twister - DEBUG - OUTPUT: 
+2026-03-05 20:17:59,063 - twister - DEBUG - OUTPUT: SUITE PASS - 100.00% [power_3v3_suite]: pass = 2, fail = 0, skip = 0, total = 2 duration = 0.040 seconds
+2026-03-05 20:17:59,063 - twister - DEBUG - OUTPUT:  - PASS - [power_3v3_suite.test_power_3v3_enable_disable] duration = 0.020 seconds
+2026-03-05 20:17:59,063 - twister - DEBUG - OUTPUT:  - PASS - [power_3v3_suite.test_power_3v3_read_voltage] duration = 0.020 seconds
+2026-03-05 20:17:59,064 - twister - DEBUG - OUTPUT: 
+2026-03-05 20:17:59,064 - twister - DEBUG - OUTPUT: ------ TESTSUITE SUMMARY END ------
+2026-03-05 20:17:59,064 - twister - DEBUG - OUTPUT: 
+2026-03-05 20:17:59,064 - twister - DEBUG - OUTPUT: ===================================================================
+2026-03-05 20:17:59,064 - twister - DEBUG - Expected suite names:['battery_sense_suite']
+2026-03-05 20:17:59,064 - twister - DEBUG - Detected suite names:['battery_sense_suite']
+2026-03-05 20:17:59,064 - twister - DEBUG - OUTPUT: RunID: be2f0518c058c2e1e991948d774c1711
+2026-03-05 20:17:59,064 - twister - DEBUG - run status: native_sim/native/host/sensors/battery_sense.basic passed
+2026-03-05 20:17:59,064 - twister - DEBUG - OUTPUT: PROJECT EXECUTION SUCCESSFUL
+2026-03-05 20:17:59,066 - twister - DEBUG - Expected suite names:['power_3v3_suite']
+2026-03-05 20:17:59,066 - twister - DEBUG - Detected suite names:['power_3v3_suite']
+2026-03-05 20:17:59,066 - twister - DEBUG - run status: native_sim/native/host/power_rail_3v3/power_rail_3v3.basic passed
+2026-03-05 20:17:59,067 - twister - INFO - 1/2 native_sim/native         sensors/battery_sense.basic                        [32mPASSED[39m (native 0.010s <host>)
+2026-03-05 20:17:59,069 - twister - INFO - 2/2 native_sim/native         power_rail_3v3/power_rail_3v3.basic                [32mPASSED[39m (native 0.006s <host>)
+2026-03-05 20:17:59,073 - twister - INFO - 2 test scenarios (2 configurations) selected, 0 configurations filtered (0 by static filter, 0 at runtime).
+2026-03-05 20:17:59,074 - twister - INFO - [32m2 of 2[39m executed test configurations passed (100.00%), 0 built (not run), 0 failed, 0 errored, with no warnings in 11.93 seconds.
+2026-03-05 20:17:59,074 - twister - INFO - 6 of 6 executed test cases passed (100.00%) on 1 out of total 1115 platforms (0.09%).
+2026-03-05 20:17:59,074 - twister - INFO - [32m2[39m test configurations executed on platforms, [36m0[39m test configurations were only built.
+2026-03-05 20:17:59,074 - twister - INFO - Saving reports...
+2026-03-05 20:17:59,074 - twister - INFO - Writing JSON report /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/twister.json
+2026-03-05 20:17:59,075 - twister - INFO - Writing xunit report /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/twister.xml...
+2026-03-05 20:17:59,080 - twister - INFO - Writing xunit report /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/twister_report.xml...
+2026-03-05 20:17:59,081 - twister - INFO - Run completed
