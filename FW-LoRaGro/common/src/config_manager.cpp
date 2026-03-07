@@ -167,6 +167,9 @@ namespace loragro
         config_.rx_security_counter = 0; // local monotonic counter
         config_.tx_security_counter = 1; // default for new device
 
+        config_.tx_counter_nvm_write_threshold = 64;
+        config_.rx_counter_nvm_write_threshold = 16;
+
         /* LoRa radio defaults */
         config_.lora.frequency = 868100000;
         config_.lora.bandwidth = BW_125_KHZ;

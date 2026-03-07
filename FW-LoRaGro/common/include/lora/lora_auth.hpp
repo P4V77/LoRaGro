@@ -45,8 +45,10 @@ namespace loragro
         uint32_t last_rx_counter_{0};
         uint32_t last_rx_timestamp_{0};
 
+        uint32_t last_tx_counter_{0};
+
         DeviceConfig &cfg_;
 
-        static constexpr uint32_t RESET_TIMEOUT_SEC = 24 * 60 * 60;
+        static constexpr uint32_t RESET_TIMEOUT_SEC = 16 * 60 * 60;
     };
 } // namespace loragro

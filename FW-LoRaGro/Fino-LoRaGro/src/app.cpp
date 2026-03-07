@@ -28,11 +28,11 @@ static const struct device *const lora_dev =
 
 loragro::App::App()
     : cfg_(ConfigManager::instance()),
-      auth_(dev_cfg_),
-      lora_transceiver_(lora_dev, dev_cfg_, auth_),
+      auth_(cfg_.get()),
+      lora_transceiver_(lora_dev, cfg_.get(), auth_),
       tx_codec_(cfg_),
       rx_handler_(cfg_),
-      pwr_mgr_(sample_mgr_, loragro::SensorID::BATTERY_VOLTAGE, dev_cfg_),
+      pwr_mgr_(sample_mgr_, loragro::SensorID::BATTERY_VOLTAGE, cfg_.get()),
       env_sensor_(envi_dev,
                   SensorID::ENV_TEMP,
                   SensorID::ENV_RH,

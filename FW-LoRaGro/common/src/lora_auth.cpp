@@ -22,8 +22,10 @@ namespace loragro
         last_derived_id_ = cfg_.combined_id;
 
         cfg_.tx_security_counter = 1;
+
         last_rx_counter_ = 0;
         last_rx_timestamp_ = 0;
+
         return 0;
     }
 
@@ -50,7 +52,7 @@ namespace loragro
             return -ENOMEM;
 
         // Použít plný 32-bit counter pro CMAC
-        uint32_t tx_counter = cfg_.tx_security_counter;
+        uint32_t tx_counter = last_tx_counter_;
 
         // Do frame uložit jen spodních 8 bitů
         data[FrameLayout::FRAME_CTR] = static_cast<uint8_t>(tx_counter & 0xFF);
@@ -61,7 +63,14 @@ namespace loragro
             return rc;
 
         memcpy(data + len, full_tag, 4);
-        cfg_.tx_security_counter++;
+
+        last_tx_counter_++;
+
+        if ((last_tx_counter_ - cfg_.tx_security_counter) > cfg_.tx_counter_nvm_write_threshold)
+        {
+            cfg_.tx_security_counter = last_tx_counter_;
+        }
+
         return 0;
     }
 
@@ -136,6 +145,12 @@ namespace loragro
 
         last_rx_counter_ = reconstructed;
         last_rx_timestamp_ = time_now;
+
+        if ((last_rx_counter_ - cfg_.rx_security_counter) > cfg_.rx_counter_nvm_write_threshold)
+        {
+            cfg_.rx_security_counter = last_rx_counter_;
+        }
+
         return 0;
     }
 

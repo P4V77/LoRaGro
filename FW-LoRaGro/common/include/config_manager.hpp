@@ -20,7 +20,9 @@ namespace loragro
         uint8_t auth_key[16];
         uint32_t rx_security_counter; // local monotonic RX counter
         uint32_t tx_security_counter; // local monotonic TX counter
-
+        uint8_t rx_counter_nvm_write_threshold;
+        uint8_t tx_counter_nvm_write_threshold;
+        
         lora_modem_config lora;
 
         uint8_t sample_interval_minutes;
