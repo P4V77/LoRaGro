@@ -1,8 +1,0 @@
-/home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/sensors/soil_capacitive_adapter.basic/zephyr/NSI/common/src/nsi_cpun_if.o: \
- /home/pavel/.zephyr_ide/external/zephyr/scripts/native_simulator//common/src/nsi_cpun_if.c \
- /home/pavel/.zephyr_ide/external/zephyr/scripts/native_simulator/common/src/include/nsi_cpu_if.h \
- /home/pavel/.zephyr_ide/external/zephyr/scripts/native_simulator/common/src/include/nsi_cpu_if_internal.h \
- /home/pavel/.zephyr_ide/external/zephyr/scripts/native_simulator/common/src/include/nsi_utils.h
-/home/pavel/.zephyr_ide/external/zephyr/scripts/native_simulator/common/src/include/nsi_cpu_if.h:
-/home/pavel/.zephyr_ide/external/zephyr/scripts/native_simulator/common/src/include/nsi_cpu_if_internal.h:
-/home/pavel/.zephyr_ide/external/zephyr/scripts/native_simulator/common/src/include/nsi_utils.h:
