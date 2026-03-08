@@ -1,4 +1,8 @@
 tests:
   battery_sense.basic:
     platform_allow: native_sim
-    tags: sensors
+    tags: adc_battery
+
+  soil_capacitive_adapter.basic:
+    platform_allow: native_sim
+    tags: adc_soil

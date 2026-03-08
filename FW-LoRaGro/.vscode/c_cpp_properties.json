@@ -4,12 +4,18 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/home/pavel/.zephyr_ide/external/zephyr/include"
+                "/home/pavel/.zephyr_ide/external/zephyr/include/**",
+                "/home/pavel/.zephyr_ide/external/zephyr/subsys/testsuite/ztest/include/**",
+                "/home/pavel/.zephyr_ide/external/zephyr/include/zephyr/**"
             ],
-            "defines": [],
+            "defines": [
+                "CONFIG_ZTEST=1",
+                "CONFIG_ZTEST_ASSERT_VERBOSE=1"
+            ],
             "cStandard": "c17",
             "cppStandard": "gnu++20",
-            "intelliSenseMode": "linux-gcc-x64"
+            "intelliSenseMode": "linux-gcc-x64",
+            "compileCommands": "${workspaceFolder}/.vscode/compile_commands.json"
         }
     ],
     "version": 4

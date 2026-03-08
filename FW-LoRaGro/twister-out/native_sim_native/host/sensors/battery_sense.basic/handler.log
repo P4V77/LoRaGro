@@ -5,19 +5,12 @@ START - test_init
  PASS - test_init in 0.000 seconds
 ===================================================================
 START - test_is_connected
-raw_value_ = 2100
  PASS - test_is_connected in 0.000 seconds
 ===================================================================
 START - test_sample_ramp
-raw_value_ = 1425
-raw_value_ = 1450
-raw_value_ = 1475
-raw_value_ = 1500
-raw_value_ = 1525
  PASS - test_sample_ramp in 0.000 seconds
 ===================================================================
 START - test_sample_returns_valid_voltage
-raw_value_ = 1550
  PASS - test_sample_returns_valid_voltage in 0.000 seconds
 ===================================================================
 TESTSUITE battery_sense_suite succeeded
@@ -33,5 +26,5 @@ SUITE PASS - 100.00% [battery_sense_suite]: pass = 4, fail = 0, skip = 0, total 
 ------ TESTSUITE SUMMARY END ------
 
 ===================================================================
-RunID: 3417e82c465931940b6615febaff9126
+RunID: ccc51cb275a98d52e74f6a964f697fe1
 PROJECT EXECUTION SUCCESSFUL

@@ -9,7 +9,7 @@ events:
       - "/home/pavel/.zephyr_ide/external/zephyr/cmake/modules/zephyr_default.cmake:140 (include)"
       - "/home/pavel/.zephyr_ide/external/zephyr/share/zephyr-package/cmake/ZephyrConfig.cmake:66 (include)"
       - "/home/pavel/.zephyr_ide/external/zephyr/share/zephyr-package/cmake/ZephyrConfig.cmake:92 (include_boilerplate)"
-      - "CMakeLists.txt:6 (find_package)"
+      - "CMakeLists.txt:8 (find_package)"
     message: |
       The target system is: Generic - 4.2.0 - posix
       The host system is: Linux - 5.15.0-168-generic - x86_64
@@ -23,7 +23,7 @@ events:
       - "/home/pavel/.zephyr_ide/external/zephyr/cmake/modules/zephyr_default.cmake:140 (include)"
       - "/home/pavel/.zephyr_ide/external/zephyr/share/zephyr-package/cmake/ZephyrConfig.cmake:66 (include)"
       - "/home/pavel/.zephyr_ide/external/zephyr/share/zephyr-package/cmake/ZephyrConfig.cmake:92 (include_boilerplate)"
-      - "CMakeLists.txt:6 (find_package)"
+      - "CMakeLists.txt:8 (find_package)"
     message: |
       Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
       Compiler: /usr/bin/gcc 
@@ -49,7 +49,7 @@ events:
       - "/home/pavel/.zephyr_ide/external/zephyr/cmake/modules/zephyr_default.cmake:140 (include)"
       - "/home/pavel/.zephyr_ide/external/zephyr/share/zephyr-package/cmake/ZephyrConfig.cmake:66 (include)"
       - "/home/pavel/.zephyr_ide/external/zephyr/share/zephyr-package/cmake/ZephyrConfig.cmake:92 (include_boilerplate)"
-      - "CMakeLists.txt:6 (find_package)"
+      - "CMakeLists.txt:8 (find_package)"
     message: |
       Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
       Compiler: /usr/bin/g++ 
@@ -74,7 +74,7 @@ events:
       - "/home/pavel/.zephyr_ide/external/zephyr/cmake/modules/zephyr_default.cmake:140 (include)"
       - "/home/pavel/.zephyr_ide/external/zephyr/share/zephyr-package/cmake/ZephyrConfig.cmake:66 (include)"
       - "/home/pavel/.zephyr_ide/external/zephyr/share/zephyr-package/cmake/ZephyrConfig.cmake:92 (include_boilerplate)"
-      - "CMakeLists.txt:6 (find_package)"
+      - "CMakeLists.txt:8 (find_package)"
     message: |
       Checking whether the ASM compiler is GNU using "--version" matched "(GNU assembler)|(GCC)|(Free Software Foundation)":
       gcc (Ubuntu 11.4.0-1ubuntu1~22.04.2) 11.4.0

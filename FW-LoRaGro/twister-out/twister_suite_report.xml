@@ -1,5 +1,5 @@
 <testsuites>
-	<testsuite name="power_rail_3v3/power_rail_3v3.basic" time="0.01" timestamp="2026-03-05T20:17:49.739344" tests="2" failures="0" errors="0" skipped="0">
+	<testsuite name="power_rail_3v3/power_rail_3v3.basic" time="0.09" timestamp="2026-03-08T20:34:38.126334" tests="2" failures="0" errors="0" skipped="0">
 		<properties>
 			<property name="version" value="v4.2.0" />
 			<property name="platform" value="native_sim/native" />
@@ -8,7 +8,7 @@
 		<testcase classname="power_rail_3v3.basic" name="power_rail_3v3.basic.power_3v3_suite.power_3v3_read_voltage" time="0.02" />
 		<testcase classname="power_rail_3v3.basic" name="power_rail_3v3.basic.power_3v3_suite.power_3v3_enable_disable" time="0.02" />
 	</testsuite>
-	<testsuite name="sensors/battery_sense.basic" time="0.01" timestamp="2026-03-05T20:17:49.739344" tests="4" failures="0" errors="0" skipped="0">
+	<testsuite name="sensors/battery_sense.basic" time="0.02" timestamp="2026-03-08T20:34:38.126334" tests="4" failures="0" errors="0" skipped="0">
 		<properties>
 			<property name="version" value="v4.2.0" />
 			<property name="platform" value="native_sim/native" />
@@ -18,5 +18,16 @@
 		<testcase classname="battery_sense.basic" name="battery_sense.basic.battery_sense_suite.sample_returns_valid_voltage" time="0.00" />
 		<testcase classname="battery_sense.basic" name="battery_sense.basic.battery_sense_suite.is_connected" time="0.00" />
 		<testcase classname="battery_sense.basic" name="battery_sense.basic.battery_sense_suite.init" time="0.00" />
+	</testsuite>
+	<testsuite name="sensors/soil_capacitive_adapter.basic" time="0.01" timestamp="2026-03-08T20:34:38.126334" tests="4" failures="0" errors="0" skipped="0">
+		<properties>
+			<property name="version" value="v4.2.0" />
+			<property name="platform" value="native_sim/native" />
+			<property name="architecture" value="posix" />
+		</properties>
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.battery_sense_suite.sample_ramp" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.battery_sense_suite.sample_returns_valid_voltage" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.battery_sense_suite.is_connected" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.battery_sense_suite.init" time="0.00" />
 	</testsuite>
 </testsuites>

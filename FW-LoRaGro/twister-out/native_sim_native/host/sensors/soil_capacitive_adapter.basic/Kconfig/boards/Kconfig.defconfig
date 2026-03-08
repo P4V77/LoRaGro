@@ -1,0 +1,2 @@
+# Load Zephyr board defconfig descriptions.
+osource "/home/pavel/.zephyr_ide/external/zephyr/boards/native/native_sim/Kconfig.defconfig"

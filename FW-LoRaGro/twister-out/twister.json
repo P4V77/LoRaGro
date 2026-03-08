@@ -4,7 +4,7 @@
         "zephyr_version":"v4.2.0",
         "toolchain":"zephyr",
         "commit_date":"2025-07-18T18:17:09-05:00",
-        "run_date":"2026-03-05T19:17:47+00:00",
+        "run_date":"2026-03-08T19:34:35+00:00",
         "options":{
             "help":null,
             "zephyr_base":null,
@@ -25,13 +25,13 @@
             "arch":"posix",
             "platform":"native_sim/native",
             "path":"../../../Projects/LoRaGro/FW-LoRaGro/tests/power_rail_3v3",
-            "run_id":"be2f0518c058c2e1e991948d774c1711",
+            "run_id":"3fc5b95f706546b143ecc71b4def9d8c",
             "runnable":true,
             "retries":0,
             "toolchain":"host",
             "status":"passed",
-            "execution_time":"0.01",
-            "build_time":"9.21",
+            "execution_time":"0.09",
+            "build_time":"19.03",
             "testcases":[
                 {
                     "identifier":"power_rail_3v3.basic.power_3v3_suite.power_3v3_read_voltage",
@@ -50,13 +50,13 @@
             "arch":"posix",
             "platform":"native_sim/native",
             "path":"../../../Projects/LoRaGro/FW-LoRaGro/tests/sensors",
-            "run_id":"3417e82c465931940b6615febaff9126",
+            "run_id":"ccc51cb275a98d52e74f6a964f697fe1",
             "runnable":true,
             "retries":0,
             "toolchain":"host",
             "status":"passed",
-            "execution_time":"0.01",
-            "build_time":"9.21",
+            "execution_time":"0.02",
+            "build_time":"19.32",
             "testcases":[
                 {
                     "identifier":"battery_sense.basic.battery_sense_suite.sample_ramp",
@@ -75,6 +75,41 @@
                 },
                 {
                     "identifier":"battery_sense.basic.battery_sense_suite.init",
+                    "execution_time":"0.00",
+                    "status":"passed"
+                }
+            ]
+        },
+        {
+            "name":"sensors/soil_capacitive_adapter.basic",
+            "arch":"posix",
+            "platform":"native_sim/native",
+            "path":"../../../Projects/LoRaGro/FW-LoRaGro/tests/sensors",
+            "run_id":"0882a8a27316bf56b347734fd6d55438",
+            "runnable":true,
+            "retries":0,
+            "toolchain":"host",
+            "status":"passed",
+            "execution_time":"0.01",
+            "build_time":"19.48",
+            "testcases":[
+                {
+                    "identifier":"soil_capacitive_adapter.basic.battery_sense_suite.sample_ramp",
+                    "execution_time":"0.00",
+                    "status":"passed"
+                },
+                {
+                    "identifier":"soil_capacitive_adapter.basic.battery_sense_suite.sample_returns_valid_voltage",
+                    "execution_time":"0.00",
+                    "status":"passed"
+                },
+                {
+                    "identifier":"soil_capacitive_adapter.basic.battery_sense_suite.is_connected",
+                    "execution_time":"0.00",
+                    "status":"passed"
+                },
+                {
+                    "identifier":"soil_capacitive_adapter.basic.battery_sense_suite.init",
                     "execution_time":"0.00",
                     "status":"passed"
                 }

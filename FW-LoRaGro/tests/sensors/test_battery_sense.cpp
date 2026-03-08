@@ -47,7 +47,7 @@ ZTEST_F(battery_sense_suite, test_sample_returns_valid_voltage)
 
 ZTEST_F(battery_sense_suite, test_sample_ramp)
 {
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 25; i++)
     {
         int ret = fixture->bat->sample();
         zassert_equal(ret, 0, "sample() failed iter %d: %d", i, ret);

@@ -379,7 +379,7 @@ SOC_FULL_DIR:PATH=/home/pavel/.zephyr_ide/external/zephyr/soc/native/inf_clock
 TC_NAME:UNINITIALIZED=power_rail_3v3/power_rail_3v3.basic
 
 //No help, variable specified on the command line.
-TC_RUNID:UNINITIALIZED=be2f0518c058c2e1e991948d774c1711
+TC_RUNID:UNINITIALIZED=3fc5b95f706546b143ecc71b4def9d8c
 
 //True if toolchain supports newlib
 TOOLCHAIN_HAS_NEWLIB:BOOL=OFF

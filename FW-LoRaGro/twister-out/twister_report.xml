@@ -1,5 +1,5 @@
 <testsuites>
-	<testsuite name="native_sim/native" timestamp="2026-03-05T20:17:49.739344" time="0.02" tests="6" failures="0" errors="0" skipped="0">
+	<testsuite name="native_sim/native" timestamp="2026-03-08T20:34:38.126334" time="0.12" tests="10" failures="0" errors="0" skipped="0">
 		<properties>
 			<property name="version" value="v4.2.0" />
 		</properties>
@@ -9,5 +9,9 @@
 		<testcase classname="battery_sense.basic" name="battery_sense.basic.battery_sense_suite.sample_returns_valid_voltage" time="0.00" />
 		<testcase classname="battery_sense.basic" name="battery_sense.basic.battery_sense_suite.is_connected" time="0.00" />
 		<testcase classname="battery_sense.basic" name="battery_sense.basic.battery_sense_suite.init" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.battery_sense_suite.sample_ramp" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.battery_sense_suite.sample_returns_valid_voltage" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.battery_sense_suite.is_connected" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.battery_sense_suite.init" time="0.00" />
 	</testsuite>
 </testsuites>

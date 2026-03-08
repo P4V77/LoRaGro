@@ -192,10 +192,12 @@ void loragro::App::run_cycle()
                                             frame_ctr,
                                             tag);
 
-        LOG_DBG("verify_frame ret=%d", verify_ret);
-        const DecodeResult result = rx_handler_.decode(au8Frame.begin(), received);
+        if (verify_ret != 0)
+            LOG_ERR("RX Frame Verify Auth Failed");
 
-        LOG_DBG("decode result cmd=%d", static_cast<int>(result));
+        // LOG_DBG("verify_frame ret=%d", verify_ret);
+        const DecodeResult result = rx_handler_.decode(au8Frame.begin(), received);
+        // LOG_DBG("decode result cmd=%d", static_cast<int>(result));
 
         const int len = tx_codec_.build_frame(au8Frame.begin(), usable_payload, result);
         if (len > 0)
@@ -213,7 +215,6 @@ void loragro::App::run_cycle()
     regulator_.powerOff();
 
     cfg_.save();
-
     LOG_DBG("\n\n");
     pwr_mgr_.handle_sleep();
 }

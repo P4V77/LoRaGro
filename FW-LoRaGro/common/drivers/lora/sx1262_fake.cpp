@@ -194,7 +194,7 @@ static int fake_lora_recv(const struct device *dev,
         k_sleep(K_MSEC(1));
     }
 
-    if ((data->last_tx[FrameLayout::FRAME_CTR] % 2) == 0)
+    if ((data->last_tx[FrameLayout::FRAME_CTR] % 2) == 1)
     {
         uint8_t *f = data->pending_rx;
         memset(f, 0, MAX_TX_SIZE);
@@ -255,7 +255,7 @@ static int sx1262_fake_init(const struct device *dev)
 
     // const uint8_t *key = get_gw_auth(data)->get_device_key();
     // LOG_HEXDUMP_INF(key, 16, "GW device_key:");
-    // LOG_INF("Fake SX1262 init, gw_id= %x", gw_cfg.combined_id);
+
     return 0;
 }
 

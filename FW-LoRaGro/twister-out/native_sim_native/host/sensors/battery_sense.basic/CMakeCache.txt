@@ -379,7 +379,7 @@ SOC_FULL_DIR:PATH=/home/pavel/.zephyr_ide/external/zephyr/soc/native/inf_clock
 TC_NAME:UNINITIALIZED=sensors/battery_sense.basic
 
 //No help, variable specified on the command line.
-TC_RUNID:UNINITIALIZED=3417e82c465931940b6615febaff9126
+TC_RUNID:UNINITIALIZED=ccc51cb275a98d52e74f6a964f697fe1
 
 //True if toolchain supports newlib
 TOOLCHAIN_HAS_NEWLIB:BOOL=OFF

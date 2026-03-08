@@ -2,7 +2,7 @@
 #include "lora/lora_protocol.hpp"
 #include "time_manager.hpp"
 
-LOG_MODULE_REGISTER(lora_protocol_handler, LOG_LEVEL_ERR);
+LOG_MODULE_REGISTER(lora_protocol_handler, LOG_LEVEL_DBG);
 
 namespace loragro
 {
@@ -93,6 +93,10 @@ namespace loragro
 
         DeviceConfig &cfg = cfg_.get();
         cfg.combined_id = new_combined_id;
+
+        LOG_DBG("New Node ID: %d New Gateway ID: %d",
+                extract_node(new_combined_id),
+                extract_gateway(new_combined_id));
 
         return DecodeResult::OK_AND_REBOOT_NEED;
     }
