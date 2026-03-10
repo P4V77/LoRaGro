@@ -37,7 +37,7 @@ namespace loragro
             0x2E, 0xD3, 0x19, 0x44, 0xAB, 0xCD, 0x88, 0xEF};
 
         int derive_device_key(uint16_t device_id);
-        uint32_t reconstruct_counter(uint8_t lower_8bits);
+        uint32_t reconstruct_counter(uint8_t &lower_8bits, uint32_t &full_last_ctr);
 
         uint8_t device_key_[16]{};
         uint16_t last_derived_id_{0};
@@ -45,7 +45,7 @@ namespace loragro
         uint32_t last_rx_counter_{0};
         uint32_t last_rx_timestamp_{0};
 
-        uint32_t last_tx_counter_{0};
+        uint32_t next_tx_counter_{0};
 
         DeviceConfig &cfg_;
 

@@ -6,3 +6,7 @@ tests:
   soil_capacitive_adapter.basic:
     platform_allow: native_sim
     tags: adc_soil
+
+  co2_sensor_adapter.basic:
+    platform_allow: native_sim
+    tags: co2

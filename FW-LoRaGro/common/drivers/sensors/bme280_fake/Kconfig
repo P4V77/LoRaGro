@@ -1,7 +1,7 @@
 config SENSOR_P4V_BME280_FAKE
     bool "Fake BME280 sensor (simulation)"
     depends on SENSOR
-    default y
+    default n
 	help
 	  Fake BME280 sensor driver for native_sim / testing.
 	  Provides temperature, humidity and pressure channels.

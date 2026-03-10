@@ -1,7 +1,7 @@
 config SENSOR_P4V_BH1750_FAKE
     bool "Fake BH1750 sensor (simulation)"
     depends on SENSOR
-    default y
+    default n
 	help
 	  Fake BH1750 sensor driver for native_sim / testing.
 	  Provides fake light intensity reading.

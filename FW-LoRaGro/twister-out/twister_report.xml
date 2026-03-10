@@ -1,0 +1,36 @@
+<testsuites>
+	<testsuite name="native_sim/native" timestamp="2026-03-10T17:46:36.147696" time="0.18999999999999997" tests="29" failures="0" errors="0" skipped="0">
+		<properties>
+			<property name="version" value="v4.2.0" />
+		</properties>
+		<testcase classname="power_rail_3v3.basic" name="power_rail_3v3.basic.power_3v3_suite.power_3v3_read_voltage" time="0.02" />
+		<testcase classname="power_rail_3v3.basic" name="power_rail_3v3.basic.power_3v3_suite.power_3v3_enable_disable" time="0.02" />
+		<testcase classname="battery_sense.basic" name="battery_sense.basic.battery_sense_suite.sample_ramp" time="0.00" />
+		<testcase classname="battery_sense.basic" name="battery_sense.basic.battery_sense_suite.sample_returns_valid_voltage" time="0.00" />
+		<testcase classname="battery_sense.basic" name="battery_sense.basic.battery_sense_suite.is_connected" time="0.00" />
+		<testcase classname="battery_sense.basic" name="battery_sense.basic.battery_sense_suite.init" time="0.00" />
+		<testcase classname="battery_sense.basic" name="battery_sense.basic.soil_capacitive_adapter_suite.sample" time="0.00" />
+		<testcase classname="battery_sense.basic" name="battery_sense.basic.soil_capacitive_adapter_suite.is_connected" time="0.00" />
+		<testcase classname="battery_sense.basic" name="battery_sense.basic.soil_capacitive_adapter_suite.init" time="0.00" />
+		<testcase classname="battery_sense.basic" name="battery_sense.basic.co2_sensor_adapter_suite.co2_sample" time="0.00" />
+		<testcase classname="battery_sense.basic" name="battery_sense.basic.co2_sensor_adapter_suite.co2_init" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.battery_sense_suite.sample_ramp" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.battery_sense_suite.sample_returns_valid_voltage" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.battery_sense_suite.is_connected" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.battery_sense_suite.init" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.soil_capacitive_adapter_suite.sample" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.soil_capacitive_adapter_suite.is_connected" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.soil_capacitive_adapter_suite.init" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.co2_sensor_adapter_suite.co2_sample" time="0.00" />
+		<testcase classname="soil_capacitive_adapter.basic" name="soil_capacitive_adapter.basic.co2_sensor_adapter_suite.co2_init" time="0.00" />
+		<testcase classname="co2_sensor_adapter.basic" name="co2_sensor_adapter.basic.battery_sense_suite.sample_ramp" time="0.00" />
+		<testcase classname="co2_sensor_adapter.basic" name="co2_sensor_adapter.basic.battery_sense_suite.sample_returns_valid_voltage" time="0.00" />
+		<testcase classname="co2_sensor_adapter.basic" name="co2_sensor_adapter.basic.battery_sense_suite.is_connected" time="0.00" />
+		<testcase classname="co2_sensor_adapter.basic" name="co2_sensor_adapter.basic.battery_sense_suite.init" time="0.00" />
+		<testcase classname="co2_sensor_adapter.basic" name="co2_sensor_adapter.basic.soil_capacitive_adapter_suite.sample" time="0.00" />
+		<testcase classname="co2_sensor_adapter.basic" name="co2_sensor_adapter.basic.soil_capacitive_adapter_suite.is_connected" time="0.00" />
+		<testcase classname="co2_sensor_adapter.basic" name="co2_sensor_adapter.basic.soil_capacitive_adapter_suite.init" time="0.00" />
+		<testcase classname="co2_sensor_adapter.basic" name="co2_sensor_adapter.basic.co2_sensor_adapter_suite.co2_sample" time="0.00" />
+		<testcase classname="co2_sensor_adapter.basic" name="co2_sensor_adapter.basic.co2_sensor_adapter_suite.co2_init" time="0.00" />
+	</testsuite>
+</testsuites>

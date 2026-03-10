@@ -1,6 +1,7 @@
 config SOIL_SENSOR_MODBUS_FAKE
     bool "Fake Modbus Soil Sensor"
     depends on REGULATOR
+    default n
     help
       Fake Modbus RTU slave for native simulation and testing.
 

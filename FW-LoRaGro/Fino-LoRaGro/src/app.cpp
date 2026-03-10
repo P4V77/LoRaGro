@@ -193,21 +193,25 @@ void loragro::App::run_cycle()
                                             tag);
 
         if (verify_ret != 0)
-            LOG_ERR("RX Frame Verify Auth Failed");
-
-        // LOG_DBG("verify_frame ret=%d", verify_ret);
-        const DecodeResult result = rx_handler_.decode(au8Frame.begin(), received);
-        // LOG_DBG("decode result cmd=%d", static_cast<int>(result));
-
-        const int len = tx_codec_.build_frame(au8Frame.begin(), usable_payload, result);
-        if (len > 0)
         {
-            if (auth_.sign_frame(au8Frame.begin(), len, max_payload) < 0)
-                LOG_ERR("Response Frame Auth Failed");
-            else
+            LOG_ERR("RX Frame Verify Auth Failed");
+        }
+        else
+        {
+            // LOG_DBG("verify_frame ret=%d", verify_ret);
+            const DecodeResult result = rx_handler_.decode(au8Frame.begin(), received);
+            // LOG_DBG("decode result cmd=%d", static_cast<int>(result));
+
+            const int len = tx_codec_.build_frame(au8Frame.begin(), usable_payload, result);
+            if (len > 0)
             {
-                lora_transceiver_.send_response(au8Frame.begin(), len);
-                LOG_HEXDUMP_INF(au8Frame.begin(), len + 4, "Respond:");
+                if (auth_.sign_frame(au8Frame.begin(), len, max_payload) < 0)
+                    LOG_ERR("Response Frame Auth Failed");
+                else
+                {
+                    lora_transceiver_.send_response(au8Frame.begin(), len);
+                    LOG_HEXDUMP_INF(au8Frame.begin(), len + 4, "Respond:");
+                }
             }
         }
     }

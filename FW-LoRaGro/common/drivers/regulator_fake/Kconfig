@@ -1,6 +1,7 @@
 config REGULATOR_P4V_FAKE
     bool "Fake Voltage Regulator"
     depends on REGULATOR
+    default n
     help
       Fake regulator for native simulation and testing.
 

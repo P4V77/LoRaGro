@@ -31,3 +31,34 @@
     ref-external1-mv = <3300>;
     ref-vdd-mv = <3300>;  /* was missing — could cause gain_invert to fail */
 };
+
+/* =========================
+ * I2C devices (FAKE)
+ * ========================= */
+&i2c0 {
+    compatible = "zephyr,i2c-emul-controller";
+    status = "okay";
+
+    scd41: scd41@62 {
+        compatible = "p4v,sensor-scd41-fake";
+        reg = <0x62>;
+        vdd-supply = <&power_rail_3v3>;
+        status = "okay";
+    };
+};
+
+
+/ {
+    chosen {
+        zephyr,storage = &storage_partition;
+    };
+};
+
+/* =========================
+ * Aliases (MUST be top-level)
+ * ========================= */
+/ {
+    aliases {
+        co2-sensor = &scd41;
+    };
+};

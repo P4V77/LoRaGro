@@ -1,6 +1,7 @@
 config SX1262_FAKE
     bool "Fake SX1262 LoRa transceiver"
     depends on SPI
+    default n
     help
       Enables fake SX1262 driver for native simulation.
 

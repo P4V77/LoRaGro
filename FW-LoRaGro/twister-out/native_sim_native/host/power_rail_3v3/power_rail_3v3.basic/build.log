@@ -1,0 +1,155 @@
+Loading Zephyr default modules (Zephyr base).
+-- Application: /home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/power_rail_3v3
+-- CMake version: 3.31.8
+-- Found Python3: /home/pavel/.zephyr_ide/.venv/bin/python3 (found suitable version "3.10.12", minimum required is "3.10") found components: Interpreter
+-- Cache files will be written to: /home/pavel/.cache/zephyr
+-- Zephyr version: 4.2.0 (/home/pavel/.zephyr_ide/external/zephyr)
+-- Found west (found suitable version "1.5.0", minimum required is "0.14.0")
+-- Board: native_sim, qualifiers: native
+-- Found host-tools: zephyr 0.17.3 (/home/pavel/.zephyr_ide/toolchains/zephyr-sdk-0.17.3)
+-- Found toolchain: host (gcc/ld)
+-- Found Dtc: /usr/bin/dtc (found suitable version "1.6.1", minimum required is "1.4.6")
+-- Found BOARD.dts: /home/pavel/.zephyr_ide/external/zephyr/boards/native/native_sim/native_sim.dts
+-- Found devicetree overlay: /home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/power_rail_3v3/boards/native_sim.overlay
+-- Generated zephyr.dts: /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/power_rail_3v3/power_rail_3v3.basic/zephyr/zephyr.dts
+-- Generated pickled edt: /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/power_rail_3v3/power_rail_3v3.basic/zephyr/edt.pickle
+-- Generated devicetree_generated.h: /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/power_rail_3v3/power_rail_3v3.basic/zephyr/include/generated/zephyr/devicetree_generated.h
+
+warning: Deprecated symbol TINYCRYPT is enabled.
+
+Parsing /home/pavel/.zephyr_ide/external/zephyr/Kconfig
+Loaded configuration '/home/pavel/.zephyr_ide/external/zephyr/boards/native/native_sim/native_sim_defconfig'
+Merged configuration '/home/pavel/Projects/LoRaGro/FW-LoRaGro/tests/power_rail_3v3/prj.conf'
+Merged configuration '/home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/power_rail_3v3/power_rail_3v3.basic/zephyr/misc/generated/extra_kconfig_options.conf'
+Configuration saved to '/home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/power_rail_3v3/power_rail_3v3.basic/zephyr/.config'
+Kconfig header saved to '/home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/power_rail_3v3/power_rail_3v3.basic/zephyr/include/generated/zephyr/autoconf.h'
+-- Found GnuLd: /usr/bin/ld.bfd (found version "2.38")
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- The ASM compiler identification is GNU
+-- Found assembler: /usr/bin/gcc
+-- Using ccache: /usr/bin/ccache
+-- Found gen_kobject_list: /home/pavel/.zephyr_ide/external/zephyr/scripts/build/gen_kobject_list.py
+-- Configuring done (6.1s)
+-- Generating done (0.1s)
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    TC_NAME
+
+
+-- Build files have been written to: /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/power_rail_3v3/power_rail_3v3.basic
+[1/111] Preparing syscall dependency handling
+
+[2/111] Generating include/generated/zephyr/version.h
+-- Zephyr version: 4.2.0 (/home/pavel/.zephyr_ide/external/zephyr), build: v4.2.0
+[3/111] Generating misc/generated/syscalls_subdirs.trigger
+[4/111] Generating misc/generated/syscalls.json, misc/generated/struct_tags.json
+[5/111] Generating include/generated/device-api-sections.ld, include/generated/device-api-sections.cmake
+[6/111] Generating include/generated/zephyr/syscall_dispatch.c, include/generated/zephyr/syscall_exports_llext.c, syscall_weakdefs_llext.c, include/generated/zephyr/syscall_list.h
+[7/111] Generating include/generated/zephyr/driver-validation.h
+[8/111] Generating include/generated/zephyr/kobj-types-enum.h, include/generated/zephyr/otype-to-str.h, include/generated/zephyr/otype-to-size.h
+[9/111] Building C object zephyr/CMakeFiles/offsets.dir/arch/posix/core/offsets/offsets.c.obj
+[10/111] Generating include/generated/zephyr/offsets.h
+[11/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/cpp/abi/cpp_dtors.c.obj
+[12/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/sem.c.obj
+[13/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/printk.c.obj
+[14/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/cbprintf_complete.c.obj
+[15/111] Building C object CMakeFiles/app.dir/home/pavel/Projects/LoRaGro/FW-LoRaGro/common/drivers/regulator_fake/regulator_fake.c.obj
+[16/111] Building CXX object CMakeFiles/app.dir/home/pavel/Projects/LoRaGro/FW-LoRaGro/common/src/power_rail_3v3.cpp.obj
+[17/111] Building CXX object CMakeFiles/app.dir/test_power_rail_3v3.cpp.obj
+[18/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/thread_entry.c.obj
+[19/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/heap/heap.c.obj
+[20/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/cbprintf_packaged.c.obj
+[21/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/clock.c.obj
+[22/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/cbprintf.c.obj
+[23/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/os/assert.c.obj
+[24/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/dec.c.obj
+[25/111] Linking CXX static library app/libapp.a
+[26/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/hex.c.obj
+[27/111] Building C object zephyr/CMakeFiles/zephyr.dir/misc/generated/configs.c.obj
+[28/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/rb.c.obj
+[29/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/timeutil.c.obj
+[30/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/bitarray.c.obj
+[31/111] Building C object zephyr/CMakeFiles/zephyr.dir/lib/utils/ring_buffer.c.obj
+[32/111] Building C object zephyr/CMakeFiles/zephyr.dir/home/pavel/.zephyr_ide/external/modules/crypto/tinycrypt/lib/source/aes_decrypt.c.obj
+[33/111] Building C object zephyr/CMakeFiles/zephyr.dir/subsys/logging/log_mgmt.c.obj
+[34/111] Building C object zephyr/CMakeFiles/zephyr.dir/home/pavel/.zephyr_ide/external/modules/crypto/tinycrypt/lib/source/utils.c.obj
+[35/111] Building C object zephyr/CMakeFiles/zephyr.dir/home/pavel/.zephyr_ide/external/modules/crypto/tinycrypt/lib/source/aes_encrypt.c.obj
+[36/111] Building C object zephyr/CMakeFiles/zephyr.dir/subsys/logging/log_cache.c.obj
+[37/111] Building C object zephyr/CMakeFiles/zephyr.dir/home/pavel/.zephyr_ide/external/modules/crypto/tinycrypt/lib/source/cmac_mode.c.obj
+[38/111] Building C object zephyr/CMakeFiles/zephyr.dir/subsys/logging/log_core.c.obj
+[39/111] Building C object zephyr/CMakeFiles/zephyr.dir/subsys/logging/log_output.c.obj
+[40/111] Building C object zephyr/CMakeFiles/zephyr.dir/subsys/logging/backends/log_backend_native_posix.c.obj
+[41/111] Building C object zephyr/arch/arch/posix/core/CMakeFiles/arch__posix__core.dir/posix_core_nsi.c.obj
+[42/111] Building C object zephyr/CMakeFiles/zephyr.dir/subsys/logging/log_msg.c.obj
+[43/111] Building C object zephyr/CMakeFiles/zephyr.dir/subsys/tracing/tracing_none.c.obj
+[44/111] Building C object zephyr/arch/arch/posix/core/CMakeFiles/arch__posix__core.dir/irq.c.obj
+[45/111] Linking C static library zephyr/libzephyr.a
+[46/111] Building C object zephyr/arch/arch/posix/core/CMakeFiles/arch__posix__core.dir/cpuhalt.c.obj
+[47/111] Building C object zephyr/soc/soc/native/CMakeFiles/soc__native__inf_clock.dir/native_tasks.c.obj
+[48/111] Building C object zephyr/soc/soc/native/CMakeFiles/soc__native__inf_clock.dir/native_remap.c.obj
+[49/111] Building C object zephyr/boards/native/native_sim/CMakeFiles/boards__native__native_sim.dir/cmdline.c.obj
+[50/111] Building C object zephyr/arch/arch/posix/core/CMakeFiles/arch__posix__core.dir/swap.c.obj
+[51/111] Building C object zephyr/boards/native/native_sim/CMakeFiles/boards__native__native_sim.dir/misc.c.obj
+[52/111] Building C object zephyr/arch/arch/posix/core/CMakeFiles/arch__posix__core.dir/fatal.c.obj
+[53/111] Generating linker_zephyr_pre0.cmd
+[54/111] Building C object zephyr/arch/arch/posix/core/CMakeFiles/arch__posix__core.dir/thread.c.obj
+[55/111] Building C object zephyr/soc/soc/native/CMakeFiles/soc__native__inf_clock.dir/soc.c.obj
+[56/111] Building C object zephyr/boards/native/native_sim/CMakeFiles/boards__native__native_sim.dir/posix_arch_if.c.obj
+[57/111] Building C object zephyr/CMakeFiles/zephyr_pre0.dir/misc/empty_file.c.obj
+[58/111] Building C object zephyr/boards/native/native_sim/CMakeFiles/boards__native__native_sim.dir/cpu_wait.c.obj
+[59/111] Building C object zephyr/boards/native/native_sim/CMakeFiles/boards__native__native_sim.dir/nsi_if.c.obj
+[60/111] Linking C static library zephyr/arch/arch/posix/core/libarch__posix__core.a
+[61/111] Linking C static library zephyr/soc/soc/native/libsoc__native__inf_clock.a
+[62/111] Building C object zephyr/boards/native/native_sim/CMakeFiles/boards__native__native_sim.dir/irq_handler.c.obj
+[63/111] Building C object zephyr/subsys/testsuite/ztest/CMakeFiles/subsys__testsuite__ztest.dir/src/ztest_error_hook.c.obj
+[64/111] Linking C static library zephyr/boards/native/native_sim/libboards__native__native_sim.a
+[65/111] Building C object zephyr/subsys/testsuite/ztest/CMakeFiles/subsys__testsuite__ztest.dir/src/ztest_posix.c.obj
+[66/111] Building C object zephyr/drivers/regulator/CMakeFiles/drivers__regulator.dir/regulator_common.c.obj
+[67/111] Building C object zephyr/drivers/timer/CMakeFiles/drivers__timer.dir/native_sim_timer.c.obj
+[68/111] Building C object zephyr/subsys/testsuite/ztest/CMakeFiles/subsys__testsuite__ztest.dir/src/ztest_rules.c.obj
+[69/111] Building C object zephyr/drivers/console/CMakeFiles/drivers__console.dir/posix_arch_console.c.obj
+[70/111] Building C object zephyr/drivers/gpio/CMakeFiles/drivers__gpio.dir/gpio_emul.c.obj
+[71/111] Building C object zephyr/drivers/timer/CMakeFiles/drivers__timer.dir/sys_clock_init.c.obj
+[72/111] Linking C static library zephyr/drivers/regulator/libdrivers__regulator.a
+[73/111] Linking C static library zephyr/drivers/console/libdrivers__console.a
+[74/111] Linking C static library zephyr/drivers/gpio/libdrivers__gpio.a
+[75/111] Linking C static library zephyr/drivers/timer/libdrivers__timer.a
+[76/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/main_weak.c.obj
+[77/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/device.c.obj
+[78/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/errno.c.obj
+[79/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/banner.c.obj
+[80/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/version.c.obj
+[81/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/kheap.c.obj
+[82/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/busy_wait.c.obj
+[83/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/idle.c.obj
+[84/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/float.c.obj
+[85/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/init.c.obj
+[86/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/mem_slab.c.obj
+[87/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/mailbox.c.obj
+[88/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/fatal.c.obj
+[89/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/mutex.c.obj
+[90/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/msg_q.c.obj
+[91/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/queue.c.obj
+[92/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/work.c.obj
+[93/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/sem.c.obj
+[94/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/condvar.c.obj
+[95/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/stack.c.obj
+[96/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/system_work_q.c.obj
+[97/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/thread.c.obj
+[98/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/sched.c.obj
+[99/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/dynamic_disabled.c.obj
+[100/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/pipe.c.obj
+[101/111] Building C object zephyr/subsys/testsuite/ztest/CMakeFiles/subsys__testsuite__ztest.dir/src/ztest.c.obj
+[102/111] Linking C static library zephyr/subsys/testsuite/ztest/libsubsys__testsuite__ztest.a
+[103/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/timeslicing.c.obj
+[104/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/spinlock_validate.c.obj
+[105/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/timer.c.obj
+[106/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/mempool.c.obj
+[107/111] Building C object zephyr/kernel/CMakeFiles/kernel.dir/timeout.c.obj
+[108/111] Linking C static library zephyr/kernel/libkernel.a
+[109/111] Linking CXX executable zephyr/zephyr.elf
+Generating files from /home/pavel/Projects/LoRaGro/FW-LoRaGro/twister-out/native_sim_native/host/power_rail_3v3/power_rail_3v3.basic/zephyr/zephyr.elf for board: native_sim
+[110/111] Building native simulator runner, and linking final executable
+[111/111] Running utility command for native_runner_executable

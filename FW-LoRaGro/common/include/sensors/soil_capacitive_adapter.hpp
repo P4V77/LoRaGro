@@ -73,16 +73,16 @@ namespace loragro
             if (ret)
                 return ret;
 
-            ret = adc_raw_to_millivolts(
-                channel_cfg_.reference,
-                channel_cfg_.gain,
-                SOIL_ADC_RESOLUTION,
-                &raw_value_);
-            if (ret)
-                return ret;
+            /* ---- Convert RAW -> mV at ADC pin ---- */
+            const int32_t raw = raw_value_;
+            // printk("raw_value_ = %d\n", (int)raw_value_);
 
-            int mv = raw_value_;
-            uint8_t moisture = soil_mv_to_percent(mv);
+            constexpr int32_t max_adc = (1 << SOIL_ADC_RESOLUTION) - 1; // e.g. 4095 (12bit)
+            constexpr int32_t vref_mv = 600;                            // nRF internal reference
+            constexpr int32_t gain_multiplier = 6;                      // gain = 1/6
+
+            int32_t adc_mv = (raw * vref_mv * gain_multiplier) / max_adc;
+            uint8_t moisture = soil_mv_to_percent(adc_mv);
 
             measurements_[0].value.val1 = moisture;
             measurements_[0].timestamp =
@@ -129,19 +129,17 @@ namespace loragro
             int ret = adc_read(dev_, &sequence_);
             if (ret)
                 return ret;
+            /* ---- Convert RAW -> mV at ADC pin ---- */
+            const int32_t raw = raw_value_;
+            // printk("raw_value_ = %d\n", (int)raw_value_);
 
-            ret = adc_raw_to_millivolts(
-                channel_cfg_.reference,
-                channel_cfg_.gain,
-                SOIL_ADC_RESOLUTION,
-                &raw_value_);
-            if (ret)
-                return ret;
+            constexpr int32_t max_adc = (1 << SOIL_ADC_RESOLUTION) - 1; // e.g. 4095 (12bit)
+            constexpr int32_t vref_mv = 600;                            // nRF internal reference
+            constexpr int32_t gain_multiplier = 6;                      // gain = 1/6
 
-            int mv = raw_value_;
-            adc_raw_to_millivolts(channel_cfg_.reference, channel_cfg_.gain, SOIL_ADC_RESOLUTION, &mv);
+            int32_t adc_mv = (raw * vref_mv * gain_multiplier) / max_adc;
 
-            if (mv < 100)
+            if (adc_mv < 100)
             {
                 return -EIO;
             }
